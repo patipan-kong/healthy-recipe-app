@@ -23,6 +23,12 @@ describe('recipe search', () => {
   it('matches ingredient names and normalizes surrounding whitespace', () => {
     expect(searchRecipes(recipes, '  garlic  ').map(recipe => recipe.id)).toEqual(['tofu-mince-soup', 'herb-grilled-chicken', 'steamed-lime-seabass', 'broccoli-prawn-stirfry'])
   })
+  it('searches Thai and English recipe content across language modes', () => {
+    expect(searchRecipes(recipes, 'ไก่ย่างแจ่ว').map(recipe => recipe.id)).toContain('grilled-chicken-jaew')
+    expect(searchRecipes(recipes, 'grilled chicken with jaew').map(recipe => recipe.id)).toContain('grilled-chicken-jaew')
+    expect(searchRecipes(recipes, 'อกไก่').map(recipe => recipe.id)).toContain('grilled-chicken-jaew')
+    expect(searchRecipes(recipes, 'skinless chicken breast').map(recipe => recipe.id)).toContain('grilled-chicken-jaew')
+  })
   it('returns every recipe for a whitespace-only query', () => expect(searchRecipes(recipes, '   ')).toHaveLength(recipes.length))
 })
 
@@ -56,14 +62,62 @@ describe('favorites persistence', () => {
 })
 
 describe('recipe data validation', () => {
+  it('contains exactly 50 image-ready curated recipes with valid catalog fields', () => {
+    const ids = new Set(recipes.map(recipe => recipe.id))
+    const images = new Set(recipes.map(recipe => recipe.image))
+    const categories = new Set(['Quick meals', 'Thai favorites', 'High protein', 'Plant-forward', 'Light bowls'])
+
+    expect(recipes).toHaveLength(50)
+    expect(ids.size).toBe(50)
+    expect(images.size).toBe(50)
+    expect(recipes.every(recipe => /^\/recipes\/[a-z0-9]+(?:-[a-z0-9]+)*\.webp$/.test(recipe.image))).toBe(true)
+    expect(recipes.every(recipe => categories.has(recipe.category))).toBe(true)
+    expect(recipes.every(recipe => Number.isInteger(recipe.servings) && recipe.servings > 0)).toBe(true)
+    expect(recipes.every(recipe => [recipe.nutrition.kcal, recipe.nutrition.protein, recipe.nutrition.carbs, recipe.nutrition.fat].every(Number.isFinite))).toBe(true)
+    expect(recipes.every(recipe => recipe.ingredients.length > 0 && recipe.instructions.length > 0)).toBe(true)
+  })
+
   it('accepts the curated recipe dataset', () => expect(validateRecipes(recipes)).toEqual([]))
+  it('accepts complete Thai and English content for all 50 recipes', () => {
+    expect(recipes).toHaveLength(50)
+    expect(recipes.every(recipe => recipe.name.th.trim() && recipe.name.en.trim())).toBe(true)
+    expect(recipes.every(recipe => recipe.ingredients.length > 0 && recipe.ingredients.every(ingredient => ingredient.item.th.trim() && ingredient.item.en.trim() && String(ingredient.quantity).trim()))).toBe(true)
+    expect(recipes.every(recipe => recipe.instructions.length > 0 && recipe.instructions.every(instruction => instruction.th.trim() && instruction.en.trim()))).toBe(true)
+  })
   it('rejects non-finite nutrition and missing required recipe content', () => {
     const nonFinite = { ...recipes[0], nutrition: { ...recipes[0].nutrition, kcal: Number.NaN } }
-    const incomplete = { ...recipes[1], id: 'incomplete', englishName: ' ', ingredients: [], instructions: [], servings: 0 }
+    const incomplete = { ...recipes[1], id: 'incomplete', name: { ...recipes[1].name, en: ' ' }, ingredients: [], instructions: [], servings: 0 }
     expect(validateRecipes([nonFinite, incomplete])).toEqual(expect.arrayContaining(['Invalid nutrition: tom-yum-prawns', 'Missing required content: incomplete', 'Invalid timing or servings: incomplete']))
   })
+  it('rejects duplicate or non-local image paths', () => {
+    const duplicate = { ...recipes[1], image: recipes[0].image }
+    const remote = { ...recipes[2], image: 'https://example.com/recipe.webp' }
+    const invalidCategory = { ...recipes[3], category: 'Desserts' as never }
+    expect(validateRecipes([recipes[0], duplicate])).toContain(`Duplicate image: ${recipes[0].image}`)
+    expect(validateRecipes([remote])).toContain('Invalid image path: tofu-mince-soup')
+    expect(validateRecipes([invalidCategory])).toContain('Invalid category: herb-grilled-chicken')
+  })
+  it('rejects missing localized names, ingredients, and instructions', () => {
+    const missingThaiName = { ...recipes[0], name: { ...recipes[0].name, th: ' ' } }
+    const missingEnglishIngredient = { ...recipes[1], ingredients: [{ ...recipes[1].ingredients[0], item: { ...recipes[1].ingredients[0].item, en: '' } }] }
+    const missingThaiInstruction = { ...recipes[2], instructions: [{ ...recipes[2].instructions[0], th: '' }] }
+    expect(validateRecipes([missingThaiName])).toContain('Missing Thai name: tom-yum-prawns')
+    expect(validateRecipes([missingEnglishIngredient])).toContain('Missing English ingredients: glass-noodle-seafood-salad')
+    expect(validateRecipes([missingThaiInstruction])).toContain('Missing Thai instructions: tofu-mince-soup')
+  })
+  it('rejects malformed ingredient measurements without throwing', () => {
+    const missingQuantity = { ...recipes[0], ingredients: [{ ...recipes[0].ingredients[0], quantity: '' }] }
+    const invalidQuantity = { ...recipes[0], ingredients: [{ ...recipes[0].ingredients[0], quantity: 'not-a-quantity' }] }
+    const unknownUnit = { ...recipes[1], ingredients: [{ ...recipes[1].ingredients[0], unit: 'ounce' as never }] }
+    const invalidArray = { ...recipes[2], ingredients: 'not-an-array' as never }
+    expect(validateRecipes([missingQuantity])).toContain('Missing ingredient quantity: tom-yum-prawns')
+    expect(validateRecipes([invalidQuantity])).toContain('Invalid ingredient quantity: tom-yum-prawns')
+    expect(validateRecipes([unknownUnit])).toContain('Unknown ingredient unit: glass-noodle-seafood-salad')
+    expect(() => validateRecipes([invalidArray])).not.toThrow()
+    expect(validateRecipes([invalidArray])).toContain('Missing required content: tofu-mince-soup')
+  })
   it('returns validation errors instead of throwing for a missing required name', () => {
-    const missingName = { ...recipes[0], name: undefined as unknown as string }
+    const missingName = { ...recipes[0], name: undefined as never }
     expect(() => validateRecipes([missingName])).not.toThrow()
     expect(validateRecipes([missingName])).toContain('Missing required content: tom-yum-prawns')
   })
