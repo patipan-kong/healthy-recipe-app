@@ -283,6 +283,8 @@ const excludedIngredientRules: readonly RegExp[] = [
   /^paprika$/,
   /^chili powder$/,
   /^mild chili seasoning blend$/,
+  /^dijon mustard$/,
+  /^worcestershire sauce$/,
 ]
 
 export function canonicalIngredientIdForItem(item: string): string | undefined {
