@@ -39,7 +39,7 @@ const mediumPriorityIds = [
   'spicy-grilled-pork-salad', 'tofu-basil-stir-fry', 'chicken-soba-bowl', 'salmon-soba-salad', 'tuna-onigiri-plate',
   'korean-tofu-glass-noodles', 'grilled-chicken-caesar-salad', 'chicken-avocado-wrap', 'shrimp-tomato-pasta', 'chicken-pesto-pasta',
   'thai-red-curry-tofu', 'thai-pumpkin-chicken-soup', 'thai-mushroom-cashew-stir-fry', 'thai-steamed-chicken-cabbage', 'chicken-oyakodon',
-  'salmon-ochazuke', 'tofu-yakisoba-vegetables', 'edamame-egg-sushi-bowl', 'soba-tuna-cucumber-bowl', 'japanese-mushroom-chestnut-rice',
+  'salmon-ochazuke', 'tofu-yakisoba-vegetables', 'edamame-egg-sushi-bowl', 'japanese-mushroom-chestnut-rice',
   'korean-bean-sprout-chicken-soup', 'light-mapo-tofu', 'white-bean-tomato-soup', 'hummus-chicken-pita',
 ] as const
 
