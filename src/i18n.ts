@@ -32,6 +32,19 @@ type MessageSet = {
   pantrySearchPlaceholder: string
   pantrySelectedCount: (count: number) => string
   pantryMatches: (matched: number, selected: number) => string
+  shopping: string
+  shoppingTitle: string
+  shoppingAdd: string
+  shoppingAdded: string
+  shoppingSelectedRecipes: string
+  shoppingIngredients: string
+  shoppingAlreadyHave: string
+  shoppingPurchased: string
+  shoppingRemove: string
+  shoppingClear: string
+  shoppingEmptyTitle: string
+  shoppingEmptyText: string
+  shoppingStorageNote: string
   favorites: string
   browseAll: string
   searchPlaceholder: string
@@ -108,6 +121,19 @@ export const messages: Record<Locale, MessageSet> = {
     pantrySearchPlaceholder: 'ค้นหาวัตถุดิบ',
     pantrySelectedCount: count => `เลือกแล้ว ${count} รายการ`,
     pantryMatches: (matched, selected) => `ตรงกับ ${matched}/${selected} วัตถุดิบที่เลือก`,
+    shopping: 'รายการซื้อ',
+    shoppingTitle: 'รายการซื้อ',
+    shoppingAdd: 'เพิ่มลงรายการซื้อ',
+    shoppingAdded: 'อยู่ในรายการซื้อแล้ว',
+    shoppingSelectedRecipes: 'เมนูที่เลือก',
+    shoppingIngredients: 'วัตถุดิบที่ต้องซื้อ',
+    shoppingAlreadyHave: 'มีแล้ว',
+    shoppingPurchased: 'ซื้อแล้ว',
+    shoppingRemove: 'นำออก',
+    shoppingClear: 'ล้างรายการซื้อ',
+    shoppingEmptyTitle: 'ยังไม่มีเมนูในรายการซื้อ',
+    shoppingEmptyText: 'เลือกเมนูที่อยากทำ แล้วกด “เพิ่มลงรายการซื้อ”',
+    shoppingStorageNote: 'รายการซื้อยังใช้ได้ในเซสชันนี้ แต่เบราว์เซอร์ไม่พร้อมบันทึกข้อมูล',
     favorites: 'รายการโปรด',
     browseAll: 'ดูเมนูทั้งหมด',
     searchPlaceholder: 'ค้นหาเมนูหรือวัตถุดิบ',
@@ -182,6 +208,19 @@ export const messages: Record<Locale, MessageSet> = {
     pantrySearchPlaceholder: 'Search ingredients',
     pantrySelectedCount: count => `${count} selected`,
     pantryMatches: (matched, selected) => `Matches ${matched}/${selected} selected ingredients`,
+    shopping: 'Shopping',
+    shoppingTitle: 'Shopping list',
+    shoppingAdd: 'Add to shopping',
+    shoppingAdded: 'Added to shopping',
+    shoppingSelectedRecipes: 'Selected recipes',
+    shoppingIngredients: 'Ingredients to buy',
+    shoppingAlreadyHave: 'Already have',
+    shoppingPurchased: 'Purchased',
+    shoppingRemove: 'Remove',
+    shoppingClear: 'Clear shopping list',
+    shoppingEmptyTitle: 'No recipes in your shopping list',
+    shoppingEmptyText: 'Choose a recipe you want to make, then tap “Add to shopping”.',
+    shoppingStorageNote: 'Shopping still works in this session, but the browser could not save it.',
     favorites: 'Your favorites',
     browseAll: 'Browse all',
     searchPlaceholder: 'Search recipes or ingredients',

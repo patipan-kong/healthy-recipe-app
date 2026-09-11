@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, ChevronRight, Clock3, Heart, Search, Shuffle, SlidersHorizontal, X } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Clock3, Heart, Search, Shuffle, ShoppingBasket, SlidersHorizontal, X } from 'lucide-react'
 import { categoryLabel, ingredientCategoryLabel, loadLocale, messages, saveLocale, tagLabel } from './i18n'
 import { formatIngredientAmount } from './measurements'
 import { chooseRandom, emptyFilters, filterRecipes, recipes, searchRecipes } from './recipes'
 import { loadFavorites, saveFavorites, toggleFavorite } from './favorites'
 import { canonicalIngredients, categoryIngredients, countRecipesByIngredient, filterRecipesByIngredient, ingredientCategoryOrder, loadPantrySelection, rankRecipesByPantry, savePantrySelection, togglePantryIngredient, type PantryMatch } from './pantry'
+import { aggregateShoppingIngredients, loadPurchasedShoppingLines, loadShoppingSelection, savePurchasedShoppingLines, saveShoppingSelection, togglePurchasedShoppingLine, toggleShoppingRecipe, type ShoppingLine } from './shopping'
 import type { Filters, Locale, Recipe } from './types'
 
 const categories = ['Quick meals', 'Thai favorites', 'High protein', 'Plant-forward', 'Light bowls']
 const tags = ['High protein', 'Quick', 'Light', 'Vegetarian', 'Vegan', 'No-cook', 'Fiber-rich', 'Meal prep']
 const recipeIds = new Set(recipes.map(recipe => recipe.id))
-type AppScreen = 'browse' | 'favorites' | 'pantry' | 'detail'
+const recipeIdList = recipes.map(recipe => recipe.id)
+type AppScreen = 'browse' | 'favorites' | 'pantry' | 'shopping' | 'detail'
 type PantryMode = 'selection' | 'results'
 type PantryResultSource =
   | { kind: 'selection' }
@@ -32,9 +34,13 @@ function App() {
   const [filters, setFilters] = useState<Filters>(emptyFilters)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [favorites, setFavorites] = useState<string[]>(() => normalizeFavorites(loadFavorites()))
+  const [shoppingRecipeIds, setShoppingRecipeIds] = useState<string[]>(() => loadShoppingSelection(undefined, recipeIdList))
+  const [shoppingPurchasedIds, setShoppingPurchasedIds] = useState<string[]>(() => loadPurchasedShoppingLines())
   const [lastRandom, setLastRandom] = useState<string>()
   const [storageAvailable, setStorageAvailable] = useState(true)
   const [pantryStorageAvailable, setPantryStorageAvailable] = useState(true)
+  const [shoppingStorageAvailable, setShoppingStorageAvailable] = useState(true)
+  const [shoppingPurchasedStorageAvailable, setShoppingPurchasedStorageAvailable] = useState(true)
   const [locale, setLocale] = useState<Locale>(() => loadLocale())
   const [pantrySelection, setPantrySelection] = useState<string[]>(() => loadPantrySelection())
   const [pantryResultSource, setPantryResultSource] = useState<PantryResultSource>({ kind: 'selection' })
@@ -45,15 +51,26 @@ function App() {
 
   useEffect(() => setStorageAvailable(saveFavorites(favorites)), [favorites])
   useEffect(() => setPantryStorageAvailable(savePantrySelection(pantrySelection)), [pantrySelection])
+  useEffect(() => setShoppingStorageAvailable(saveShoppingSelection(shoppingRecipeIds)), [shoppingRecipeIds])
+  useEffect(() => setShoppingPurchasedStorageAvailable(savePurchasedShoppingLines(shoppingPurchasedIds)), [shoppingPurchasedIds])
   useEffect(() => { saveLocale(locale) }, [locale])
 
   const filtered = useMemo(() => searchRecipes(filterRecipes(recipes, filters), query), [query, filters])
   const visible = screen === 'favorites' ? filtered.filter(recipe => favorites.includes(recipe.id)) : filtered
   const pantryCounts = useMemo(() => countRecipesByIngredient(recipes), [])
+  const shoppingLines = useMemo(() => aggregateShoppingIngredients(recipes, shoppingRecipeIds), [shoppingRecipeIds])
   const activeFilterCount = Number(Boolean(filters.category)) + filters.tags.length + Object.entries(filters).filter(([key, value]) => !['category', 'tags'].includes(key) && value !== undefined).length
 
+  useEffect(() => {
+    const availableLineIds = new Set(shoppingLines.map(line => line.id))
+    setShoppingPurchasedIds(current => {
+      const next = current.filter(id => availableLineIds.has(id))
+      return next.length === current.length ? current : next
+    })
+  }, [shoppingLines])
+
   function openRecipe(recipe: Recipe) {
-    setReturnScreen(screen === 'favorites' ? 'favorites' : screen === 'pantry' ? 'pantry' : 'browse')
+    setReturnScreen(screen === 'favorites' ? 'favorites' : screen === 'pantry' ? 'pantry' : screen === 'shopping' ? 'shopping' : 'browse')
     setSelected(recipe)
     setScreen('detail')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -73,6 +90,10 @@ function App() {
   }
 
   function favorite(id: string) { setFavorites(current => toggleFavorite(current, id)) }
+  function toggleShoppingRecipeFromDetail(id: string) { setShoppingRecipeIds(current => toggleShoppingRecipe(current, id)) }
+  function removeShoppingRecipe(id: string) { setShoppingRecipeIds(current => current.filter(recipeId => recipeId !== id)) }
+  function toggleShoppingPurchased(lineId: string) { setShoppingPurchasedIds(current => togglePurchasedShoppingLine(current, lineId)) }
+  function clearShopping() { setShoppingRecipeIds([]); setShoppingPurchasedIds([]) }
   function togglePantry(id: string) { setPantryResultSource({ kind: 'selection' }); setPantryMode('selection'); setPantrySelection(current => togglePantryIngredient(current, id)) }
   function clearPantry() { setPantryResultSource({ kind: 'selection' }); setPantryMode('selection'); setPantrySelection([]) }
   function showPantryResults() { if (pantrySelection.length > 0) { setPantryResultSource({ kind: 'selection' }); setPantryMode('results') } }
@@ -89,9 +110,10 @@ function App() {
       setScreen('pantry')
     }
   }
+  function toggleShoppingScreen() { setScreen(current => current === 'shopping' ? 'browse' : 'shopping') }
   function closeFilters() { setFiltersOpen(false); requestAnimationFrame(() => filterTriggerRef.current?.focus()) }
 
-  if (screen === 'detail' && selected) return <RecipeDetail recipe={selected} locale={locale} isFavorite={favorites.includes(selected.id)} onBack={() => setScreen(returnScreen)} onFavorite={() => favorite(selected.id)} />
+  if (screen === 'detail' && selected) return <RecipeDetail recipe={selected} locale={locale} isFavorite={favorites.includes(selected.id)} isInShopping={shoppingRecipeIds.includes(selected.id)} onBack={() => setScreen(returnScreen)} onFavorite={() => favorite(selected.id)} onToggleShopping={() => toggleShoppingRecipeFromDetail(selected.id)} />
 
   return <main className="app-shell">
     <header className="topbar">
@@ -101,10 +123,11 @@ function App() {
           {(['th', 'en'] as Locale[]).map(option => <button key={option} className={locale === option ? 'active' : ''} onClick={() => setLocale(option)} aria-pressed={locale === option}>{option.toUpperCase()}</button>)}
         </div>
         <button className={`pantry-nav ${screen === 'pantry' ? 'active' : ''}`} onClick={togglePantryScreen} aria-label={copy.pantry} aria-pressed={screen === 'pantry'}><span aria-hidden="true">🥕</span><span>{copy.pantry}</span>{pantrySelection.length > 0 && <i>{pantrySelection.length}</i>}</button>
+        <button className={`shopping-nav ${screen === 'shopping' ? 'active' : ''}`} onClick={toggleShoppingScreen} aria-label={copy.shopping} aria-pressed={screen === 'shopping'}><ShoppingBasket size={16} aria-hidden="true" /><span>{copy.shopping}</span>{shoppingRecipeIds.length > 0 && <i>{shoppingRecipeIds.length}</i>}</button>
         <button className="icon-button" onClick={() => setScreen(screen === 'favorites' ? 'browse' : 'favorites')} aria-label={copy.favorites}><Heart size={21} fill={screen === 'favorites' ? 'currentColor' : 'none'} /><i>{favorites.length || ''}</i></button>
       </div>
     </header>
-    {screen === 'pantry' ? <PantryView locale={locale} mode={pantryMode} selectedIds={pantrySelection} resultSource={pantryResultSource} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={browsePantryIngredient} onViewResults={showPantryResults} onEditIngredients={editPantryIngredients} onClear={clearPantry} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : <>
+    {screen === 'pantry' ? <PantryView locale={locale} mode={pantryMode} selectedIds={pantrySelection} resultSource={pantryResultSource} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={browsePantryIngredient} onViewResults={showPantryResults} onEditIngredients={editPantryIngredients} onClear={clearPantry} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : screen === 'shopping' ? <ShoppingView locale={locale} recipeIds={shoppingRecipeIds} lines={shoppingLines} purchasedIds={shoppingPurchasedIds} pantryIds={pantrySelection} storageAvailable={shoppingStorageAvailable && shoppingPurchasedStorageAvailable} onTogglePurchased={toggleShoppingPurchased} onRemoveRecipe={removeShoppingRecipe} onClear={clearShopping} onOpen={openRecipe} /> : <>
       <section className="hero"><p className="eyebrow">{copy.heroEyebrow}</p><h1>{copy.heroTitle}</h1><p>{copy.heroDescription}</p><button className="random-button" disabled={!filtered.length} onClick={randomRecipe}><Shuffle size={19} /> {copy.random}</button></section>
       <section className="content">
         {!storageAvailable && <p className="storage-note" role="status">{copy.storageNote}</p>}
@@ -130,6 +153,47 @@ export function RecipeImage({ recipe, variant, locale = 'en' }: { recipe: Recipe
   return <div className={`recipe-image ${variant} ${failed ? 'is-fallback' : ''}`} role={failed ? 'img' : undefined} aria-label={failed ? copy.unavailableImage(recipe.name[locale]) : undefined}>
     {failed ? <span className="food-emoji" aria-hidden="true">{recipeEmoji(recipe)}</span> : <img src={recipe.image} alt={label} loading={variant === 'card' ? 'lazy' : undefined} onError={() => setFailed(true)} />}
   </div>
+}
+
+type ShoppingViewProps = {
+  locale: Locale
+  recipeIds: string[]
+  lines: ShoppingLine[]
+  purchasedIds: string[]
+  pantryIds: string[]
+  storageAvailable: boolean
+  onTogglePurchased(lineId: string): void
+  onRemoveRecipe(recipeId: string): void
+  onClear(): void
+  onOpen(recipe: Recipe): void
+}
+
+function ShoppingView({ locale, recipeIds, lines, purchasedIds, pantryIds, storageAvailable, onTogglePurchased, onRemoveRecipe, onClear, onOpen }: ShoppingViewProps) {
+  const copy = messages[locale]
+  const selectedRecipes = recipeIds.map(id => recipes.find(recipe => recipe.id === id)).filter((recipe): recipe is Recipe => Boolean(recipe))
+  const purchased = new Set(purchasedIds)
+
+  return <section className="content shopping-view">
+    {!storageAvailable && <p className="storage-note" role="status">{copy.shoppingStorageNote}</p>}
+    <div className="section-heading shopping-heading"><div><p className="eyebrow">{copy.shopping}</p><h2>{copy.shoppingTitle}</h2></div></div>
+    {selectedRecipes.length ? <>
+      <section className="shopping-section" aria-labelledby="shopping-selected-heading">
+        <h3 id="shopping-selected-heading">{copy.shoppingSelectedRecipes}</h3>
+        <div className="shopping-recipes">{selectedRecipes.map(recipe => <div className="shopping-recipe" key={recipe.id}><button className="shopping-recipe-name" onClick={() => onOpen(recipe)}>{recipe.name[locale]}</button><button className="text-button shopping-remove" onClick={() => onRemoveRecipe(recipe.id)} aria-label={`${copy.shoppingRemove} ${recipe.name[locale]}`}>{copy.shoppingRemove}</button></div>)}</div>
+      </section>
+      <section className="shopping-section" aria-labelledby="shopping-ingredients-heading">
+        <h3 id="shopping-ingredients-heading">{copy.shoppingIngredients}</h3>
+        <div className="shopping-lines">{lines.map(line => {
+          const isPurchased = purchased.has(line.id)
+          const displayName = line.item[locale]
+          const amount = formatIngredientAmount(line, locale)
+          const alreadyHave = Boolean(line.ingredientId && pantryIds.includes(line.ingredientId))
+          return <label className={`shopping-line ${isPurchased ? 'purchased' : ''}`} key={line.id} data-shopping-line-id={line.id}><input type="checkbox" checked={isPurchased} onChange={() => onTogglePurchased(line.id)} aria-label={`${displayName}, ${amount}${isPurchased ? `, ${copy.shoppingPurchased}` : ''}`} data-shopping-line-checkbox={line.id} /><span className="shopping-line-copy"><span className="shopping-line-name">{displayName}</span><b>{amount}</b>{alreadyHave && <em>{copy.shoppingAlreadyHave}</em>}{isPurchased && <small>{copy.shoppingPurchased}</small>}</span></label>
+        })}</div>
+      </section>
+      <button className="shopping-clear" onClick={onClear}>{copy.shoppingClear}</button>
+    </> : <div className="empty shopping-empty" role="status"><span aria-hidden="true">🛒</span><h3>{copy.shoppingEmptyTitle}</h3><p>{copy.shoppingEmptyText}</p></div>}
+  </section>
 }
 
 type PantryViewProps = {
@@ -258,11 +322,11 @@ export function FilterSheet({ filters, updateNumber, toggleTag, onCategory, onCl
   return <div className="modal-backdrop" role="presentation"><section ref={dialogRef} className="filter-sheet" role="dialog" aria-modal="true" aria-label={copy.filters}><div className="sheet-top"><div className="grab" /><button ref={closeRef} className="close" onClick={onClose} aria-label={copy.closeFilters}><X /></button><h2>{copy.filters}</h2><button className="text-button" onClick={onClear}>{copy.clearAll}</button></div><div className="filter-content"><label className="field-label">{copy.category}<select value={filters.category} onChange={event => onCategory(event.target.value)}><option value="">{copy.anyCategory}</option>{categories.map(category => <option key={category} value={category}>{categoryLabel(locale, category)}</option>)}</select></label><h3>{copy.nutritionPerServing}</h3><div className="number-grid">{Object.entries(filterLabels).map(([field, label]) => <label key={field} className="field-label">{label}<input type="number" min="0" value={filters[field as keyof Omit<Filters, 'category' | 'tags'>] ?? ''} onChange={event => updateNumber(field as keyof Omit<Filters, 'category' | 'tags'>, event.target.value)} /></label>)}</div><h3>{copy.tags}</h3><div className="chips tags">{tags.map(tag => <button key={tag} className={filters.tags.includes(tag) ? 'active' : ''} onClick={() => toggleTag(tag)}>{tagLabel(locale, tag)}</button>)}</div><p className="estimate-note">{copy.filterNote}</p></div><button className="show-results" onClick={onClose}>{copy.showResults}</button></section></div>
 }
 
-function RecipeDetail({ recipe, locale, isFavorite, onBack, onFavorite }: { recipe: Recipe; locale: Locale; isFavorite: boolean; onBack(): void; onFavorite(): void }) {
+function RecipeDetail({ recipe, locale, isFavorite, isInShopping, onBack, onFavorite, onToggleShopping }: { recipe: Recipe; locale: Locale; isFavorite: boolean; isInShopping: boolean; onBack(): void; onFavorite(): void; onToggleShopping(): void }) {
   const copy = messages[locale]
   const name = recipe.name[locale]
   const favoriteLabel = isFavorite ? copy.removeFavorite(name) : copy.addFavorite(name)
-  return <main className="detail"><header className="detail-nav"><button className="round-button" onClick={onBack} aria-label={copy.back}><ArrowLeft /></button><button className={`round-button ${isFavorite ? 'saved' : ''}`} onClick={onFavorite} aria-label={favoriteLabel} aria-pressed={isFavorite}><Heart fill={isFavorite ? 'currentColor' : 'none'} /></button></header><div className={`detail-art ${recipe.accent}`}><RecipeImage recipe={recipe} variant="detail" locale={locale} /></div><section className="detail-content"><p className="eyebrow">{recipe.cuisine[locale]} · {categoryLabel(locale, recipe.category)}</p><h1>{name}</h1><p className="detail-english">{recipe.name[otherLocale(locale)]}</p><div className="facts"><span><Clock3 size={17} /> {copy.prep} {recipe.prepMinutes} min</span><span>{copy.cook} {recipe.cookMinutes} min</span><span>{copy.serves} {recipe.servings}</span></div><div className="nutrition-card"><div><b>{recipe.nutrition.kcal}</b><span>kcal</span></div><div><b>{recipe.nutrition.protein}g</b><span>{copy.protein}</span></div><div><b>{recipe.nutrition.carbs}g</b><span>{copy.carbs}</span></div><div><b>{recipe.nutrition.fat}g</b><span>{copy.fat}</span></div></div><p className="estimate-note">{copy.estimatedNote}</p><div className="detail-section"><h2>{copy.ingredients}</h2>{recipe.ingredients.map((ingredient, index) => <div className="ingredient" key={index}><span>{ingredient.item[locale]}</span><b>{formatIngredientAmount(ingredient, locale)}</b></div>)}</div><div className="detail-section"><h2>{copy.method}</h2>{recipe.instructions.map((step, index) => <div className="step" key={index}><span>{index + 1}</span><p>{step[locale]}</p></div>)}</div></section></main>
+  return <main className="detail"><header className="detail-nav"><button className="round-button" onClick={onBack} aria-label={copy.back}><ArrowLeft /></button><button className={`round-button ${isFavorite ? 'saved' : ''}`} onClick={onFavorite} aria-label={favoriteLabel} aria-pressed={isFavorite}><Heart fill={isFavorite ? 'currentColor' : 'none'} /></button></header><div className={`detail-art ${recipe.accent}`}><RecipeImage recipe={recipe} variant="detail" locale={locale} /></div><section className="detail-content"><p className="eyebrow">{recipe.cuisine[locale]} · {categoryLabel(locale, recipe.category)}</p><h1>{name}</h1><p className="detail-english">{recipe.name[otherLocale(locale)]}</p><div className="facts"><span><Clock3 size={17} /> {copy.prep} {recipe.prepMinutes} min</span><span>{copy.cook} {recipe.cookMinutes} min</span><span>{copy.serves} {recipe.servings}</span></div><div className="nutrition-card"><div><b>{recipe.nutrition.kcal}</b><span>kcal</span></div><div><b>{recipe.nutrition.protein}g</b><span>{copy.protein}</span></div><div><b>{recipe.nutrition.carbs}g</b><span>{copy.carbs}</span></div><div><b>{recipe.nutrition.fat}g</b><span>{copy.fat}</span></div></div><button className={`shopping-action ${isInShopping ? 'added' : ''}`} onClick={onToggleShopping} aria-pressed={isInShopping}>{isInShopping ? copy.shoppingAdded : copy.shoppingAdd}</button><p className="estimate-note">{copy.estimatedNote}</p><div className="detail-section"><h2>{copy.ingredients}</h2>{recipe.ingredients.map((ingredient, index) => <div className="ingredient" key={index}><span>{ingredient.item[locale]}</span><b>{formatIngredientAmount(ingredient, locale)}</b></div>)}</div><div className="detail-section"><h2>{copy.method}</h2>{recipe.instructions.map((step, index) => <div className="step" key={index}><span>{index + 1}</span><p>{step[locale]}</p></div>)}</div></section></main>
 }
 
 function EmptyState({ locale, favorites, hasSavedRecipes, hasFilters, onClear }: { locale: Locale; favorites: boolean; hasSavedRecipes: boolean; hasFilters: boolean; onClear(): void }) {
