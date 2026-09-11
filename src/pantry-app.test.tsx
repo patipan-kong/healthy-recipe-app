@@ -38,37 +38,101 @@ describe('Pantry application flow', () => {
     act(() => pantryRow(name).querySelector<HTMLInputElement>('input')?.click())
   }
 
-  it('opens Pantry, supports direct ingredient browse, and ranks multi-select matches', () => {
+  function button(text: string) {
+    const found = [...container.querySelectorAll<HTMLButtonElement>('button')].find(candidate => candidate.textContent === text)
+    if (!found) throw new Error(`Missing button: ${text}`)
+    return found
+  }
+
+  function setInputValue(input: HTMLInputElement, value: string) {
+    act(() => {
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
+      setter?.call(input, value)
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+  }
+
+  it('opens in Ingredient Selection, keeps search optional, and gates results until selection', () => {
     clickPantry()
-    expect(container.querySelector('.pantry-heading h2')?.textContent).toBe('วัตถุดิบที่มี')
+
+    expect(container.querySelector('.pantry-selection')).not.toBeNull()
+    expect(container.querySelector('.pantry-results')).toBeNull()
     expect(container.querySelectorAll('.pantry-category').length).toBeGreaterThan(1)
-    expect(pantryRow('แตงกวา').textContent).toContain('(')
+    expect(container.querySelectorAll('.pantry-mode-tabs button.active')[0]?.textContent).toBe('เลือกวัตถุดิบ')
+    expect(container.querySelector('.pantry-zero-state')?.textContent).toContain('เลือกวัตถุดิบอย่างน้อย 1 รายการ')
+    expect(container.querySelectorAll<HTMLButtonElement>('.pantry-mode-tabs button')[1]?.disabled).toBe(true)
+    expect(container.querySelector<HTMLButtonElement>('.pantry-view-action')?.disabled).toBe(true)
+    expect(container.querySelector<HTMLButtonElement>('.pantry-view-action')?.textContent).toBe('ดูเมนูที่ทำได้ (0)')
 
-    act(() => pantryRow('แตงกวา').querySelector<HTMLButtonElement>('.pantry-browse-button')?.click())
-    expect(container.querySelector('.pantry-heading h2')?.textContent).toContain('แตงกวา')
-    expect(container.querySelectorAll('.pantry-view > .recipe-grid .recipe-card').length).toBeGreaterThan(0)
-    act(() => container.querySelector<HTMLButtonElement>('.pantry-back')?.click())
+    select('แตงกวา')
+    expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(1)
+    expect(container.querySelector('.pantry-results')).toBeNull()
+    expect(container.querySelector<HTMLButtonElement>('.pantry-view-action')?.disabled).toBe(false)
+    expect(container.querySelector<HTMLButtonElement>('.pantry-view-action')?.textContent).toBe('ดูเมนูที่ทำได้ (1)')
+  })
 
+  it('separates ranked recipe results and preserves deterministic 3/3 before 2/3 ordering', () => {
+    clickPantry()
     select('แตงกวา')
     select('ข้าวกล้อง')
     select('อกไก่')
     expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(3)
+    expect(container.querySelector('.pantry-results')).toBeNull()
+
+    act(() => container.querySelector<HTMLButtonElement>('.pantry-view-action')?.click())
+
+    expect(container.querySelector('.pantry-selection')).toBeNull()
+    expect(container.querySelector('.pantry-results')).not.toBeNull()
+    expect(container.querySelectorAll('.pantry-category')).toHaveLength(0)
+    expect(container.querySelector('.pantry-result-count')?.textContent).toBe('100 เมนูที่ตรงกัน')
+    expect(container.querySelector('.pantry-selected-names')?.textContent).toContain('แตงกวา')
     expect(container.querySelectorAll('.pantry-results .recipe-card')).toHaveLength(100)
     expect(container.querySelector('.pantry-results .match-indicator')?.textContent).toBe('ตรงกับ 3/3 วัตถุดิบที่เลือก')
     expect(container.querySelectorAll('.pantry-results .match-indicator')[1]?.textContent).toContain('2/3')
+    expect(container.querySelectorAll('.pantry-mode-tabs button.active')[0]?.textContent).toBe('เมนูที่ทำได้')
+    expect(button('แก้ไขวัตถุดิบ')).toBeTruthy()
+
+    act(() => button('แก้ไขวัตถุดิบ').click())
+    expect(container.querySelector('.pantry-selection')).not.toBeNull()
+    expect(container.querySelector('.pantry-results')).toBeNull()
+    expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(3)
   })
 
-  it('persists selections and favorites, keeps canonical results through locale changes, and clears', () => {
+  it('keeps selected ingredients when search hides them and supports direct single-ingredient browse', () => {
+    clickPantry()
+    select('แตงกวา')
+    select('อกไก่')
+    const search = container.querySelector<HTMLInputElement>('.pantry-search input')!
+    setInputValue(search, 'แตงกวา')
+    expect(pantryRow('แตงกวา').querySelector<HTMLInputElement>('input')?.checked).toBe(true)
+    expect([...container.querySelectorAll('.pantry-row')].some(row => row.textContent?.includes('อกไก่'))).toBe(false)
+    setInputValue(search, '')
+    expect(pantryRow('อกไก่').querySelector<HTMLInputElement>('input')?.checked).toBe(true)
+
+    act(() => pantryRow('แตงกวา').querySelector<HTMLButtonElement>('.pantry-browse-button')?.click())
+    expect(container.querySelector('.pantry-results')).not.toBeNull()
+    expect(container.querySelector('.pantry-result-summary')?.textContent).toContain('แตงกวา')
+    expect(container.querySelectorAll('.pantry-results .recipe-card').length).toBeGreaterThan(0)
+    expect(container.querySelectorAll('.pantry-results .match-indicator')).toHaveLength(0)
+
+    act(() => button('แก้ไขวัตถุดิบ').click())
+    expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(2)
+  })
+
+  it('preserves selection, ranking, and favorites across locale changes and remounts, then clears from Results', () => {
     clickPantry()
     select('แตงกวา')
     select('ข้าวกล้อง')
     select('อกไก่')
     expect(JSON.parse(window.localStorage.getItem(pantryStorageKey) ?? '[]')).toEqual(['cucumber', 'brown-rice', 'chicken-breast'])
+    act(() => container.querySelector<HTMLButtonElement>('.pantry-view-action')?.click())
 
-    act(() => container.querySelector<HTMLButtonElement>('.pantry-results .heart')?.click())
-    act(() => [...container.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'EN')?.click())
+    act(() => container.querySelector('.pantry-results .heart')?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+    act(() => button('EN').click())
+    expect(container.querySelector('.pantry-results')).not.toBeNull()
     expect(container.querySelector('.pantry-results .match-indicator')?.textContent).toBe('Matches 3/3 selected ingredients')
-    expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(3)
+    expect(container.querySelector('.pantry-selected-names')?.textContent).toContain('Cucumber')
+    expect(container.querySelectorAll('.pantry-results .recipe-card .heart[aria-pressed="true"]')).toHaveLength(1)
 
     act(() => container.querySelector<HTMLButtonElement>('.icon-button')?.click())
     expect(container.querySelectorAll('.recipe-card')).toHaveLength(1)
@@ -78,10 +142,14 @@ describe('Pantry application flow', () => {
     root = createRoot(container)
     act(() => root.render(<App />))
     clickPantry()
+    expect(container.querySelector('.pantry-selection')).not.toBeNull()
     expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(3)
-    expect(container.querySelector('.icon-button i')?.textContent).toBe('1')
 
-    act(() => container.querySelector('.pantry-selection-summary .text-button')?.dispatchEvent(new MouseEvent('click', { bubbles: true })))
+    act(() => container.querySelector<HTMLButtonElement>('.pantry-view-action')?.click())
+    expect(container.querySelector('.pantry-results')).not.toBeNull()
+    act(() => button('Clear').click())
+    expect(container.querySelector('.pantry-selection')).not.toBeNull()
+    expect(container.querySelector('.pantry-results')).toBeNull()
     expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(0)
     expect(JSON.parse(window.localStorage.getItem(pantryStorageKey) ?? '[]')).toEqual([])
   })
@@ -94,5 +162,6 @@ describe('Pantry application flow', () => {
     clickPantry()
     expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(1)
     expect(pantryRow('แตงกวา').querySelector<HTMLInputElement>('input')?.checked).toBe(true)
+    expect(container.querySelector('.pantry-results')).toBeNull()
   })
 })

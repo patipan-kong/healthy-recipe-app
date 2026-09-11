@@ -13,6 +13,15 @@ type MessageSet = {
   pantry: string
   pantryTitle: string
   pantryGuidance: string
+  pantryNoSelection: string
+  pantryModeLabel: string
+  pantryIngredientsMode: string
+  pantryRecipesMode: string
+  pantryViewMatching: (count: number) => string
+  pantryEditIngredients: string
+  pantrySelectedSummary: (count: number) => string
+  pantryDirectSummary: (name: string) => string
+  pantryResultCount: (count: number) => string
   pantryResults: string
   pantrySingleResults: (name: string) => string
   pantryBack: string
@@ -77,6 +86,15 @@ export const messages: Record<Locale, MessageSet> = {
     pantry: 'วัตถุดิบที่มี',
     pantryTitle: 'วัตถุดิบที่มี',
     pantryGuidance: 'เลือกวัตถุดิบที่มีอยู่ แล้วเราจะช่วยหาเมนูที่ใช้ของเหล่านั้น',
+    pantryNoSelection: 'เลือกวัตถุดิบอย่างน้อย 1 รายการเพื่อดูเมนูที่ทำได้',
+    pantryModeLabel: 'โหมด Pantry',
+    pantryIngredientsMode: 'เลือกวัตถุดิบ',
+    pantryRecipesMode: 'เมนูที่ทำได้',
+    pantryViewMatching: count => `ดูเมนูที่ทำได้ (${count})`,
+    pantryEditIngredients: 'แก้ไขวัตถุดิบ',
+    pantrySelectedSummary: count => `จากวัตถุดิบ ${count} อย่าง:`,
+    pantryDirectSummary: name => `จากวัตถุดิบ: ${name}`,
+    pantryResultCount: count => `${count} เมนูที่ตรงกัน`,
     pantryResults: 'เมนูจากวัตถุดิบที่มี',
     pantrySingleResults: name => `เมนูที่ใช้ ${name}`,
     pantryBack: 'กลับไปเลือกวัตถุดิบ',
@@ -139,6 +157,15 @@ export const messages: Record<Locale, MessageSet> = {
     pantry: 'Pantry',
     pantryTitle: 'Ingredients at home',
     pantryGuidance: 'Choose the ingredients you have and we’ll find recipes that use them.',
+    pantryNoSelection: 'Select at least one ingredient to view matching recipes.',
+    pantryModeLabel: 'Pantry view',
+    pantryIngredientsMode: 'Ingredients',
+    pantryRecipesMode: 'Recipes',
+    pantryViewMatching: count => `View matching recipes (${count})`,
+    pantryEditIngredients: 'Edit ingredients',
+    pantrySelectedSummary: count => `From ${count} selected ingredients:`,
+    pantryDirectSummary: name => `From ingredient: ${name}`,
+    pantryResultCount: count => `${count} matching recipes`,
     pantryResults: 'Recipes from your pantry',
     pantrySingleResults: name => `Recipes using ${name}`,
     pantryBack: 'Back to ingredients',
