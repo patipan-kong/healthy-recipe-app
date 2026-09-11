@@ -6,7 +6,7 @@ import { normalizeFavorites } from './App'
 describe('recipe filtering', () => {
   it('uses AND semantics across category, nutrition, and tags', () => {
     const results = filterRecipes(recipes, { category: 'High protein', maxKcal: 430, minProtein: 30, tags: ['Meal prep'] })
-    expect(results.map(recipe => recipe.id)).toEqual(['herb-grilled-chicken', 'grilled-mackerel-bowl'])
+    expect(results.map(recipe => recipe.id)).toEqual(['herb-grilled-chicken', 'grilled-mackerel-bowl', 'thai-steamed-chicken-cabbage', 'japanese-cabbage-pork-steam', 'steamed-chicken-ginger-scallion'])
   })
   it('applies numeric nutrition limits including sodium', () => {
     const results = filterRecipes(recipes, { category: 'Thai favorites', maxKcal: 250, minProtein: 24, maxCarbs: 15, maxFat: 12, maxSodium: 650, tags: [] })
@@ -21,13 +21,19 @@ describe('recipe filtering', () => {
 
 describe('recipe search', () => {
   it('matches ingredient names and normalizes surrounding whitespace', () => {
-    expect(searchRecipes(recipes, '  garlic  ').map(recipe => recipe.id)).toEqual(['tofu-mince-soup', 'herb-grilled-chicken', 'steamed-lime-seabass', 'broccoli-prawn-stirfry'])
+    expect(searchRecipes(recipes, '  garlic  ').map(recipe => recipe.id)).toEqual(['tofu-mince-soup', 'herb-grilled-chicken', 'steamed-lime-seabass', 'broccoli-prawn-stirfry', 'thai-steamed-fish-ginger', 'thai-vegetable-pad-see-ew', 'thai-salmon-nam-jim', 'thai-steamed-chicken-cabbage', 'thai-beef-basil-mushroom', 'korean-bean-sprout-chicken-soup'])
   })
   it('searches Thai and English recipe content across language modes', () => {
     expect(searchRecipes(recipes, 'ไก่ย่างแจ่ว').map(recipe => recipe.id)).toContain('grilled-chicken-jaew')
     expect(searchRecipes(recipes, 'grilled chicken with jaew').map(recipe => recipe.id)).toContain('grilled-chicken-jaew')
     expect(searchRecipes(recipes, 'อกไก่').map(recipe => recipe.id)).toContain('grilled-chicken-jaew')
     expect(searchRecipes(recipes, 'skinless chicken breast').map(recipe => recipe.id)).toContain('grilled-chicken-jaew')
+  })
+  it('searches newly added Thai and English names and ingredients', () => {
+    expect(searchRecipes(recipes, 'ปลานึ่งขิงซีอิ๊ว').map(recipe => recipe.id)).toContain('thai-steamed-fish-ginger')
+    expect(searchRecipes(recipes, 'Thai Steamed Fish with Ginger').map(recipe => recipe.id)).toContain('thai-steamed-fish-ginger')
+    expect(searchRecipes(recipes, 'มันหวาน').map(recipe => recipe.id)).toContain('black-bean-sweet-potato-chili')
+    expect(searchRecipes(recipes, 'sweet potato').map(recipe => recipe.id)).toContain('black-bean-sweet-potato-chili')
   })
   it('returns every recipe for a whitespace-only query', () => expect(searchRecipes(recipes, '   ')).toHaveLength(recipes.length))
 })
@@ -62,14 +68,14 @@ describe('favorites persistence', () => {
 })
 
 describe('recipe data validation', () => {
-  it('contains exactly 50 image-ready curated recipes with valid catalog fields', () => {
+  it('contains exactly 100 image-ready curated recipes with valid catalog fields', () => {
     const ids = new Set(recipes.map(recipe => recipe.id))
     const images = new Set(recipes.map(recipe => recipe.image))
     const categories = new Set(['Quick meals', 'Thai favorites', 'High protein', 'Plant-forward', 'Light bowls'])
 
-    expect(recipes).toHaveLength(50)
-    expect(ids.size).toBe(50)
-    expect(images.size).toBe(50)
+    expect(recipes).toHaveLength(100)
+    expect(ids.size).toBe(100)
+    expect(images.size).toBe(100)
     expect(recipes.every(recipe => /^\/recipes\/[a-z0-9]+(?:-[a-z0-9]+)*\.webp$/.test(recipe.image))).toBe(true)
     expect(recipes.every(recipe => categories.has(recipe.category))).toBe(true)
     expect(recipes.every(recipe => Number.isInteger(recipe.servings) && recipe.servings > 0)).toBe(true)
@@ -78,8 +84,8 @@ describe('recipe data validation', () => {
   })
 
   it('accepts the curated recipe dataset', () => expect(validateRecipes(recipes)).toEqual([]))
-  it('accepts complete Thai and English content for all 50 recipes', () => {
-    expect(recipes).toHaveLength(50)
+  it('accepts complete Thai and English content for all 100 recipes', () => {
+    expect(recipes).toHaveLength(100)
     expect(recipes.every(recipe => recipe.name.th.trim() && recipe.name.en.trim())).toBe(true)
     expect(recipes.every(recipe => recipe.ingredients.length > 0 && recipe.ingredients.every(ingredient => ingredient.item.th.trim() && ingredient.item.en.trim() && String(ingredient.quantity).trim()))).toBe(true)
     expect(recipes.every(recipe => recipe.instructions.length > 0 && recipe.instructions.every(instruction => instruction.th.trim() && instruction.en.trim()))).toBe(true)

@@ -3,8 +3,8 @@ import { formatIngredientAmount, ingredientUnits, parseIngredientMeasurement } f
 import { recipes, searchRecipes, validateRecipes } from './recipes'
 
 describe('bilingual ingredient measurements', () => {
-  it('keeps the 50-recipe catalog valid and uses only canonical units', () => {
-    expect(recipes).toHaveLength(50)
+  it('keeps the 100-recipe catalog valid and uses only canonical units', () => {
+    expect(recipes).toHaveLength(100)
     expect(validateRecipes(recipes)).toEqual([])
     expect(recipes.flatMap(recipe => recipe.ingredients).every(ingredient => ingredient.unit === undefined || ingredientUnits.includes(ingredient.unit))).toBe(true)
   })

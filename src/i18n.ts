@@ -1,4 +1,5 @@
 import type { Locale } from './types'
+import type { IngredientCategory } from './pantry'
 
 export const localeStorageKey = 'healthy-recipe-locale-v1'
 
@@ -9,6 +10,16 @@ type MessageSet = {
   heroDescription: string
   random: string
   browse: string
+  pantry: string
+  pantryTitle: string
+  pantryGuidance: string
+  pantryResults: string
+  pantrySingleResults: (name: string) => string
+  pantryBack: string
+  pantryClear: string
+  pantrySearchPlaceholder: string
+  pantrySelectedCount: (count: number) => string
+  pantryMatches: (matched: number, selected: number) => string
   favorites: string
   browseAll: string
   searchPlaceholder: string
@@ -63,6 +74,16 @@ export const messages: Record<Locale, MessageSet> = {
     heroDescription: 'สูตรง่าย ๆ วัตถุดิบดี ๆ ทำได้แบบไม่กดดัน',
     random: 'สุ่มเมนู',
     browse: 'เมนูทั้งหมด',
+    pantry: 'วัตถุดิบที่มี',
+    pantryTitle: 'วัตถุดิบที่มี',
+    pantryGuidance: 'เลือกวัตถุดิบที่มีอยู่ แล้วเราจะช่วยหาเมนูที่ใช้ของเหล่านั้น',
+    pantryResults: 'เมนูจากวัตถุดิบที่มี',
+    pantrySingleResults: name => `เมนูที่ใช้ ${name}`,
+    pantryBack: 'กลับไปเลือกวัตถุดิบ',
+    pantryClear: 'ล้างรายการ',
+    pantrySearchPlaceholder: 'ค้นหาวัตถุดิบ',
+    pantrySelectedCount: count => `เลือกแล้ว ${count} รายการ`,
+    pantryMatches: (matched, selected) => `ตรงกับ ${matched}/${selected} วัตถุดิบที่เลือก`,
     favorites: 'รายการโปรด',
     browseAll: 'ดูเมนูทั้งหมด',
     searchPlaceholder: 'ค้นหาเมนูหรือวัตถุดิบ',
@@ -115,6 +136,16 @@ export const messages: Record<Locale, MessageSet> = {
     heroDescription: 'Simple recipes, nourishing ingredients, no pressure.',
     random: 'Pick a random recipe',
     browse: 'Browse recipes',
+    pantry: 'Pantry',
+    pantryTitle: 'Ingredients at home',
+    pantryGuidance: 'Choose the ingredients you have and we’ll find recipes that use them.',
+    pantryResults: 'Recipes from your pantry',
+    pantrySingleResults: name => `Recipes using ${name}`,
+    pantryBack: 'Back to ingredients',
+    pantryClear: 'Clear',
+    pantrySearchPlaceholder: 'Search ingredients',
+    pantrySelectedCount: count => `${count} selected`,
+    pantryMatches: (matched, selected) => `Matches ${matched}/${selected} selected ingredients`,
     favorites: 'Your favorites',
     browseAll: 'Browse all',
     searchPlaceholder: 'Search recipes or ingredients',
@@ -204,6 +235,16 @@ const tagLabels: Record<string, { th: string; en: string }> = {
   'Omega-rich': { th: 'โอเมก้าสูง', en: 'Omega-rich' },
 }
 
+const ingredientCategoryLabels: Record<IngredientCategory, { th: string; en: string }> = {
+  protein: { th: 'โปรตีน', en: 'Protein' },
+  vegetable: { th: 'ผัก', en: 'Vegetables' },
+  carbs: { th: 'คาร์บและธัญพืช', en: 'Carbs & grains' },
+  fruit: { th: 'ผลไม้', en: 'Fruits' },
+  dairy: { th: 'ผลิตภัณฑ์นม', en: 'Dairy' },
+  'plant-protein': { th: 'โปรตีนจากพืช', en: 'Plant protein' },
+  pantry: { th: 'เครื่องปรุงและของแห้ง', en: 'Pantry & condiments' },
+}
+
 export function categoryLabel(locale: Locale, category: string) {
   return categoryLabels[category]?.[locale] ?? category
 }
@@ -214,6 +255,10 @@ export function cuisineText(cuisine: string) {
 
 export function tagLabel(locale: Locale, tag: string) {
   return tagLabels[tag]?.[locale] ?? tag
+}
+
+export function ingredientCategoryLabel(locale: Locale, category: IngredientCategory) {
+  return ingredientCategoryLabels[category][locale]
 }
 
 type LocaleStore = Pick<Storage, 'getItem' | 'setItem'>

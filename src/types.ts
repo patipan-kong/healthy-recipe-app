@@ -10,6 +10,7 @@ export type Ingredient = {
   item: LocalizedText
   quantity: string | number
   unit?: IngredientUnit
+  ingredientId?: string
   /** Original catalog wording retained for traceability and migration compatibility. */
   amount?: string
 }

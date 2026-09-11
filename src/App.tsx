@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, ChevronRight, Clock3, Heart, Search, Shuffle, SlidersHorizontal, X } from 'lucide-react'
-import { categoryLabel, loadLocale, messages, saveLocale, tagLabel } from './i18n'
+import { categoryLabel, ingredientCategoryLabel, loadLocale, messages, saveLocale, tagLabel } from './i18n'
 import { formatIngredientAmount } from './measurements'
 import { chooseRandom, emptyFilters, filterRecipes, recipes, searchRecipes } from './recipes'
 import { loadFavorites, saveFavorites, toggleFavorite } from './favorites'
+import { canonicalIngredients, categoryIngredients, countRecipesByIngredient, filterRecipesByIngredient, ingredientCategoryOrder, loadPantrySelection, rankRecipesByPantry, savePantrySelection, togglePantryIngredient, type PantryMatch } from './pantry'
 import type { Filters, Locale, Recipe } from './types'
 
 const categories = ['Quick meals', 'Thai favorites', 'High protein', 'Plant-forward', 'Light bowls']
 const tags = ['High protein', 'Quick', 'Light', 'Vegetarian', 'Vegan', 'No-cook', 'Fiber-rich', 'Meal prep']
 const recipeIds = new Set(recipes.map(recipe => recipe.id))
+type AppScreen = 'browse' | 'favorites' | 'pantry' | 'detail'
 
 export function normalizeFavorites(ids: string[]) {
   return [...new Set(ids)].filter(id => recipeIds.has(id))
@@ -19,8 +21,8 @@ function otherLocale(locale: Locale): Locale {
 }
 
 function App() {
-  const [screen, setScreen] = useState<'browse' | 'favorites' | 'detail'>('browse')
-  const [returnScreen, setReturnScreen] = useState<'browse' | 'favorites'>('browse')
+  const [screen, setScreen] = useState<AppScreen>('browse')
+  const [returnScreen, setReturnScreen] = useState<Exclude<AppScreen, 'detail'>>('browse')
   const [selected, setSelected] = useState<Recipe | null>(null)
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState<Filters>(emptyFilters)
@@ -28,19 +30,25 @@ function App() {
   const [favorites, setFavorites] = useState<string[]>(() => normalizeFavorites(loadFavorites()))
   const [lastRandom, setLastRandom] = useState<string>()
   const [storageAvailable, setStorageAvailable] = useState(true)
+  const [pantryStorageAvailable, setPantryStorageAvailable] = useState(true)
   const [locale, setLocale] = useState<Locale>(() => loadLocale())
+  const [pantrySelection, setPantrySelection] = useState<string[]>(() => loadPantrySelection())
+  const [pantryFocus, setPantryFocus] = useState<string>()
+  const [pantryQuery, setPantryQuery] = useState('')
   const filterTriggerRef = useRef<HTMLButtonElement>(null)
   const copy = messages[locale]
 
   useEffect(() => setStorageAvailable(saveFavorites(favorites)), [favorites])
+  useEffect(() => setPantryStorageAvailable(savePantrySelection(pantrySelection)), [pantrySelection])
   useEffect(() => { saveLocale(locale) }, [locale])
 
   const filtered = useMemo(() => searchRecipes(filterRecipes(recipes, filters), query), [query, filters])
   const visible = screen === 'favorites' ? filtered.filter(recipe => favorites.includes(recipe.id)) : filtered
+  const pantryCounts = useMemo(() => countRecipesByIngredient(recipes), [])
   const activeFilterCount = Number(Boolean(filters.category)) + filters.tags.length + Object.entries(filters).filter(([key, value]) => !['category', 'tags'].includes(key) && value !== undefined).length
 
   function openRecipe(recipe: Recipe) {
-    setReturnScreen(screen === 'favorites' ? 'favorites' : 'browse')
+    setReturnScreen(screen === 'favorites' ? 'favorites' : screen === 'pantry' ? 'pantry' : 'browse')
     setSelected(recipe)
     setScreen('detail')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -60,6 +68,8 @@ function App() {
   }
 
   function favorite(id: string) { setFavorites(current => toggleFavorite(current, id)) }
+  function togglePantry(id: string) { setPantryFocus(undefined); setPantrySelection(current => togglePantryIngredient(current, id)) }
+  function clearPantry() { setPantryFocus(undefined); setPantrySelection([]) }
   function closeFilters() { setFiltersOpen(false); requestAnimationFrame(() => filterTriggerRef.current?.focus()) }
 
   if (screen === 'detail' && selected) return <RecipeDetail recipe={selected} locale={locale} isFavorite={favorites.includes(selected.id)} onBack={() => setScreen(returnScreen)} onFavorite={() => favorite(selected.id)} />
@@ -71,17 +81,20 @@ function App() {
         <div className="language-switcher" role="group" aria-label={copy.language}>
           {(['th', 'en'] as Locale[]).map(option => <button key={option} className={locale === option ? 'active' : ''} onClick={() => setLocale(option)} aria-pressed={locale === option}>{option.toUpperCase()}</button>)}
         </div>
+        <button className={`pantry-nav ${screen === 'pantry' ? 'active' : ''}`} onClick={() => { setPantryFocus(undefined); setScreen(screen === 'pantry' ? 'browse' : 'pantry') }} aria-label={copy.pantry} aria-pressed={screen === 'pantry'}><span aria-hidden="true">🥕</span><span>{copy.pantry}</span>{pantrySelection.length > 0 && <i>{pantrySelection.length}</i>}</button>
         <button className="icon-button" onClick={() => setScreen(screen === 'favorites' ? 'browse' : 'favorites')} aria-label={copy.favorites}><Heart size={21} fill={screen === 'favorites' ? 'currentColor' : 'none'} /><i>{favorites.length || ''}</i></button>
       </div>
     </header>
-    <section className="hero"><p className="eyebrow">{copy.heroEyebrow}</p><h1>{copy.heroTitle}</h1><p>{copy.heroDescription}</p><button className="random-button" disabled={!filtered.length} onClick={randomRecipe}><Shuffle size={19} /> {copy.random}</button></section>
-    <section className="content">
-      {!storageAvailable && <p className="storage-note" role="status">{copy.storageNote}</p>}
-      <div className="search-row"><label className="search"><Search size={18} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={copy.searchPlaceholder} /></label><button ref={filterTriggerRef} className="filter-button" onClick={() => setFiltersOpen(true)} aria-label={copy.openFilters}><SlidersHorizontal size={19} />{activeFilterCount > 0 && <span>{activeFilterCount}</span>}</button></div>
-      <div className="section-heading"><h2>{screen === 'favorites' ? copy.favorites : copy.browse}</h2>{screen === 'favorites' && <button className="text-button" onClick={() => setScreen('browse')}>{copy.browseAll}</button>}</div>
-      {screen === 'browse' && <div className="chips" aria-label={copy.recipeCategories}><button className={!filters.category ? 'active' : ''} onClick={() => setFilters(current => ({ ...current, category: '' }))}>{copy.allRecipes}</button>{categories.map(category => <button key={category} className={filters.category === category ? 'active' : ''} onClick={() => setFilters(current => ({ ...current, category }))}>{categoryLabel(locale, category)}</button>)}</div>}
-      {visible.length ? <div className="recipe-grid">{visible.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} locale={locale} favorite={favorites.includes(recipe.id)} onOpen={() => openRecipe(recipe)} onFavorite={() => favorite(recipe.id)} />)}</div> : <EmptyState locale={locale} favorites={screen === 'favorites'} hasSavedRecipes={favorites.length > 0} hasFilters={Boolean(query.trim() || activeFilterCount)} onClear={() => { setQuery(''); setFilters(emptyFilters) }} />}
-    </section>
+    {screen === 'pantry' ? <PantryView locale={locale} selectedIds={pantrySelection} focusedIngredientId={pantryFocus} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={setPantryFocus} onClear={clearPantry} onBack={() => setPantryFocus(undefined)} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : <>
+      <section className="hero"><p className="eyebrow">{copy.heroEyebrow}</p><h1>{copy.heroTitle}</h1><p>{copy.heroDescription}</p><button className="random-button" disabled={!filtered.length} onClick={randomRecipe}><Shuffle size={19} /> {copy.random}</button></section>
+      <section className="content">
+        {!storageAvailable && <p className="storage-note" role="status">{copy.storageNote}</p>}
+        <div className="search-row"><label className="search"><Search size={18} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={copy.searchPlaceholder} /></label><button ref={filterTriggerRef} className="filter-button" onClick={() => setFiltersOpen(true)} aria-label={copy.openFilters}><SlidersHorizontal size={19} />{activeFilterCount > 0 && <span>{activeFilterCount}</span>}</button></div>
+        <div className="section-heading"><h2>{screen === 'favorites' ? copy.favorites : copy.browse}</h2>{screen === 'favorites' && <button className="text-button" onClick={() => setScreen('browse')}>{copy.browseAll}</button>}</div>
+        {screen === 'browse' && <div className="chips" aria-label={copy.recipeCategories}><button className={!filters.category ? 'active' : ''} onClick={() => setFilters(current => ({ ...current, category: '' }))}>{copy.allRecipes}</button>{categories.map(category => <button key={category} className={filters.category === category ? 'active' : ''} onClick={() => setFilters(current => ({ ...current, category }))}>{categoryLabel(locale, category)}</button>)}</div>}
+        {visible.length ? <div className="recipe-grid">{visible.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} locale={locale} favorite={favorites.includes(recipe.id)} onOpen={() => openRecipe(recipe)} onFavorite={() => favorite(recipe.id)} />)}</div> : <EmptyState locale={locale} favorites={screen === 'favorites'} hasSavedRecipes={favorites.length > 0} hasFilters={Boolean(query.trim() || activeFilterCount)} onClear={() => { setQuery(''); setFilters(emptyFilters) }} />}
+      </section>
+    </>}
     {filtersOpen && <FilterSheet locale={locale} filters={filters} updateNumber={updateNumber} toggleTag={toggleTag} onCategory={category => setFilters(current => ({ ...current, category }))} onClear={() => setFilters(emptyFilters)} onClose={closeFilters} />}
   </main>
 }
@@ -100,12 +113,62 @@ export function RecipeImage({ recipe, variant, locale = 'en' }: { recipe: Recipe
   </div>
 }
 
-function RecipeCard({ recipe, locale, favorite, onOpen, onFavorite }: { recipe: Recipe; locale: Locale; favorite: boolean; onOpen(): void; onFavorite(): void }) {
+type PantryViewProps = {
+  locale: Locale
+  selectedIds: string[]
+  focusedIngredientId?: string
+  query: string
+  counts: Record<string, number>
+  storageAvailable: boolean
+  onQuery(query: string): void
+  onToggle(id: string): void
+  onBrowseIngredient(id: string): void
+  onClear(): void
+  onBack(): void
+  favorites: string[]
+  onOpen(recipe: Recipe): void
+  onFavorite(id: string): void
+}
+
+function PantryView({ locale, selectedIds, focusedIngredientId, query, counts, storageAvailable, onQuery, onToggle, onBrowseIngredient, onClear, onBack, favorites, onOpen, onFavorite }: PantryViewProps) {
+  const copy = messages[locale]
+  const focusedIngredient = canonicalIngredients.find(ingredient => ingredient.id === focusedIngredientId)
+  const hasSelection = selectedIds.length > 0
+  const isDirectBrowse = Boolean(focusedIngredient)
+  const normalizedQuery = query.trim().toLocaleLowerCase()
+  const visibleForSearch = (ingredient: typeof canonicalIngredients[number]) => counts[ingredient.id] > 0 && (!normalizedQuery || `${ingredient.name.th} ${ingredient.name.en}`.toLocaleLowerCase().includes(normalizedQuery))
+  const ranked = useMemo(() => focusedIngredientId ? filterRecipesByIngredient(recipes, focusedIngredientId).map(recipe => ({ recipe, matchedIngredientIds: [focusedIngredientId], matchCount: 1, matchPercentage: 1 } satisfies PantryMatch)) : rankRecipesByPantry(recipes, selectedIds), [focusedIngredientId, selectedIds])
+  const resultHeading = focusedIngredient ? copy.pantrySingleResults(focusedIngredient.name[locale]) : copy.pantryResults
+
+  return <section className="content pantry-view">
+    {!storageAvailable && <p className="storage-note" role="status">{copy.storageNote}</p>}
+    <div className="section-heading pantry-heading"><div><p className="eyebrow">{copy.pantry}</p><h2>{isDirectBrowse ? resultHeading : copy.pantryTitle}</h2></div>{hasSelection && !isDirectBrowse && <button className="text-button" onClick={onClear}>{copy.pantryClear}</button>}</div>
+    {isDirectBrowse ? <>
+      <button className="text-button pantry-back" onClick={onBack}>← {copy.pantryBack}</button>
+      <div className="recipe-grid">{ranked.map(match => <RecipeCard key={match.recipe.id} recipe={match.recipe} locale={locale} favorite={favorites.includes(match.recipe.id)} onOpen={() => onOpen(match.recipe)} onFavorite={() => onFavorite(match.recipe.id)} />)}</div>
+    </> : <>
+      <label className="search pantry-search"><Search size={18} /><input value={query} onChange={event => onQuery(event.target.value)} placeholder={copy.pantrySearchPlaceholder} /></label>
+      <p className="pantry-guidance">{copy.pantryGuidance}</p>
+      {hasSelection && <div className="pantry-selection-summary"><span>{copy.pantrySelectedCount(selectedIds.length)}</span><button className="text-button" onClick={onClear}>{copy.pantryClear}</button></div>}
+      <div className="pantry-groups">
+        {ingredientCategoryOrder.map(category => {
+          const ingredients = categoryIngredients(category).filter(visibleForSearch)
+          if (!ingredients.length) return null
+          return <section className="pantry-category" key={category}><h3>{ingredientCategoryLabel(locale, category)}</h3><div className="pantry-list">{ingredients.map(ingredient => <div className="pantry-row" key={ingredient.id}><input id={`pantry-${ingredient.id}`} type="checkbox" checked={selectedIds.includes(ingredient.id)} onChange={() => onToggle(ingredient.id)} aria-label={`${ingredient.name[locale]} checkbox`} /><button className="pantry-browse-button" onClick={() => onBrowseIngredient(ingredient.id)} aria-label={`${ingredient.name[locale]} (${counts[ingredient.id]})`}><span>{ingredient.name[locale]}</span><b>({counts[ingredient.id]})</b><em aria-hidden="true">›</em></button></div>)}</div></section>
+        })}
+      </div>
+      {!hasSelection && <p className="pantry-zero-state" role="status">{copy.pantryGuidance}</p>}
+      {hasSelection && <section className="pantry-results"><div className="section-heading"><h2>{copy.pantryResults}</h2></div><div className="recipe-grid">{ranked.map(match => <RecipeCard key={match.recipe.id} recipe={match.recipe} locale={locale} favorite={favorites.includes(match.recipe.id)} match={{ count: match.matchCount, total: selectedIds.length }} onOpen={() => onOpen(match.recipe)} onFavorite={() => onFavorite(match.recipe.id)} />)}</div></section>}
+    </>}
+  </section>
+}
+
+function RecipeCard({ recipe, locale, favorite, onOpen, onFavorite, match }: { recipe: Recipe; locale: Locale; favorite: boolean; onOpen(): void; onFavorite(): void; match?: { count: number; total: number } }) {
   const copy = messages[locale]
   const name = recipe.name[locale]
   const secondaryName = recipe.name[otherLocale(locale)]
   const favoriteLabel = favorite ? copy.removeFavorite(name) : copy.addFavorite(name)
-  return <article className="recipe-card"><button className={`food-art ${recipe.accent}`} onClick={onOpen} aria-label={copy.openRecipe(name)}><RecipeImage recipe={recipe} variant="card" locale={locale} /><span className="time-pill"><Clock3 size={13} /> {recipe.prepMinutes + recipe.cookMinutes} min</span></button><div className="card-body"><div><p className="card-category">{categoryLabel(locale, recipe.category)}</p><h3>{name}</h3><p className="english">{secondaryName}</p></div><button className={`heart ${favorite ? 'saved' : ''}`} onClick={onFavorite} aria-label={favoriteLabel} aria-pressed={favorite}><Heart size={20} fill={favorite ? 'currentColor' : 'none'} /></button></div><button className="nutrition-line" onClick={onOpen} aria-label={`${copy.openRecipe(name)}, ${copy.kcalEstimate}`}><span><b>{recipe.nutrition.kcal}</b> {copy.kcalEstimate}</span><span><b>{recipe.nutrition.protein}g</b> {copy.protein}</span><ChevronRight size={17} /></button></article>
+  return <article className="recipe-card"><button className={`food-art ${recipe.accent}`} onClick={onOpen} aria-label={copy.openRecipe(name)}><RecipeImage recipe={recipe} variant="card" locale={locale} /><span className="time-pill"><Clock3 size={13} /> {recipe.prepMinutes + recipe.cookMinutes} min</span></button><div className="card-body"><div><p className="card-category">{categoryLabel(locale, recipe.category)}</p><h3>{name}</h3><p className="english">{secondaryName}</p>{match && <p className="match-indicator">{copy.pantryMatches(match.count, match.total)}</p>}</div><button className={`heart ${favorite ? 'saved' : ''}`} onClick={onFavorite} aria-label={favoriteLabel} aria-pressed={favorite}><Heart size={20} fill={favorite ? 'currentColor' : 'none'} /></button></div><button className="nutrition-line" onClick={onOpen} aria-label={`${copy.openRecipe(name)}, ${copy.kcalEstimate}`}><span><b>{recipe.nutrition.kcal}</b> {copy.kcalEstimate}</span><span><b>{recipe.nutrition.protein}g</b> {copy.protein}</span><ChevronRight size={17} /></button></article>
 }
 
 export function FilterSheet({ filters, updateNumber, toggleTag, onCategory, onClear, onClose, locale = 'en' }: { filters: Filters; updateNumber(field: keyof Omit<Filters, 'category' | 'tags'>, value: string): void; toggleTag(tag: string): void; onCategory(category: string): void; onClear(): void; onClose(): void; locale?: Locale }) {

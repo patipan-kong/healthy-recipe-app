@@ -1,11 +1,13 @@
 import { cuisineText } from './i18n'
 import { isIngredientUnit, isValidIngredientQuantity, parseIngredientMeasurement } from './measurements'
+import { canonicalIngredientIdForItem, canonicalIngredientIds } from './pantry'
 import { thaiRecipeContent } from './recipe-content'
+import { recipeExpansionSeeds } from './recipe-expansion'
 import type { Filters, LocalizedText, Recipe } from './types'
 
 export const emptyFilters: Filters = { category: '', tags: [] }
 
-type RecipeSeed = Omit<Recipe, 'image' | 'name' | 'cuisine' | 'ingredients' | 'instructions'> & {
+export type RecipeSeed = Omit<Recipe, 'image' | 'name' | 'cuisine' | 'ingredients' | 'instructions'> & {
   name: string
   englishName: string
   cuisine: string
@@ -22,7 +24,7 @@ const r = (recipe: RecipeSeed): Recipe => {
     ...shared,
     name: { th: content.name, en: englishName },
     cuisine: cuisineText(cuisine),
-    ingredients: ingredients.map((ingredient, index) => ({ item: { th: content.ingredients[index], en: ingredient.item }, ...parseIngredientMeasurement(ingredient.amount, ingredient.item), amount: ingredient.amount })),
+    ingredients: ingredients.map((ingredient, index) => ({ item: { th: content.ingredients[index], en: ingredient.item }, ...parseIngredientMeasurement(ingredient.amount, ingredient.item), ingredientId: canonicalIngredientIdForItem(ingredient.item), amount: ingredient.amount })),
     instructions: instructions.map((instruction, index) => ({ th: content.instructions[index], en: instruction })),
     image: image ?? `/recipes/${recipe.id}.webp`,
   }
@@ -78,7 +80,8 @@ export const recipes: Recipe[] = [
   r({ id:'mediterranean-chicken-bowl', sourceId:'slice1-32', name:'โบวล์ไก่เมดิเตอร์เรเนียน', englishName:'Mediterranean Chicken Bowl', category:'Light bowls', cuisine:'Mediterranean', servings:2, prepMinutes:18, cookMinutes:16, ingredients:[{item:'Skinless chicken breast, sliced',amount:'280 g'},{item:'Cooked quinoa',amount:'1 cup'},{item:'Cucumber, diced',amount:'1 small'},{item:'Cherry tomatoes, halved',amount:'150 g'},{item:'Chickpeas, rinsed',amount:'½ cup'},{item:'Greek yogurt',amount:'3 tbsp'},{item:'Lemon juice',amount:'1 tbsp'}], instructions:['Season chicken with pepper and grill or pan-sear until cooked through.','Mix yogurt with lemon juice for a simple sauce.','Divide quinoa, cucumber, tomatoes and chickpeas between bowls.','Top with sliced chicken and yogurt sauce.'], nutrition:{kcal:460,protein:36,carbs:42,fat:16,fiber:9,sodium:480}, tags:['High protein','Balanced','Meal prep'], accent:'lime' }),
   r({ id:'chickpea-mediterranean-salad', sourceId:'slice1-33', name:'สลัดถั่วชิกพีเมดิเตอร์เรเนียน', englishName:'Chickpea Mediterranean Salad', category:'Plant-forward', cuisine:'Mediterranean', servings:2, prepMinutes:15, cookMinutes:0, ingredients:[{item:'Chickpeas, rinsed',amount:'1½ cups'},{item:'Cucumber, diced',amount:'1 large'},{item:'Tomatoes, diced',amount:'2 medium'},{item:'Red onion, sliced',amount:'¼ cup'},{item:'Feta cheese, crumbled',amount:'40 g'},{item:'Olive oil',amount:'1 tsp'},{item:'Lemon juice',amount:'2 tbsp'}], instructions:['Combine chickpeas, cucumber, tomatoes and red onion.','Whisk olive oil with lemon juice and black pepper.','Toss dressing through the salad.','Scatter with feta and serve chilled or at room temperature.'], nutrition:{kcal:350,protein:14,carbs:45,fat:12,fiber:12,sodium:470}, tags:['Vegetarian','Fiber-rich','No-cook'], accent:'aqua' }),
   r({ id:'pumpkin-soup-with-egg', sourceId:'slice1-34', name:'ซุปฟักทองกับไข่ต้ม', englishName:'Pumpkin Soup with Egg', category:'Light bowls', cuisine:'International', servings:2, prepMinutes:12, cookMinutes:22, ingredients:[{item:'Pumpkin, peeled and cubed',amount:'450 g'},{item:'Eggs',amount:'2'},{item:'Low-sodium vegetable stock',amount:'600 ml'},{item:'Plain Greek yogurt',amount:'2 tbsp'},{item:'Onion, chopped',amount:'1 small'},{item:'Pumpkin seeds',amount:'1 tbsp'}], instructions:['Simmer pumpkin, onion and stock until the pumpkin is very tender.','Blend until smooth, then return to the pot and warm gently.','Boil eggs for 8–9 minutes, cool, peel and halve.','Serve soup with egg, yogurt and pumpkin seeds.'], nutrition:{kcal:280,protein:13,carbs:34,fat:10,fiber:7,sodium:430}, tags:['Vegetarian','Light','Fiber-rich'], accent:'gold' }),
-  r({ id:'egg-avocado-toast', sourceId:'slice1-35', name:'ขนมปังโฮลวีตไข่อะโวคาโด', englishName:'Egg and Avocado Toast', category:'Quick meals', cuisine:'International', servings:2, prepMinutes:8, cookMinutes:8, ingredients:[{item:'Whole-wheat bread',amount:'4 slices'},{item:'Eggs',amount:'4'},{item:'Avocado',amount:'1 medium'},{item:'Cherry tomatoes, halved',amount:'120 g'},{item:'Lime juice',amount:'1 tbsp'},{item:'Pumpkin seeds',amount:'1 tbsp'}], instructions:['Toast the bread until crisp.','Mash avocado with lime juice and spread over the toast.','Poach or soft-boil eggs until the whites are set.','Top toast with egg, tomatoes and pumpkin seeds.'], nutrition:{kcal:380,protein:17,carbs:35,fat:19,fiber:9,sodium:390}, tags:['Vegetarian','Balanced','Quick'], accent:'coral' })
+  r({ id:'egg-avocado-toast', sourceId:'slice1-35', name:'ขนมปังโฮลวีตไข่อะโวคาโด', englishName:'Egg and Avocado Toast', category:'Quick meals', cuisine:'International', servings:2, prepMinutes:8, cookMinutes:8, ingredients:[{item:'Whole-wheat bread',amount:'4 slices'},{item:'Eggs',amount:'4'},{item:'Avocado',amount:'1 medium'},{item:'Cherry tomatoes, halved',amount:'120 g'},{item:'Lime juice',amount:'1 tbsp'},{item:'Pumpkin seeds',amount:'1 tbsp'}], instructions:['Toast the bread until crisp.','Mash avocado with lime juice and spread over the toast.','Poach or soft-boil eggs until the whites are set.','Top toast with egg, tomatoes and pumpkin seeds.'], nutrition:{kcal:380,protein:17,carbs:35,fat:19,fiber:9,sodium:390}, tags:['Vegetarian','Balanced','Quick'], accent:'coral' }),
+  ...recipeExpansionSeeds.map(recipe => r(recipe))
 ]
 
 export function filterRecipes(items: Recipe[], filters: Filters): Recipe[] {
@@ -136,6 +139,7 @@ export function validateRecipes(items: Recipe[]): string[] {
     if (!ingredients.length || ingredients.some(ingredient => !hasQuantity(ingredient?.quantity))) errors.push(`Missing ingredient quantity: ${id}`)
     if (ingredients.some(ingredient => hasQuantity(ingredient?.quantity) && !isValidIngredientQuantity(ingredient.quantity))) errors.push(`Invalid ingredient quantity: ${id}`)
     if (ingredients.some(ingredient => ingredient?.unit !== undefined && !isIngredientUnit(ingredient.unit))) errors.push(`Unknown ingredient unit: ${id}`)
+    if (ingredients.some(ingredient => ingredient?.ingredientId !== undefined && !canonicalIngredientIds.has(ingredient.ingredientId))) errors.push(`Unknown pantry ingredient: ${id}`)
     if (!instructions.length || instructions.some(step => !hasLocalizedText(step) || !hasText(step?.th))) errors.push(`Missing Thai instructions: ${id}`)
     if (!instructions.length || instructions.some(step => !hasLocalizedText(step) || !hasText(step?.en))) errors.push(`Missing English instructions: ${id}`)
     if (!categories.has(recipe.category as Recipe['category'])) errors.push(`Invalid category: ${id}`)

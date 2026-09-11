@@ -1,4 +1,5 @@
 import { recipes } from './recipes'
+import { recipeImagePresentationExpansion } from './recipe-expansion'
 
 export type RecipeImageManifestEntry = {
   id: string
@@ -67,7 +68,8 @@ const presentationById: Record<string, string> = {
   'mediterranean-chicken-bowl': 'Mediterranean chicken quinoa bowl with cucumber, cherry tomato, chickpeas and yogurt sauce',
   'chickpea-mediterranean-salad': 'Mediterranean chickpea salad with cucumber, tomato, red onion and feta',
   'pumpkin-soup-with-egg': 'smooth pumpkin soup in a bowl with halved boiled egg, yogurt and pumpkin seeds',
-  'egg-avocado-toast': 'whole-wheat avocado toast topped with eggs, cherry tomatoes and pumpkin seeds'
+  'egg-avocado-toast': 'whole-wheat avocado toast topped with eggs, cherry tomatoes and pumpkin seeds',
+  ...recipeImagePresentationExpansion,
 }
 
 const format = (entry: typeof recipes[number]) => presentationById[entry.id] ?? `${entry.name.en} plated as a single-serving healthy meal`
