@@ -192,7 +192,7 @@ const mappingRules: readonly [RegExp, string][] = [
   [/^green beans/, 'green-beans'],
   [/^long beans/, 'long-beans'],
   [/^daikon/, 'daikon'],
-  [/^thai eggplant/, 'eggplant'],
+  [/^long eggplant|^eggplant|^thai eggplant/, 'eggplant'],
   [/^green peas/, 'peas'],
   [/^corn kernels/, 'corn'],
   [/^bean sprouts/, 'bean-sprouts'],
@@ -237,7 +237,7 @@ const mappingRules: readonly [RegExp, string][] = [
   [/^low sodium vegetable stock|^low sodium stock/, 'stock'],
   [/^dashi stock/, 'dashi-stock'],
   [/^light coconut milk/, 'coconut-milk'],
-  [/^reduced sodium dark soy sauce|^reduced sodium soy sauce|^light soy sauce/, 'soy-sauce'],
+  [/^reduced sodium light soy sauce|^reduced sodium dark soy sauce|^reduced sodium soy sauce|^light soy sauce/, 'soy-sauce'],
   [/^fish sauce/, 'fish-sauce'],
   [/^reduced sodium teriyaki sauce/, 'teriyaki-sauce'],
   [/^reduced sodium yakisoba sauce/, 'yakisoba-sauce'],
@@ -274,6 +274,15 @@ const excludedIngredientRules: readonly RegExp[] = [
   /^dried chilli flakes$/,
   /^birds eye chilli sliced$/,
   /^cinnamon$/,
+  /^dried oregano$/,
+  /^fine salt$/,
+  /^brown sugar$/,
+  /^star anise$/,
+  /^cumin$/,
+  /^ground cumin$/,
+  /^paprika$/,
+  /^chili powder$/,
+  /^mild chili seasoning blend$/,
 ]
 
 export function canonicalIngredientIdForItem(item: string): string | undefined {
