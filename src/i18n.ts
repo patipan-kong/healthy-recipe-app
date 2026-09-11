@@ -36,6 +36,9 @@ type MessageSet = {
   shoppingTitle: string
   shoppingAdd: string
   shoppingAdded: string
+  shoppingServings: string
+  shoppingDecrease: string
+  shoppingIncrease: string
   shoppingSelectedRecipes: string
   shoppingIngredients: string
   shoppingAlreadyHave: string
@@ -125,6 +128,9 @@ export const messages: Record<Locale, MessageSet> = {
     shoppingTitle: 'รายการซื้อ',
     shoppingAdd: 'เพิ่มลงรายการซื้อ',
     shoppingAdded: 'อยู่ในรายการซื้อแล้ว',
+    shoppingServings: 'จำนวนเสิร์ฟ',
+    shoppingDecrease: 'ลดจำนวนเสิร์ฟ',
+    shoppingIncrease: 'เพิ่มจำนวนเสิร์ฟ',
     shoppingSelectedRecipes: 'เมนูที่เลือก',
     shoppingIngredients: 'วัตถุดิบที่ต้องซื้อ',
     shoppingAlreadyHave: 'มีแล้ว',
@@ -212,6 +218,9 @@ export const messages: Record<Locale, MessageSet> = {
     shoppingTitle: 'Shopping list',
     shoppingAdd: 'Add to shopping',
     shoppingAdded: 'Added to shopping',
+    shoppingServings: 'Servings',
+    shoppingDecrease: 'Decrease servings',
+    shoppingIncrease: 'Increase servings',
     shoppingSelectedRecipes: 'Selected recipes',
     shoppingIngredients: 'Ingredients to buy',
     shoppingAlreadyHave: 'Already have',

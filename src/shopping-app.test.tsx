@@ -78,6 +78,48 @@ describe('Shopping application flow', () => {
     expect(container.querySelector('.shopping-action')?.textContent).toBe('อยู่ในรายการซื้อแล้ว')
   })
 
+  it('scales quantities live with bounded serving controls and preserves purchased state', () => {
+    openRecipe('ต้มยำกุ้งน้ำใส')
+    act(() => container.querySelector<HTMLButtonElement>('.shopping-action')?.click())
+    clickBack()
+    clickShopping()
+
+    const servings = container.querySelector<HTMLElement>('[data-shopping-servings="tom-yum-prawns"]')!
+    const mushrooms = () => container.querySelector<HTMLElement>('[data-shopping-line-id="canonical:mushrooms::g"]')?.textContent
+    expect(servings.textContent).toBe('2')
+    expect(mushrooms()).toContain('150 กรัม')
+
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="เพิ่มจำนวนเสิร์ฟ: ต้มยำกุ้งน้ำใส"]')?.click())
+    expect(servings.textContent).toBe('3')
+    expect(mushrooms()).toContain('225 กรัม')
+
+    const checkbox = container.querySelector<HTMLInputElement>('[data-shopping-line-checkbox="canonical:mushrooms::g"]')!
+    act(() => checkbox.click())
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="เพิ่มจำนวนเสิร์ฟ: ต้มยำกุ้งน้ำใส"]')?.click())
+    expect(servings.textContent).toBe('4')
+    expect(checkbox.checked).toBe(true)
+    expect(mushrooms()).toContain('300 กรัม')
+
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="ลดจำนวนเสิร์ฟ: ต้มยำกุ้งน้ำใส"]')?.click())
+    expect(servings.textContent).toBe('3')
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="ลดจำนวนเสิร์ฟ: ต้มยำกุ้งน้ำใส"]')?.click())
+    act(() => container.querySelector<HTMLButtonElement>('[aria-label="ลดจำนวนเสิร์ฟ: ต้มยำกุ้งน้ำใส"]')?.click())
+    expect(servings.textContent).toBe('1')
+    const decrease = container.querySelector<HTMLButtonElement>('[aria-label="ลดจำนวนเสิร์ฟ: ต้มยำกุ้งน้ำใส"]')!
+    expect(decrease.disabled).toBe(true)
+    expect(mushrooms()).toContain('75 กรัม')
+
+    for (let index = 0; index < 19; index += 1) {
+      act(() => container.querySelector<HTMLButtonElement>('[aria-label="เพิ่มจำนวนเสิร์ฟ: ต้มยำกุ้งน้ำใส"]')?.click())
+    }
+    const increase = container.querySelector<HTMLButtonElement>('[aria-label="เพิ่มจำนวนเสิร์ฟ: ต้มยำกุ้งน้ำใส"]')!
+    expect(servings.textContent).toBe('20')
+    expect(increase.disabled).toBe(true)
+    expect(mushrooms()).toContain('1500 กรัม')
+    expect(checkbox.checked).toBe(true)
+    expect(JSON.parse(window.localStorage.getItem(shoppingStorageKey) ?? '{}').servingsByRecipeId['tom-yum-prawns']).toBe(20)
+  })
+
   it('aggregates shared ingredients, marks Pantry items, persists purchased state across locale and remount, removes, and clears', () => {
     openRecipe('ต้มยำกุ้งน้ำใส')
     act(() => container.querySelector<HTMLButtonElement>('.shopping-action')?.click())

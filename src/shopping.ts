@@ -3,8 +3,17 @@ import type { Ingredient, IngredientUnit, LocalizedText, Recipe } from './types'
 
 export const shoppingStorageKey = 'goodfood-shopping-v1'
 export const shoppingPurchasedStorageKey = 'goodfood-shopping-purchased-v1'
+export const shoppingMinServings = 1
+export const shoppingMaxServings = 20
 
 type ShoppingStore = Pick<Storage, 'getItem' | 'setItem'>
+
+export type ShoppingServingsByRecipeId = Record<string, number>
+
+export type ShoppingSelection = {
+  recipeIds: string[]
+  servingsByRecipeId: ShoppingServingsByRecipeId
+}
 
 function getBrowserStorage(): ShoppingStore | undefined {
   try {
@@ -34,14 +43,91 @@ function writeStringArray(ids: readonly string[], store: Pick<Storage, 'setItem'
   }
 }
 
+function readJson(store: Pick<Storage, 'getItem'> | undefined, key: string): unknown {
+  try {
+    if (!store) return undefined
+    return JSON.parse(store.getItem(key) ?? '[]')
+  } catch {
+    return undefined
+  }
+}
+
+function writeJson(value: unknown, store: Pick<Storage, 'setItem'> | undefined, key: string): boolean {
+  try {
+    if (!store) return false
+    store.setItem(key, JSON.stringify(value))
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function normalizeShoppingRecipeIds(ids: readonly string[], validRecipeIds: readonly string[]): string[] {
   const valid = new Set(validRecipeIds)
   return [...new Set(ids)].filter(id => valid.has(id))
 }
 
+export function normalizeShoppingServings(value: unknown, baseServings: number): number {
+  const fallback = Number.isFinite(baseServings) && Number.isInteger(baseServings)
+    ? Math.min(shoppingMaxServings, Math.max(shoppingMinServings, baseServings))
+    : shoppingMinServings
+  const numeric = typeof value === 'number'
+    ? value
+    : typeof value === 'string' && value.trim() !== ''
+      ? Number(value)
+      : Number.NaN
+  if (!Number.isFinite(numeric) || !Number.isInteger(numeric)) return fallback
+  return Math.min(shoppingMaxServings, Math.max(shoppingMinServings, numeric))
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function rawShoppingState(value: unknown): { recipeIds: string[]; servingsByRecipeId: Record<string, unknown> } {
+  if (Array.isArray(value)) {
+    return {
+      recipeIds: value.filter((id): id is string => typeof id === 'string'),
+      servingsByRecipeId: {},
+    }
+  }
+  if (!isRecord(value)) return { recipeIds: [], servingsByRecipeId: {} }
+  const recipeIds = Array.isArray(value.recipeIds) ? value.recipeIds.filter((id): id is string => typeof id === 'string') : []
+  return {
+    recipeIds,
+    servingsByRecipeId: isRecord(value.servingsByRecipeId) ? value.servingsByRecipeId : {},
+  }
+}
+
+export function loadShoppingState(
+  store: Pick<Storage, 'getItem'> | undefined = getBrowserStorage(),
+  availableRecipes: readonly Pick<Recipe, 'id' | 'servings'>[] = [],
+): ShoppingSelection {
+  const raw = rawShoppingState(readJson(store, shoppingStorageKey))
+  const recipeById = new Map(availableRecipes.map(recipe => [recipe.id, recipe]))
+  const recipeIds = availableRecipes.length
+    ? normalizeShoppingRecipeIds(raw.recipeIds, availableRecipes.map(recipe => recipe.id))
+    : [...new Set(raw.recipeIds)]
+  const servingsByRecipeId = Object.fromEntries(recipeIds.map(recipeId => {
+    const baseServings = recipeById.get(recipeId)?.servings ?? shoppingMinServings
+    return [recipeId, normalizeShoppingServings(raw.servingsByRecipeId[recipeId], baseServings)]
+  }))
+  return { recipeIds, servingsByRecipeId }
+}
+
+export function saveShoppingState(
+  state: ShoppingSelection,
+  store: Pick<Storage, 'setItem'> | undefined = getBrowserStorage(),
+): boolean {
+  const recipeIds = [...new Set(state.recipeIds)]
+  if (!recipeIds.length) return writeJson([], store, shoppingStorageKey)
+  const servingsByRecipeId = Object.fromEntries(recipeIds.map(recipeId => [recipeId, state.servingsByRecipeId[recipeId]]).filter(([, servings]) => servings !== undefined))
+  return writeJson({ recipeIds, servingsByRecipeId }, store, shoppingStorageKey)
+}
+
 export function loadShoppingSelection(store: Pick<Storage, 'getItem'> | undefined = getBrowserStorage(), validRecipeIds?: readonly string[]): string[] {
-  const ids = readStringArray(store, shoppingStorageKey)
-  return validRecipeIds ? normalizeShoppingRecipeIds(ids, validRecipeIds) : ids
+  const state = loadShoppingState(store, validRecipeIds?.map(id => ({ id, servings: shoppingMinServings })))
+  return state.recipeIds
 }
 
 export function saveShoppingSelection(ids: readonly string[], store: Pick<Storage, 'setItem'> | undefined = getBrowserStorage()): boolean {
@@ -50,6 +136,45 @@ export function saveShoppingSelection(ids: readonly string[], store: Pick<Storag
 
 export function toggleShoppingRecipe(ids: readonly string[], recipeId: string): string[] {
   return ids.includes(recipeId) ? ids.filter(id => id !== recipeId) : [...new Set([...ids, recipeId])]
+}
+
+export function emptyShoppingSelection(): ShoppingSelection {
+  return { recipeIds: [], servingsByRecipeId: {} }
+}
+
+export function toggleShoppingRecipeState(state: ShoppingSelection, recipe: Pick<Recipe, 'id' | 'servings'>): ShoppingSelection {
+  if (state.recipeIds.includes(recipe.id)) {
+    const servingsByRecipeId = { ...state.servingsByRecipeId }
+    delete servingsByRecipeId[recipe.id]
+    return { recipeIds: state.recipeIds.filter(id => id !== recipe.id), servingsByRecipeId }
+  }
+  return {
+    recipeIds: [...new Set([...state.recipeIds, recipe.id])],
+    servingsByRecipeId: {
+      ...state.servingsByRecipeId,
+      [recipe.id]: normalizeShoppingServings(recipe.servings, recipe.servings),
+    },
+  }
+}
+
+export function setShoppingRecipeServings(
+  state: ShoppingSelection,
+  recipe: Pick<Recipe, 'id' | 'servings'>,
+  value: unknown,
+): ShoppingSelection {
+  if (!state.recipeIds.includes(recipe.id)) return state
+  const servings = normalizeShoppingServings(value, recipe.servings)
+  if (state.servingsByRecipeId[recipe.id] === servings) return state
+  return { ...state, servingsByRecipeId: { ...state.servingsByRecipeId, [recipe.id]: servings } }
+}
+
+export function adjustShoppingRecipeServings(
+  state: ShoppingSelection,
+  recipe: Pick<Recipe, 'id' | 'servings'>,
+  delta: number,
+): ShoppingSelection {
+  const current = normalizeShoppingServings(state.servingsByRecipeId[recipe.id], recipe.servings)
+  return setShoppingRecipeServings(state, recipe, current + delta)
 }
 
 export function loadPurchasedShoppingLines(store: Pick<Storage, 'getItem'> | undefined = getBrowserStorage()): string[] {
@@ -76,7 +201,6 @@ export type ShoppingLine = {
 type Rational = { numerator: number; denominator: number }
 
 const fractionValues: Record<string, number> = { '¼': 1, '½': 2, '¾': 3 }
-const fractionLabels = ['', '¼', '½', '¾']
 
 function greatestCommonDivisor(a: number, b: number): number {
   let left = Math.abs(a)
@@ -88,6 +212,10 @@ function greatestCommonDivisor(a: number, b: number): number {
 function simplify(value: Rational): Rational {
   const divisor = greatestCommonDivisor(value.numerator, value.denominator)
   return { numerator: value.numerator / divisor, denominator: value.denominator / divisor }
+}
+
+function multiply(left: Rational, right: Rational): Rational {
+  return simplify({ numerator: left.numerator * right.numerator, denominator: left.denominator * right.denominator })
 }
 
 function parseShoppingQuantity(value: string | number): Rational | undefined {
@@ -107,17 +235,35 @@ function parseShoppingQuantity(value: string | number): Rational | undefined {
   return { numerator: whole * 4 + fractionValues[fraction[2]], denominator: 4 }
 }
 
+const fractionGlyphs: Record<string, string> = {
+  '1/2': '½',
+  '1/3': '⅓',
+  '2/3': '⅔',
+  '1/4': '¼',
+  '3/4': '¾',
+  '1/5': '⅕',
+  '2/5': '⅖',
+  '3/5': '⅗',
+  '4/5': '⅘',
+  '1/6': '⅙',
+  '5/6': '⅚',
+  '1/8': '⅛',
+  '3/8': '⅜',
+  '5/8': '⅝',
+  '7/8': '⅞',
+}
+
 function formatShoppingQuantity(value: Rational): string {
   const simplified = simplify(value)
-  const quarterValue = simplified.numerator * 4 / simplified.denominator
-  if (Number.isInteger(quarterValue)) {
-    const whole = Math.floor(quarterValue / 4)
-    const fraction = quarterValue % 4
-    return `${whole || ''}${fractionLabels[fraction]}` || '0'
-  }
-
-  const decimal = (simplified.numerator / simplified.denominator).toFixed(6).replace(/0+$/, '').replace(/\.$/, '')
-  return decimal || '0'
+  if (simplified.denominator === 1) return String(simplified.numerator)
+  const whole = Math.floor(simplified.numerator / simplified.denominator)
+  const remainder = simplified.numerator % simplified.denominator
+  if (!remainder) return String(whole)
+  const fractionKey = `${remainder}/${simplified.denominator}`
+  const fraction = fractionGlyphs[fractionKey]
+  return fraction
+    ? `${whole ? `${whole}` : ''}${fraction}`
+    : `${whole ? `${whole} ` : ''}${fractionKey}`
 }
 
 function normalizeFallbackIdentity(item: string): string {
@@ -141,7 +287,11 @@ function compareLines(left: ShoppingLine & { order: number }, right: ShoppingLin
   return left.order - right.order || (left.item.en < right.item.en ? -1 : left.item.en > right.item.en ? 1 : 0) || left.id.localeCompare(right.id)
 }
 
-export function aggregateShoppingIngredients(items: readonly Recipe[], selectedRecipeIds: readonly string[]): ShoppingLine[] {
+export function aggregateShoppingIngredients(
+  items: readonly Recipe[],
+  selectedRecipeIds: readonly string[],
+  servingsByRecipeId: Readonly<Record<string, number>> = {},
+): ShoppingLine[] {
   const recipesById = new Map(items.map(recipe => [recipe.id, recipe]))
   const selectedIds = [...new Set(selectedRecipeIds)].filter(id => recipesById.has(id))
   const numericLines = new Map<string, ShoppingLine & { total: Rational; order: number }>()
@@ -150,6 +300,8 @@ export function aggregateShoppingIngredients(items: readonly Recipe[], selectedR
   for (const recipeId of selectedIds) {
     const recipe = recipesById.get(recipeId)
     if (!recipe) continue
+    const targetServings = normalizeShoppingServings(servingsByRecipeId[recipe.id], recipe.servings)
+    const scale = { numerator: targetServings, denominator: recipe.servings }
     recipe.ingredients.forEach((ingredient, ingredientIndex) => {
       const baseId = shoppingIngredientLineId(ingredient)
       const display = displayIngredient(ingredient)
@@ -159,11 +311,13 @@ export function aggregateShoppingIngredients(items: readonly Recipe[], selectedR
         return
       }
 
+      const scaledQuantity = multiply(quantity, scale)
+
       const existing = numericLines.get(baseId)
       if (existing) {
-        existing.total = simplify({ numerator: existing.total.numerator * quantity.denominator + quantity.numerator * existing.total.denominator, denominator: existing.total.denominator * quantity.denominator })
+        existing.total = simplify({ numerator: existing.total.numerator * scaledQuantity.denominator + scaledQuantity.numerator * existing.total.denominator, denominator: existing.total.denominator * scaledQuantity.denominator })
       } else {
-        numericLines.set(baseId, { id: baseId, ingredientId: ingredient.ingredientId, item: display.item, quantity: formatShoppingQuantity(quantity), unit: ingredient.unit, aggregatable: true, total: simplify(quantity), order: display.order })
+        numericLines.set(baseId, { id: baseId, ingredientId: ingredient.ingredientId, item: display.item, quantity: formatShoppingQuantity(scaledQuantity), unit: ingredient.unit, aggregatable: true, total: scaledQuantity, order: display.order })
       }
     })
   }

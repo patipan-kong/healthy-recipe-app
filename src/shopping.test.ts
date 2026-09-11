@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { aggregateShoppingIngredients, loadPurchasedShoppingLines, loadShoppingSelection, savePurchasedShoppingLines, saveShoppingSelection, shoppingStorageKey, togglePurchasedShoppingLine, toggleShoppingRecipe } from './shopping'
+import { adjustShoppingRecipeServings, aggregateShoppingIngredients, emptyShoppingSelection, loadPurchasedShoppingLines, loadShoppingSelection, loadShoppingState, normalizeShoppingServings, savePurchasedShoppingLines, saveShoppingSelection, saveShoppingState, shoppingMaxServings, shoppingMinServings, shoppingStorageKey, togglePurchasedShoppingLine, toggleShoppingRecipe, toggleShoppingRecipeState } from './shopping'
 import { recipes } from './recipes'
 import type { Ingredient, Recipe } from './types'
 
@@ -7,14 +7,14 @@ function ingredient(item: string, quantity: string | number, unit?: Ingredient['
   return { item: { th: item, en: item }, quantity, unit, ingredientId }
 }
 
-function recipe(id: string, ingredients: Ingredient[]): Recipe {
+function recipe(id: string, ingredients: Ingredient[], servings = 1): Recipe {
   return {
     id,
     sourceId: id,
     name: { th: id, en: id },
     category: 'Quick meals',
     cuisine: { th: 'นานาชาติ', en: 'International' },
-    servings: 1,
+    servings,
     prepMinutes: 1,
     cookMinutes: 1,
     ingredients,
@@ -95,6 +95,47 @@ describe('shopping aggregation', () => {
     expect(line(one, 'canonical:cucumber::g').quantity).toBe('150')
     expect(line(both, 'canonical:cucumber::g').id).toBe(line(one, 'canonical:cucumber::g').id)
   })
+
+  it('keeps the base quantity by default and scales integer quantities per recipe', () => {
+    const items = [recipe('chicken', [ingredient('Chicken', '260', 'g', 'chicken')], 2)]
+
+    expect(line(aggregateShoppingIngredients(items, ['chicken']), 'canonical:chicken::g').quantity).toBe('260')
+    expect(line(aggregateShoppingIngredients(items, ['chicken'], { chicken: 2 }), 'canonical:chicken::g').quantity).toBe('260')
+    expect(line(aggregateShoppingIngredients(items, ['chicken'], { chicken: 4 }), 'canonical:chicken::g').quantity).toBe('520')
+    expect(line(aggregateShoppingIngredients(items, ['chicken'], { chicken: 1 }), 'canonical:chicken::g').quantity).toBe('130')
+    expect(line(aggregateShoppingIngredients(items, ['chicken'], { chicken: 3 }), 'canonical:chicken::g').quantity).toBe('390')
+  })
+
+  it('scales exact simple and mixed fractions before aggregation', () => {
+    const items = [
+      recipe('half', [ingredient('Rice', '½', 'cup', 'brown-rice')], 2),
+      recipe('mixed', [ingredient('Sauce', '1½', 'tbsp', 'sauce')], 3),
+      recipe('quarter', [ingredient('Flour', '¼', 'cup', 'flour')], 1),
+    ]
+
+    expect(line(aggregateShoppingIngredients(items, ['half'], { half: 3 }), 'canonical:brown-rice::cup').quantity).toBe('¾')
+    expect(line(aggregateShoppingIngredients(items, ['mixed'], { mixed: 2 }), 'canonical:sauce::tbsp').quantity).toBe('1')
+    expect(line(aggregateShoppingIngredients(items, ['quarter'], { quarter: 3 }), 'canonical:flour::cup').quantity).toBe('¾')
+    expect(line(aggregateShoppingIngredients(items, ['half'], { half: 1 }), 'canonical:brown-rice::cup').quantity).toBe('¼')
+  })
+
+  it('scales each recipe independently before canonical aggregation', () => {
+    const items = [
+      recipe('a', [ingredient('Mushrooms', '150', 'g', 'mushrooms')], 2),
+      recipe('b', [ingredient('Mushrooms', '180', 'g', 'mushrooms')], 4),
+    ]
+
+    expect(line(aggregateShoppingIngredients(items, ['a', 'b'], { a: 4, b: 2 }), 'canonical:mushrooms::g').quantity).toBe('390')
+    expect(aggregateShoppingIngredients(items, ['a', 'b'], { a: 4, b: 2 }).map(item => item.id)).toEqual(['canonical:mushrooms::g'])
+  })
+
+  it('keeps non-scalable quantities deterministic', () => {
+    const items = [recipe('range', [ingredient('Chilli', '1–2', undefined, 'chilli')], 2)]
+    const lines = aggregateShoppingIngredients(items, ['range'], { range: 4 })
+
+    expect(lines).toHaveLength(1)
+    expect(lines[0]).toMatchObject({ quantity: '1–2', aggregatable: false })
+  })
 })
 
 describe('shopping persistence', () => {
@@ -120,6 +161,38 @@ describe('shopping persistence', () => {
     expect(savePurchasedShoppingLines([], store)).toBe(true)
     expect(loadShoppingSelection(store, ['first', 'second'])).toEqual([])
     expect(loadPurchasedShoppingLines(store)).toEqual([])
+  })
+
+  it('loads old array storage with base servings and migrates valid serving overrides', () => {
+    const values = new Map<string, string>()
+    const store = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => { values.set(key, value) },
+    }
+    const available = [recipe('first', [ingredient('Rice', '1', 'cup')], 2), recipe('second', [ingredient('Rice', '1', 'cup')], 4)]
+
+    values.set(shoppingStorageKey, JSON.stringify(['first', 'stale']))
+    expect(loadShoppingState(store, available)).toEqual({ recipeIds: ['first'], servingsByRecipeId: { first: 2 } })
+
+    values.set(shoppingStorageKey, JSON.stringify({ recipeIds: ['first', 'second', 'stale'], servingsByRecipeId: { first: 4, second: 0, stale: 19 } }))
+    expect(loadShoppingState(store, available)).toEqual({ recipeIds: ['first', 'second'], servingsByRecipeId: { first: 4, second: 1 } })
+    expect(saveShoppingState({ recipeIds: ['first'], servingsByRecipeId: { first: 3, stale: 20 } }, store)).toBe(true)
+    expect(JSON.parse(values.get(shoppingStorageKey)!)).toEqual({ recipeIds: ['first'], servingsByRecipeId: { first: 3 } })
+  })
+
+  it('normalizes serving values and clears an override when a recipe is removed and re-added', () => {
+    expect(normalizeShoppingServings(0, 2)).toBe(shoppingMinServings)
+    expect(normalizeShoppingServings(-2, 2)).toBe(shoppingMinServings)
+    expect(normalizeShoppingServings(21, 2)).toBe(shoppingMaxServings)
+    expect(normalizeShoppingServings('garbage', 2)).toBe(2)
+    expect(normalizeShoppingServings(1.5, 2)).toBe(2)
+
+    const selected = toggleShoppingRecipeState(emptyShoppingSelection(), { id: 'first', servings: 2 })
+    const adjusted = adjustShoppingRecipeServings(selected, { id: 'first', servings: 2 }, 2)
+    expect(adjusted).toEqual({ recipeIds: ['first'], servingsByRecipeId: { first: 4 } })
+    const removed = toggleShoppingRecipeState(adjusted, { id: 'first', servings: 2 })
+    expect(removed).toEqual(emptyShoppingSelection())
+    expect(toggleShoppingRecipeState(removed, { id: 'first', servings: 2 })).toEqual({ recipeIds: ['first'], servingsByRecipeId: { first: 2 } })
   })
 
   it('aggregates the production catalog with its current quantity representation', () => {

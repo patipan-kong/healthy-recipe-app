@@ -5,13 +5,12 @@ import { formatIngredientAmount } from './measurements'
 import { chooseRandom, emptyFilters, filterRecipes, recipes, searchRecipes } from './recipes'
 import { loadFavorites, saveFavorites, toggleFavorite } from './favorites'
 import { canonicalIngredients, categoryIngredients, countRecipesByIngredient, filterRecipesByIngredient, ingredientCategoryOrder, loadPantrySelection, rankRecipesByPantry, savePantrySelection, togglePantryIngredient, type PantryMatch } from './pantry'
-import { aggregateShoppingIngredients, loadPurchasedShoppingLines, loadShoppingSelection, savePurchasedShoppingLines, saveShoppingSelection, togglePurchasedShoppingLine, toggleShoppingRecipe, type ShoppingLine } from './shopping'
+import { adjustShoppingRecipeServings, aggregateShoppingIngredients, emptyShoppingSelection, loadPurchasedShoppingLines, loadShoppingState, savePurchasedShoppingLines, saveShoppingState, togglePurchasedShoppingLine, toggleShoppingRecipeState, type ShoppingLine, type ShoppingSelection } from './shopping'
 import type { Filters, Locale, Recipe } from './types'
 
 const categories = ['Quick meals', 'Thai favorites', 'High protein', 'Plant-forward', 'Light bowls']
 const tags = ['High protein', 'Quick', 'Light', 'Vegetarian', 'Vegan', 'No-cook', 'Fiber-rich', 'Meal prep']
 const recipeIds = new Set(recipes.map(recipe => recipe.id))
-const recipeIdList = recipes.map(recipe => recipe.id)
 type AppScreen = 'browse' | 'favorites' | 'pantry' | 'shopping' | 'detail'
 type PantryMode = 'selection' | 'results'
 type PantryResultSource =
@@ -34,7 +33,7 @@ function App() {
   const [filters, setFilters] = useState<Filters>(emptyFilters)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [favorites, setFavorites] = useState<string[]>(() => normalizeFavorites(loadFavorites()))
-  const [shoppingRecipeIds, setShoppingRecipeIds] = useState<string[]>(() => loadShoppingSelection(undefined, recipeIdList))
+  const [shoppingSelection, setShoppingSelection] = useState<ShoppingSelection>(() => loadShoppingState(undefined, recipes))
   const [shoppingPurchasedIds, setShoppingPurchasedIds] = useState<string[]>(() => loadPurchasedShoppingLines())
   const [lastRandom, setLastRandom] = useState<string>()
   const [storageAvailable, setStorageAvailable] = useState(true)
@@ -51,14 +50,14 @@ function App() {
 
   useEffect(() => setStorageAvailable(saveFavorites(favorites)), [favorites])
   useEffect(() => setPantryStorageAvailable(savePantrySelection(pantrySelection)), [pantrySelection])
-  useEffect(() => setShoppingStorageAvailable(saveShoppingSelection(shoppingRecipeIds)), [shoppingRecipeIds])
+  useEffect(() => setShoppingStorageAvailable(saveShoppingState(shoppingSelection)), [shoppingSelection])
   useEffect(() => setShoppingPurchasedStorageAvailable(savePurchasedShoppingLines(shoppingPurchasedIds)), [shoppingPurchasedIds])
   useEffect(() => { saveLocale(locale) }, [locale])
 
   const filtered = useMemo(() => searchRecipes(filterRecipes(recipes, filters), query), [query, filters])
   const visible = screen === 'favorites' ? filtered.filter(recipe => favorites.includes(recipe.id)) : filtered
   const pantryCounts = useMemo(() => countRecipesByIngredient(recipes), [])
-  const shoppingLines = useMemo(() => aggregateShoppingIngredients(recipes, shoppingRecipeIds), [shoppingRecipeIds])
+  const shoppingLines = useMemo(() => aggregateShoppingIngredients(recipes, shoppingSelection.recipeIds, shoppingSelection.servingsByRecipeId), [shoppingSelection])
   const activeFilterCount = Number(Boolean(filters.category)) + filters.tags.length + Object.entries(filters).filter(([key, value]) => !['category', 'tags'].includes(key) && value !== undefined).length
 
   useEffect(() => {
@@ -90,10 +89,20 @@ function App() {
   }
 
   function favorite(id: string) { setFavorites(current => toggleFavorite(current, id)) }
-  function toggleShoppingRecipeFromDetail(id: string) { setShoppingRecipeIds(current => toggleShoppingRecipe(current, id)) }
-  function removeShoppingRecipe(id: string) { setShoppingRecipeIds(current => current.filter(recipeId => recipeId !== id)) }
+  function toggleShoppingRecipeFromDetail(id: string) {
+    const recipe = recipes.find(candidate => candidate.id === id)
+    if (recipe) setShoppingSelection(current => toggleShoppingRecipeState(current, recipe))
+  }
+  function removeShoppingRecipe(id: string) {
+    const recipe = recipes.find(candidate => candidate.id === id)
+    if (recipe) setShoppingSelection(current => toggleShoppingRecipeState(current, recipe))
+  }
+  function adjustShoppingServings(id: string, delta: number) {
+    const recipe = recipes.find(candidate => candidate.id === id)
+    if (recipe) setShoppingSelection(current => adjustShoppingRecipeServings(current, recipe, delta))
+  }
   function toggleShoppingPurchased(lineId: string) { setShoppingPurchasedIds(current => togglePurchasedShoppingLine(current, lineId)) }
-  function clearShopping() { setShoppingRecipeIds([]); setShoppingPurchasedIds([]) }
+  function clearShopping() { setShoppingSelection(emptyShoppingSelection()); setShoppingPurchasedIds([]) }
   function togglePantry(id: string) { setPantryResultSource({ kind: 'selection' }); setPantryMode('selection'); setPantrySelection(current => togglePantryIngredient(current, id)) }
   function clearPantry() { setPantryResultSource({ kind: 'selection' }); setPantryMode('selection'); setPantrySelection([]) }
   function showPantryResults() { if (pantrySelection.length > 0) { setPantryResultSource({ kind: 'selection' }); setPantryMode('results') } }
@@ -113,7 +122,7 @@ function App() {
   function toggleShoppingScreen() { setScreen(current => current === 'shopping' ? 'browse' : 'shopping') }
   function closeFilters() { setFiltersOpen(false); requestAnimationFrame(() => filterTriggerRef.current?.focus()) }
 
-  if (screen === 'detail' && selected) return <RecipeDetail recipe={selected} locale={locale} isFavorite={favorites.includes(selected.id)} isInShopping={shoppingRecipeIds.includes(selected.id)} onBack={() => setScreen(returnScreen)} onFavorite={() => favorite(selected.id)} onToggleShopping={() => toggleShoppingRecipeFromDetail(selected.id)} />
+  if (screen === 'detail' && selected) return <RecipeDetail recipe={selected} locale={locale} isFavorite={favorites.includes(selected.id)} isInShopping={shoppingSelection.recipeIds.includes(selected.id)} onBack={() => setScreen(returnScreen)} onFavorite={() => favorite(selected.id)} onToggleShopping={() => toggleShoppingRecipeFromDetail(selected.id)} />
 
   return <main className="app-shell">
     <header className="topbar">
@@ -123,11 +132,11 @@ function App() {
           {(['th', 'en'] as Locale[]).map(option => <button key={option} className={locale === option ? 'active' : ''} onClick={() => setLocale(option)} aria-pressed={locale === option}>{option.toUpperCase()}</button>)}
         </div>
         <button className={`pantry-nav ${screen === 'pantry' ? 'active' : ''}`} onClick={togglePantryScreen} aria-label={copy.pantry} aria-pressed={screen === 'pantry'}><span aria-hidden="true">🥕</span><span>{copy.pantry}</span>{pantrySelection.length > 0 && <i>{pantrySelection.length}</i>}</button>
-        <button className={`shopping-nav ${screen === 'shopping' ? 'active' : ''}`} onClick={toggleShoppingScreen} aria-label={copy.shopping} aria-pressed={screen === 'shopping'}><ShoppingBasket size={16} aria-hidden="true" /><span>{copy.shopping}</span>{shoppingRecipeIds.length > 0 && <i>{shoppingRecipeIds.length}</i>}</button>
+        <button className={`shopping-nav ${screen === 'shopping' ? 'active' : ''}`} onClick={toggleShoppingScreen} aria-label={copy.shopping} aria-pressed={screen === 'shopping'}><ShoppingBasket size={16} aria-hidden="true" /><span>{copy.shopping}</span>{shoppingSelection.recipeIds.length > 0 && <i>{shoppingSelection.recipeIds.length}</i>}</button>
         <button className="icon-button" onClick={() => setScreen(screen === 'favorites' ? 'browse' : 'favorites')} aria-label={copy.favorites}><Heart size={21} fill={screen === 'favorites' ? 'currentColor' : 'none'} /><i>{favorites.length || ''}</i></button>
       </div>
     </header>
-    {screen === 'pantry' ? <PantryView locale={locale} mode={pantryMode} selectedIds={pantrySelection} resultSource={pantryResultSource} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={browsePantryIngredient} onViewResults={showPantryResults} onEditIngredients={editPantryIngredients} onClear={clearPantry} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : screen === 'shopping' ? <ShoppingView locale={locale} recipeIds={shoppingRecipeIds} lines={shoppingLines} purchasedIds={shoppingPurchasedIds} pantryIds={pantrySelection} storageAvailable={shoppingStorageAvailable && shoppingPurchasedStorageAvailable} onTogglePurchased={toggleShoppingPurchased} onRemoveRecipe={removeShoppingRecipe} onClear={clearShopping} onOpen={openRecipe} /> : <>
+    {screen === 'pantry' ? <PantryView locale={locale} mode={pantryMode} selectedIds={pantrySelection} resultSource={pantryResultSource} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={browsePantryIngredient} onViewResults={showPantryResults} onEditIngredients={editPantryIngredients} onClear={clearPantry} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : screen === 'shopping' ? <ShoppingView locale={locale} recipeIds={shoppingSelection.recipeIds} servingsByRecipeId={shoppingSelection.servingsByRecipeId} lines={shoppingLines} purchasedIds={shoppingPurchasedIds} pantryIds={pantrySelection} storageAvailable={shoppingStorageAvailable && shoppingPurchasedStorageAvailable} onTogglePurchased={toggleShoppingPurchased} onChangeServings={adjustShoppingServings} onRemoveRecipe={removeShoppingRecipe} onClear={clearShopping} onOpen={openRecipe} /> : <>
       <section className="hero"><p className="eyebrow">{copy.heroEyebrow}</p><h1>{copy.heroTitle}</h1><p>{copy.heroDescription}</p><button className="random-button" disabled={!filtered.length} onClick={randomRecipe}><Shuffle size={19} /> {copy.random}</button></section>
       <section className="content">
         {!storageAvailable && <p className="storage-note" role="status">{copy.storageNote}</p>}
@@ -158,17 +167,19 @@ export function RecipeImage({ recipe, variant, locale = 'en' }: { recipe: Recipe
 type ShoppingViewProps = {
   locale: Locale
   recipeIds: string[]
+  servingsByRecipeId: Readonly<Record<string, number>>
   lines: ShoppingLine[]
   purchasedIds: string[]
   pantryIds: string[]
   storageAvailable: boolean
   onTogglePurchased(lineId: string): void
+  onChangeServings(recipeId: string, delta: number): void
   onRemoveRecipe(recipeId: string): void
   onClear(): void
   onOpen(recipe: Recipe): void
 }
 
-function ShoppingView({ locale, recipeIds, lines, purchasedIds, pantryIds, storageAvailable, onTogglePurchased, onRemoveRecipe, onClear, onOpen }: ShoppingViewProps) {
+function ShoppingView({ locale, recipeIds, servingsByRecipeId, lines, purchasedIds, pantryIds, storageAvailable, onTogglePurchased, onChangeServings, onRemoveRecipe, onClear, onOpen }: ShoppingViewProps) {
   const copy = messages[locale]
   const selectedRecipes = recipeIds.map(id => recipes.find(recipe => recipe.id === id)).filter((recipe): recipe is Recipe => Boolean(recipe))
   const purchased = new Set(purchasedIds)
@@ -179,7 +190,21 @@ function ShoppingView({ locale, recipeIds, lines, purchasedIds, pantryIds, stora
     {selectedRecipes.length ? <>
       <section className="shopping-section" aria-labelledby="shopping-selected-heading">
         <h3 id="shopping-selected-heading">{copy.shoppingSelectedRecipes}</h3>
-        <div className="shopping-recipes">{selectedRecipes.map(recipe => <div className="shopping-recipe" key={recipe.id}><button className="shopping-recipe-name" onClick={() => onOpen(recipe)}>{recipe.name[locale]}</button><button className="text-button shopping-remove" onClick={() => onRemoveRecipe(recipe.id)} aria-label={`${copy.shoppingRemove} ${recipe.name[locale]}`}>{copy.shoppingRemove}</button></div>)}</div>
+        <div className="shopping-recipes">{selectedRecipes.map(recipe => {
+          const targetServings = servingsByRecipeId[recipe.id] ?? recipe.servings
+          return <div className="shopping-recipe" key={recipe.id}>
+            <button className="shopping-recipe-name" onClick={() => onOpen(recipe)}>{recipe.name[locale]}</button>
+            <div className="shopping-serving-control-wrap">
+              <span className="shopping-serving-label">{copy.shoppingServings}</span>
+              <div className="shopping-serving-control" role="group" aria-label={`${copy.shoppingServings}: ${recipe.name[locale]}`}>
+                <button className="shopping-serving-button" onClick={() => onChangeServings(recipe.id, -1)} disabled={targetServings <= 1} aria-label={`${copy.shoppingDecrease}: ${recipe.name[locale]}`}>−</button>
+                <span className="shopping-serving-value" aria-live="polite" data-shopping-servings={recipe.id}>{targetServings}</span>
+                <button className="shopping-serving-button" onClick={() => onChangeServings(recipe.id, 1)} disabled={targetServings >= 20} aria-label={`${copy.shoppingIncrease}: ${recipe.name[locale]}`}>+</button>
+              </div>
+            </div>
+            <button className="text-button shopping-remove" onClick={() => onRemoveRecipe(recipe.id)} aria-label={`${copy.shoppingRemove} ${recipe.name[locale]}`}>{copy.shoppingRemove}</button>
+          </div>
+        })}</div>
       </section>
       <section className="shopping-section" aria-labelledby="shopping-ingredients-heading">
         <h3 id="shopping-ingredients-heading">{copy.shoppingIngredients}</h3>
