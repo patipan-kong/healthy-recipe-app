@@ -22,6 +22,7 @@ type MessageSet = {
   pantrySelectedSummary: (count: number) => string
   pantryDirectSummary: (name: string) => string
   pantryResultCount: (count: number) => string
+  pantryDirectResultCount: (count: number) => string
   pantryResults: string
   pantrySingleResults: (name: string) => string
   pantryBack: string
@@ -95,6 +96,7 @@ export const messages: Record<Locale, MessageSet> = {
     pantrySelectedSummary: count => `จากวัตถุดิบ ${count} อย่าง:`,
     pantryDirectSummary: name => `จากวัตถุดิบ: ${name}`,
     pantryResultCount: count => `${count} เมนูที่ตรงกัน`,
+    pantryDirectResultCount: count => `${count} เมนู`,
     pantryResults: 'เมนูจากวัตถุดิบที่มี',
     pantrySingleResults: name => `เมนูที่ใช้ ${name}`,
     pantryBack: 'กลับไปเลือกวัตถุดิบ',
@@ -166,8 +168,9 @@ export const messages: Record<Locale, MessageSet> = {
     pantrySelectedSummary: count => `From ${count} selected ingredients:`,
     pantryDirectSummary: name => `From ingredient: ${name}`,
     pantryResultCount: count => `${count} matching recipes`,
+    pantryDirectResultCount: count => `${count} recipes`,
     pantryResults: 'Recipes from your pantry',
-    pantrySingleResults: name => `Recipes using ${name}`,
+    pantrySingleResults: name => `Recipes with ${name}`,
     pantryBack: 'Back to ingredients',
     pantryClear: 'Clear',
     pantrySearchPlaceholder: 'Search ingredients',

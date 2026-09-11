@@ -12,6 +12,9 @@ const tags = ['High protein', 'Quick', 'Light', 'Vegetarian', 'Vegan', 'No-cook'
 const recipeIds = new Set(recipes.map(recipe => recipe.id))
 type AppScreen = 'browse' | 'favorites' | 'pantry' | 'detail'
 type PantryMode = 'selection' | 'results'
+type PantryResultSource =
+  | { kind: 'selection' }
+  | { kind: 'direct'; ingredientId: string }
 
 export function normalizeFavorites(ids: string[]) {
   return [...new Set(ids)].filter(id => recipeIds.has(id))
@@ -34,7 +37,7 @@ function App() {
   const [pantryStorageAvailable, setPantryStorageAvailable] = useState(true)
   const [locale, setLocale] = useState<Locale>(() => loadLocale())
   const [pantrySelection, setPantrySelection] = useState<string[]>(() => loadPantrySelection())
-  const [pantryFocus, setPantryFocus] = useState<string>()
+  const [pantryResultSource, setPantryResultSource] = useState<PantryResultSource>({ kind: 'selection' })
   const [pantryMode, setPantryMode] = useState<PantryMode>('selection')
   const [pantryQuery, setPantryQuery] = useState('')
   const filterTriggerRef = useRef<HTMLButtonElement>(null)
@@ -70,18 +73,18 @@ function App() {
   }
 
   function favorite(id: string) { setFavorites(current => toggleFavorite(current, id)) }
-  function togglePantry(id: string) { setPantryFocus(undefined); setPantryMode('selection'); setPantrySelection(current => togglePantryIngredient(current, id)) }
-  function clearPantry() { setPantryFocus(undefined); setPantryMode('selection'); setPantrySelection([]) }
-  function showPantryResults() { if (pantrySelection.length > 0) { setPantryFocus(undefined); setPantryMode('results') } }
-  function browsePantryIngredient(id: string) { setPantryFocus(id); setPantryMode('results') }
-  function editPantryIngredients() { setPantryFocus(undefined); setPantryMode('selection') }
+  function togglePantry(id: string) { setPantryResultSource({ kind: 'selection' }); setPantryMode('selection'); setPantrySelection(current => togglePantryIngredient(current, id)) }
+  function clearPantry() { setPantryResultSource({ kind: 'selection' }); setPantryMode('selection'); setPantrySelection([]) }
+  function showPantryResults() { if (pantrySelection.length > 0) { setPantryResultSource({ kind: 'selection' }); setPantryMode('results') } }
+  function browsePantryIngredient(id: string) { setPantryResultSource({ kind: 'direct', ingredientId: id }); setPantryMode('results') }
+  function editPantryIngredients() { setPantryResultSource({ kind: 'selection' }); setPantryMode('selection') }
   function togglePantryScreen() {
     if (screen === 'pantry') {
-      setPantryFocus(undefined)
+      setPantryResultSource({ kind: 'selection' })
       setPantryMode('selection')
       setScreen('browse')
     } else {
-      setPantryFocus(undefined)
+      setPantryResultSource({ kind: 'selection' })
       setPantryMode('selection')
       setScreen('pantry')
     }
@@ -101,7 +104,7 @@ function App() {
         <button className="icon-button" onClick={() => setScreen(screen === 'favorites' ? 'browse' : 'favorites')} aria-label={copy.favorites}><Heart size={21} fill={screen === 'favorites' ? 'currentColor' : 'none'} /><i>{favorites.length || ''}</i></button>
       </div>
     </header>
-    {screen === 'pantry' ? <PantryView locale={locale} mode={pantryMode} selectedIds={pantrySelection} focusedIngredientId={pantryFocus} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={browsePantryIngredient} onViewResults={showPantryResults} onEditIngredients={editPantryIngredients} onClear={clearPantry} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : <>
+    {screen === 'pantry' ? <PantryView locale={locale} mode={pantryMode} selectedIds={pantrySelection} resultSource={pantryResultSource} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={browsePantryIngredient} onViewResults={showPantryResults} onEditIngredients={editPantryIngredients} onClear={clearPantry} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : <>
       <section className="hero"><p className="eyebrow">{copy.heroEyebrow}</p><h1>{copy.heroTitle}</h1><p>{copy.heroDescription}</p><button className="random-button" disabled={!filtered.length} onClick={randomRecipe}><Shuffle size={19} /> {copy.random}</button></section>
       <section className="content">
         {!storageAvailable && <p className="storage-note" role="status">{copy.storageNote}</p>}
@@ -133,7 +136,7 @@ type PantryViewProps = {
   locale: Locale
   mode: PantryMode
   selectedIds: string[]
-  focusedIngredientId?: string
+  resultSource: PantryResultSource
   query: string
   counts: Record<string, number>
   storageAvailable: boolean
@@ -148,18 +151,21 @@ type PantryViewProps = {
   onFavorite(id: string): void
 }
 
-function PantryView({ locale, mode, selectedIds, focusedIngredientId, query, counts, storageAvailable, onQuery, onToggle, onBrowseIngredient, onViewResults, onEditIngredients, onClear, favorites, onOpen, onFavorite }: PantryViewProps) {
+function PantryView({ locale, mode, selectedIds, resultSource, query, counts, storageAvailable, onQuery, onToggle, onBrowseIngredient, onViewResults, onEditIngredients, onClear, favorites, onOpen, onFavorite }: PantryViewProps) {
   const copy = messages[locale]
   const selectionModeRef = useRef<HTMLButtonElement>(null)
   const resultsModeRef = useRef<HTMLButtonElement>(null)
-  const focusedIngredient = canonicalIngredients.find(ingredient => ingredient.id === focusedIngredientId)
+  const directIngredientId = resultSource.kind === 'direct' ? resultSource.ingredientId : undefined
+  const focusedIngredient = canonicalIngredients.find(ingredient => ingredient.id === directIngredientId)
   const hasSelection = selectedIds.length > 0
-  const isDirectBrowse = Boolean(focusedIngredient)
+  const isDirectBrowse = resultSource.kind === 'direct'
   const showingResults = mode === 'results' || isDirectBrowse
   const canShowResults = hasSelection || isDirectBrowse
   const normalizedQuery = query.trim().toLocaleLowerCase()
   const visibleForSearch = (ingredient: typeof canonicalIngredients[number]) => counts[ingredient.id] > 0 && (!normalizedQuery || `${ingredient.name.th} ${ingredient.name.en}`.toLocaleLowerCase().includes(normalizedQuery))
-  const ranked = useMemo(() => focusedIngredientId ? filterRecipesByIngredient(recipes, focusedIngredientId).map(recipe => ({ recipe, matchedIngredientIds: [focusedIngredientId], matchCount: 1, matchPercentage: 1 } satisfies PantryMatch)) : rankRecipesByPantry(recipes, selectedIds), [focusedIngredientId, selectedIds])
+  const ranked = useMemo(() => resultSource.kind === 'direct'
+    ? filterRecipesByIngredient(recipes, resultSource.ingredientId).map(recipe => ({ recipe, matchedIngredientIds: [resultSource.ingredientId], matchCount: 1, matchPercentage: 1 } satisfies PantryMatch))
+    : rankRecipesByPantry(recipes, selectedIds), [resultSource, selectedIds])
   const resultHeading = focusedIngredient ? copy.pantrySingleResults(focusedIngredient.name[locale]) : copy.pantryResults
   const selectedNames = selectedIds.map(id => canonicalIngredients.find(ingredient => ingredient.id === id)?.name[locale]).filter((name): name is string => Boolean(name))
 
@@ -198,7 +204,7 @@ function PantryView({ locale, mode, selectedIds, focusedIngredientId, query, cou
       <button ref={resultsModeRef} className={showingResults ? 'active' : ''} onClick={() => changeMode('results')} aria-pressed={showingResults} disabled={!canShowResults}>{copy.pantryRecipesMode}</button>
     </div>
     {showingResults ? <section className="pantry-results" aria-labelledby="pantry-mode-heading">
-      <div className="pantry-results-toolbar"><p className="pantry-result-count">{copy.pantryResultCount(ranked.length)}</p><div className="pantry-result-actions"><button className="text-button" onClick={onClear}>{copy.pantryClear}</button><button className="text-button" onClick={editIngredients}>{copy.pantryEditIngredients}</button></div></div>
+      <div className="pantry-results-toolbar"><p className="pantry-result-count">{isDirectBrowse ? copy.pantryDirectResultCount(ranked.length) : copy.pantryResultCount(ranked.length)}</p><div className="pantry-result-actions"><button className="text-button" onClick={onClear}>{copy.pantryClear}</button><button className="text-button" onClick={editIngredients}>{copy.pantryEditIngredients}</button></div></div>
       <div className="pantry-result-summary"><p>{isDirectBrowse ? copy.pantryDirectSummary(focusedIngredient?.name[locale] ?? '') : copy.pantrySelectedSummary(selectedIds.length)}</p>{!isDirectBrowse && <p className="pantry-selected-names">{selectedNames.join(' · ')}</p>}</div>
       <div className="recipe-grid">{ranked.map(match => <RecipeCard key={match.recipe.id} recipe={match.recipe} locale={locale} favorite={favorites.includes(match.recipe.id)} match={!isDirectBrowse ? { count: match.matchCount, total: selectedIds.length } : undefined} onOpen={() => onOpen(match.recipe)} onFavorite={() => onFavorite(match.recipe.id)} />)}</div>
     </section> : <section className="pantry-selection" aria-labelledby="pantry-mode-heading">

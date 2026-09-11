@@ -3,7 +3,8 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
-import { pantryStorageKey } from './pantry'
+import { countRecipesByIngredient, filterRecipesByIngredient, pantryStorageKey } from './pantry'
+import { recipes } from './recipes'
 
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
@@ -98,25 +99,64 @@ describe('Pantry application flow', () => {
     expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(3)
   })
 
-  it('keeps selected ingredients when search hides them and supports direct single-ingredient browse', () => {
+  it('strictly filters direct browse, preserves checkbox state, and replaces the direct constraint', () => {
     clickPantry()
-    select('แตงกวา')
+    const cucumberCount = countRecipesByIngredient(recipes).cucumber
+    const cucumberRecipes = filterRecipesByIngredient(recipes, 'cucumber')
+    expect(cucumberCount).toBe(24)
+    expect(cucumberRecipes).toHaveLength(cucumberCount)
+    expect(cucumberCount).toBeLessThan(recipes.length)
+    expect(cucumberRecipes.every(recipe => recipe.ingredients.some(ingredient => ingredient.ingredientId === 'cucumber'))).toBe(true)
+
+    select('ไข่')
     select('อกไก่')
     const search = container.querySelector<HTMLInputElement>('.pantry-search input')!
     setInputValue(search, 'แตงกวา')
-    expect(pantryRow('แตงกวา').querySelector<HTMLInputElement>('input')?.checked).toBe(true)
+    expect(pantryRow('แตงกวา').querySelector<HTMLButtonElement>('.pantry-browse-button')?.textContent).toContain(`(${cucumberCount})`)
     expect([...container.querySelectorAll('.pantry-row')].some(row => row.textContent?.includes('อกไก่'))).toBe(false)
     setInputValue(search, '')
     expect(pantryRow('อกไก่').querySelector<HTMLInputElement>('input')?.checked).toBe(true)
 
     act(() => pantryRow('แตงกวา').querySelector<HTMLButtonElement>('.pantry-browse-button')?.click())
     expect(container.querySelector('.pantry-results')).not.toBeNull()
+    expect(container.querySelector('#pantry-mode-heading')?.textContent).toBe('เมนูที่ใช้ แตงกวา')
+    expect(container.querySelector('.pantry-result-count')?.textContent).toBe(`${cucumberCount} เมนู`)
     expect(container.querySelector('.pantry-result-summary')?.textContent).toContain('แตงกวา')
-    expect(container.querySelectorAll('.pantry-results .recipe-card').length).toBeGreaterThan(0)
+    const cucumberCards = [...container.querySelectorAll<HTMLElement>('.pantry-results .recipe-card h3')].map(card => card.textContent)
+    expect(cucumberCards).toEqual(cucumberRecipes.map(recipe => recipe.name.th))
     expect(container.querySelectorAll('.pantry-results .match-indicator')).toHaveLength(0)
 
     act(() => button('แก้ไขวัตถุดิบ').click())
     expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(2)
+    act(() => container.querySelector<HTMLButtonElement>('.pantry-view-action')?.click())
+    expect(container.querySelectorAll('.pantry-results .recipe-card')).toHaveLength(recipes.length)
+    expect(container.querySelector('.pantry-results .match-indicator')).not.toBeNull()
+    act(() => button('แก้ไขวัตถุดิบ').click())
+    expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(2)
+
+    const tomatoRecipes = filterRecipesByIngredient(recipes, 'tomatoes')
+    act(() => pantryRow('มะเขือเทศ').querySelector<HTMLButtonElement>('.pantry-browse-button')?.click())
+    expect(container.querySelector('#pantry-mode-heading')?.textContent).toBe('เมนูที่ใช้ มะเขือเทศ')
+    expect(container.querySelector('.pantry-result-count')?.textContent).toBe(`${tomatoRecipes.length} เมนู`)
+    expect([...container.querySelectorAll<HTMLElement>('.pantry-results .recipe-card h3')].map(card => card.textContent)).toEqual(tomatoRecipes.map(recipe => recipe.name.th))
+    expect(container.querySelectorAll('.pantry-results .recipe-card')).toHaveLength(tomatoRecipes.length)
+    expect(container.querySelectorAll('.pantry-results .match-indicator')).toHaveLength(0)
+    expect(container.querySelectorAll('.pantry-results .heart')).toHaveLength(tomatoRecipes.length)
+    act(() => button('เมนูที่ทำได้').click())
+    expect(container.querySelectorAll('.pantry-results .recipe-card')).toHaveLength(tomatoRecipes.length)
+
+    act(() => button('แก้ไขวัตถุดิบ').click())
+    expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(2)
+
+    act(() => button('EN').click())
+    act(() => pantryRow('Tomatoes').querySelector<HTMLButtonElement>('.pantry-browse-button')?.click())
+    expect(container.querySelector('#pantry-mode-heading')?.textContent).toBe('Recipes with Tomatoes')
+    expect(container.querySelector('.pantry-result-count')?.textContent).toBe(`${tomatoRecipes.length} recipes`)
+    expect([...container.querySelectorAll<HTMLElement>('.pantry-results .recipe-card h3')].map(card => card.textContent)).toEqual(tomatoRecipes.map(recipe => recipe.name.en))
+    expect(container.querySelectorAll('.pantry-results .recipe-card')).toHaveLength(tomatoRecipes.length)
+
+    act(() => container.querySelector<HTMLButtonElement>('.pantry-results .heart')?.click())
+    expect(container.querySelector('.pantry-results .heart')?.getAttribute('aria-pressed')).toBe('true')
   })
 
   it('preserves selection, ranking, and favorites across locale changes and remounts, then clears from Results', () => {
