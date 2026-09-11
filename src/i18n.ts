@@ -23,6 +23,8 @@ type MessageSet = {
   pantryDirectSummary: (name: string) => string
   pantryResultCount: (count: number) => string
   pantryDirectResultCount: (count: number) => string
+  pantryNoMatchesTitle: string
+  pantryNoMatchesText: string
   pantryResults: string
   pantrySingleResults: (name: string) => string
   pantryBack: string
@@ -97,6 +99,8 @@ export const messages: Record<Locale, MessageSet> = {
     pantryDirectSummary: name => `จากวัตถุดิบ: ${name}`,
     pantryResultCount: count => `${count} เมนูที่ตรงกัน`,
     pantryDirectResultCount: count => `${count} เมนู`,
+    pantryNoMatchesTitle: 'ไม่พบเมนูที่ตรงกับวัตถุดิบที่เลือก',
+    pantryNoMatchesText: 'ลองเลือกวัตถุดิบอื่นเพิ่มหรือแก้ไขวัตถุดิบ',
     pantryResults: 'เมนูจากวัตถุดิบที่มี',
     pantrySingleResults: name => `เมนูที่ใช้ ${name}`,
     pantryBack: 'กลับไปเลือกวัตถุดิบ',
@@ -169,6 +173,8 @@ export const messages: Record<Locale, MessageSet> = {
     pantryDirectSummary: name => `From ingredient: ${name}`,
     pantryResultCount: count => `${count} matching recipes`,
     pantryDirectResultCount: count => `${count} recipes`,
+    pantryNoMatchesTitle: 'No recipes match those ingredients',
+    pantryNoMatchesText: 'Try choosing different ingredients or edit your pantry.',
     pantryResults: 'Recipes from your pantry',
     pantrySingleResults: name => `Recipes with ${name}`,
     pantryBack: 'Back to ingredients',

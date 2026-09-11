@@ -26,13 +26,20 @@ describe('pantry ingredient model', () => {
 
   it('ranks multiple selected ingredients by match count, percentage, then source order', () => {
     const ranked = rankRecipesByPantry(recipes, ['cucumber', 'brown-rice', 'chicken-breast'])
-    expect(ranked.length).toBe(recipes.length)
+    expect(ranked.length).toBeGreaterThan(0)
+    expect(ranked.every(match => match.matchCount > 0)).toBe(true)
     expect(ranked[0].matchCount).toBeGreaterThanOrEqual(ranked[1].matchCount)
     expect(ranked.some(match => match.matchCount === 3)).toBe(true)
+    expect(ranked.some(match => match.matchCount > 0 && match.matchCount < 3)).toBe(true)
     expect(ranked.findIndex(match => match.matchCount === 3)).toBeLessThan(ranked.findIndex(match => match.matchCount < 3))
-    const tied = rankRecipesByPantry([recipes[1], recipes[0]], ['cucumber'])
-    expect(tied.slice(0, 2).map(match => match.recipe.id)).toEqual([recipes[1].id, recipes[0].id])
+    const cucumberMatches = filterRecipesByIngredient(recipes, 'cucumber')
+    const tied = rankRecipesByPantry([cucumberMatches[1], cucumberMatches[0]], ['cucumber'])
+    expect(tied.slice(0, 2).map(match => match.recipe.id)).toEqual([cucumberMatches[1].id, cucumberMatches[0].id])
     expect(rankRecipesByPantry(recipes, [])).toEqual([])
+
+    const recipeWithoutCucumber = recipes.find(recipe => !recipe.ingredients.some(ingredient => ingredient.ingredientId === 'cucumber'))
+    expect(recipeWithoutCucumber).toBeDefined()
+    expect(rankRecipesByPantry([recipeWithoutCucumber!], ['cucumber'])).toEqual([])
   })
 
   it('persists only valid IDs and supports clear/toggle', () => {

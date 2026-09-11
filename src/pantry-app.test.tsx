@@ -3,7 +3,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
-import { countRecipesByIngredient, filterRecipesByIngredient, pantryStorageKey } from './pantry'
+import { countRecipesByIngredient, filterRecipesByIngredient, pantryStorageKey, rankRecipesByPantry } from './pantry'
 import { recipes } from './recipes'
 
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
@@ -72,6 +72,31 @@ describe('Pantry application flow', () => {
     expect(container.querySelector<HTMLButtonElement>('.pantry-view-action')?.textContent).toBe('ดูเมนูที่ทำได้ (1)')
   })
 
+  it('keeps only positive checkbox matches, preserves partial matches, and counts rendered cards', () => {
+    clickPantry()
+    select('แตงกวา')
+    select('ไข่')
+    const ranked = rankRecipesByPantry(recipes, ['cucumber', 'eggs'])
+    const fullMatches = ranked.filter(match => match.matchCount === 2).length
+    const partialMatches = ranked.filter(match => match.matchCount === 1).length
+
+    expect(fullMatches).toBeGreaterThan(0)
+    expect(partialMatches).toBeGreaterThan(0)
+    expect(ranked.every(match => match.matchCount > 0)).toBe(true)
+    expect(ranked.findIndex(match => match.matchCount === 2)).toBeLessThan(ranked.findIndex(match => match.matchCount === 1))
+    expect(rankRecipesByPantry([recipes.find(recipe => !recipe.ingredients.some(ingredient => ingredient.ingredientId === 'cucumber'))!], ['cucumber'])).toEqual([])
+
+    act(() => container.querySelector<HTMLButtonElement>('.pantry-view-action')?.click())
+
+    expect(container.querySelector('.pantry-result-count')?.textContent).toBe(`${ranked.length} เมนูที่ตรงกัน`)
+    expect(container.querySelectorAll('.pantry-results .recipe-card')).toHaveLength(ranked.length)
+    expect(container.querySelectorAll('.pantry-results .match-indicator')).toHaveLength(ranked.length)
+    expect(container.querySelectorAll('.pantry-results .match-indicator').length).toBe(fullMatches + partialMatches)
+    expect([...container.querySelectorAll<HTMLElement>('.pantry-results .match-indicator')].some(indicator => indicator.textContent?.includes('0/2'))).toBe(false)
+    expect(container.querySelector('.pantry-results .match-indicator')?.textContent).toContain('2/2')
+    expect([...container.querySelectorAll<HTMLElement>('.pantry-results .match-indicator')].some(indicator => indicator.textContent?.includes('1/2'))).toBe(true)
+  })
+
   it('separates ranked recipe results and preserves deterministic 3/3 before 2/3 ordering', () => {
     clickPantry()
     select('แตงกวา')
@@ -85,9 +110,11 @@ describe('Pantry application flow', () => {
     expect(container.querySelector('.pantry-selection')).toBeNull()
     expect(container.querySelector('.pantry-results')).not.toBeNull()
     expect(container.querySelectorAll('.pantry-category')).toHaveLength(0)
-    expect(container.querySelector('.pantry-result-count')?.textContent).toBe('100 เมนูที่ตรงกัน')
+    const ranked = rankRecipesByPantry(recipes, ['cucumber', 'brown-rice', 'chicken-breast'])
+    expect(container.querySelector('.pantry-result-count')?.textContent).toBe(`${ranked.length} เมนูที่ตรงกัน`)
     expect(container.querySelector('.pantry-selected-names')?.textContent).toContain('แตงกวา')
-    expect(container.querySelectorAll('.pantry-results .recipe-card')).toHaveLength(100)
+    expect(container.querySelectorAll('.pantry-results .recipe-card')).toHaveLength(ranked.length)
+    expect([...container.querySelectorAll<HTMLElement>('.pantry-results .match-indicator')].some(indicator => indicator.textContent?.includes('0/3'))).toBe(false)
     expect(container.querySelector('.pantry-results .match-indicator')?.textContent).toBe('ตรงกับ 3/3 วัตถุดิบที่เลือก')
     expect(container.querySelectorAll('.pantry-results .match-indicator')[1]?.textContent).toContain('2/3')
     expect(container.querySelectorAll('.pantry-mode-tabs button.active')[0]?.textContent).toBe('เมนูที่ทำได้')
@@ -129,7 +156,9 @@ describe('Pantry application flow', () => {
     act(() => button('แก้ไขวัตถุดิบ').click())
     expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(2)
     act(() => container.querySelector<HTMLButtonElement>('.pantry-view-action')?.click())
-    expect(container.querySelectorAll('.pantry-results .recipe-card')).toHaveLength(recipes.length)
+    const checkboxRecipes = rankRecipesByPantry(recipes, ['eggs', 'chicken-breast'])
+    expect(container.querySelectorAll('.pantry-results .recipe-card')).toHaveLength(checkboxRecipes.length)
+    expect(container.querySelector('.pantry-result-count')?.textContent).toBe(`${checkboxRecipes.length} เมนูที่ตรงกัน`)
     expect(container.querySelector('.pantry-results .match-indicator')).not.toBeNull()
     act(() => button('แก้ไขวัตถุดิบ').click())
     expect(container.querySelectorAll('.pantry-row input:checked')).toHaveLength(2)

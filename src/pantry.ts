@@ -321,7 +321,7 @@ export function rankRecipesByPantry(items: readonly Recipe[], selectedIds: reado
   return items.map((recipe, index) => {
     const matchedIngredientIds = [...new Set(recipe.ingredients.map(ingredient => ingredient.ingredientId).filter((id): id is string => typeof id === 'string' && selectedSet.has(id)))]
     return { recipe, matchedIngredientIds, matchCount: matchedIngredientIds.length, matchPercentage: matchedIngredientIds.length / selected.length, index }
-  }).sort((a, b) => b.matchCount - a.matchCount || b.matchPercentage - a.matchPercentage || a.index - b.index).map(({ index: _index, ...match }) => match)
+  }).filter(match => match.matchCount > 0).sort((a, b) => b.matchCount - a.matchCount || b.matchPercentage - a.matchPercentage || a.index - b.index).map(({ index: _index, ...match }) => match)
 }
 
 type PantryStore = Pick<Storage, 'getItem' | 'setItem'>
