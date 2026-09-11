@@ -31,6 +31,18 @@ const highPriorityIds = [
   'black-bean-sweet-potato-chili',
 ] as const
 
+
+
+const mediumPriorityIds = [
+  'tom-yum-prawns', 'glass-noodle-seafood-salad', 'tofu-mince-soup', 'gazpacho-chickpea', 'broccoli-prawn-stirfry',
+  'grilled-chicken-jaew', 'chicken-larb-brown-rice', 'grilled-tilapia-herb-salad', 'shrimp-lemongrass-salad', 'chicken-green-curry-brown-rice',
+  'spicy-grilled-pork-salad', 'tofu-basil-stir-fry', 'chicken-soba-bowl', 'salmon-soba-salad', 'tuna-onigiri-plate',
+  'korean-tofu-glass-noodles', 'grilled-chicken-caesar-salad', 'chicken-avocado-wrap', 'shrimp-tomato-pasta', 'chicken-pesto-pasta',
+  'thai-red-curry-tofu', 'thai-pumpkin-chicken-soup', 'thai-mushroom-cashew-stir-fry', 'thai-steamed-chicken-cabbage', 'chicken-oyakodon',
+  'salmon-ochazuke', 'tofu-yakisoba-vegetables', 'edamame-egg-sushi-bowl', 'soba-tuna-cucumber-bowl', 'japanese-mushroom-chestnut-rice',
+  'korean-bean-sprout-chicken-soup', 'light-mapo-tofu', 'white-bean-tomato-soup', 'hummus-chicken-pita',
+] as const
+
 const recipeById = (id: string) => {
   const recipe = recipes.find(candidate => candidate.id === id)
   if (!recipe) throw new Error(`Missing recipe fixture: ${id}`)
@@ -180,5 +192,56 @@ describe('high-priority recipe quality corrections', () => {
 
   it('keeps all corrected recipe images on the existing WebP paths', () => {
     for (const id of highPriorityIds) expect(recipeById(id).image).toBe(`/recipes/${id}.webp`)
+  })
+})
+
+
+describe('medium-priority culinary corrections', () => {
+  it('keeps the bounded MEDIUM set complete and structurally valid', () => {
+    expect(mediumPriorityIds).toHaveLength(34)
+    expect(new Set(mediumPriorityIds).size).toBe(34)
+    expect(mediumPriorityIds.every(id => recipes.some(recipe => recipe.id === id))).toBe(true)
+    for (const id of mediumPriorityIds) {
+      const recipe = recipeById(id)
+      expect(recipe.ingredients.every(i => i.item.th.trim() && i.item.en.trim())).toBe(true)
+      expect(recipe.instructions.every(step => step.th.trim() && step.en.trim())).toBe(true)
+      for (const ingredient of recipe.ingredients) expect(() => parseIngredientMeasurement(ingredient.amount ?? String(ingredient.quantity), ingredient.item.en)).not.toThrow()
+      expect(recipe.image).toBe(`/recipes/${id}.webp`)
+    }
+    expect(validateRecipes(recipes)).toEqual([])
+  })
+
+  it('adds flavor identity without losing canonical pantry identities', () => {
+    expect(recipeById('tofu-basil-stir-fry').ingredients.map(i => i.item.en)).toContain('Garlic, minced')
+    expect(recipeById('tofu-basil-stir-fry').ingredients.find(i => i.item.en === 'Garlic, minced')?.ingredientId).toBe('garlic')
+    expect(recipeById('shrimp-lemongrass-salad').ingredients.find(i => i.item.en.startsWith('Lemongrass'))?.ingredientId).toBe('lemongrass')
+    expect(recipeById('thai-pumpkin-chicken-soup').ingredients.map(i => i.item.en)).toContain('Fish sauce')
+    expect(recipeById('light-mapo-tofu').ingredients.map(i => i.item.en)).toEqual(expect.arrayContaining(['Garlic, minced', 'Ginger, minced', 'Chilli bean paste']))
+  })
+
+  it('makes the previously thin noodle and bowl sauces executable', () => {
+    const yakisoba = recipeById('tofu-yakisoba-vegetables')
+    expect(yakisoba.ingredients.find(i => /noodles/i.test(i.item.en))?.amount).toBe('300 g')
+    expect(yakisoba.ingredients.find(i => /yakisoba sauce/i.test(i.item.en))?.amount).toBe('2 tbsp')
+    expect(yakisoba.instructions[0].en).toContain('half the sesame oil')
+    expect(yakisoba.instructions[1].en).toContain('remaining sesame oil')
+
+    const soba = recipeById('soba-tuna-cucumber-bowl')
+    expect(soba.ingredients.map(i => i.item.en)).toEqual(expect.arrayContaining(['Rice vinegar', 'Sesame oil']))
+    expect(recipeById('salmon-ochazuke').ingredients.map(i => i.item.en)).toContain('Reduced-sodium soy sauce')
+  })
+
+  it('keeps representative corrected quantities compatible with Shopping scaling', () => {
+    const yakisoba = aggregateShoppingIngredients(recipes, ['tofu-yakisoba-vegetables'], { 'tofu-yakisoba-vegetables': 4 })
+    expect(yakisoba.find(line => line.ingredientId === 'whole-wheat-noodles')?.quantity).toBe('600')
+    const soup = aggregateShoppingIngredients(recipes, ['thai-pumpkin-chicken-soup'], { 'thai-pumpkin-chicken-soup': 4 })
+    expect(soup.find(line => line.ingredientId === 'stock')?.quantity).toBe('1200')
+  })
+
+  it('keeps vegetarian and vegan corrected recipes free of obvious animal seasonings', () => {
+    for (const id of ['gazpacho-chickpea', 'tofu-basil-stir-fry', 'korean-tofu-glass-noodles', 'thai-red-curry-tofu', 'thai-mushroom-cashew-stir-fry', 'tofu-yakisoba-vegetables', 'edamame-egg-sushi-bowl', 'soba-tuna-cucumber-bowl', 'japanese-mushroom-chestnut-rice', 'white-bean-tomato-soup']) {
+      const recipe = recipeById(id)
+      expect(recipe.ingredients.some(i => /fish sauce|oyster sauce|chicken|pork|beef|seafood/i.test(i.item.en))).toBe(false)
+    }
   })
 })
