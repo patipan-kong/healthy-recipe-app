@@ -1,4 +1,5 @@
 import { recipes } from './recipes'
+import { recipeImagePresentationAdditions } from './recipe-additions'
 import { recipeImagePresentationExpansion } from './recipe-expansion'
 
 export type RecipeImageManifestEntry = {
@@ -70,6 +71,7 @@ const presentationById: Record<string, string> = {
   'pumpkin-soup-with-egg': 'smooth pumpkin soup in a bowl with halved boiled egg, yogurt and pumpkin seeds',
   'egg-avocado-toast': 'whole-wheat avocado toast topped with eggs, cherry tomatoes and pumpkin seeds',
   ...recipeImagePresentationExpansion,
+  ...recipeImagePresentationAdditions,
 }
 
 const format = (entry: typeof recipes[number]) => presentationById[entry.id] ?? `${entry.name.en} plated as a single-serving healthy meal`

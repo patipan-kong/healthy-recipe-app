@@ -6,7 +6,7 @@ import { normalizeFavorites } from './App'
 describe('recipe filtering', () => {
   it('uses AND semantics across category, nutrition, and tags', () => {
     const results = filterRecipes(recipes, { category: 'High protein', maxKcal: 430, minProtein: 30, tags: ['Meal prep'] })
-    expect(results.map(recipe => recipe.id)).toEqual(['herb-grilled-chicken', 'grilled-mackerel-bowl', 'thai-steamed-chicken-cabbage', 'japanese-cabbage-pork-steam', 'steamed-chicken-ginger-scallion'])
+    expect(results.map(recipe => recipe.id)).toEqual(['herb-grilled-chicken', 'grilled-mackerel-bowl', 'thai-steamed-chicken-cabbage', 'japanese-cabbage-pork-steam', 'steamed-chicken-ginger-scallion', 'japanese-chicken-miso-ginger-bowl', 'greek-chicken-sweet-potato-tray', 'one-pan-chicken-vegetable-quinoa'])
   })
   it('applies numeric nutrition limits including sodium', () => {
     const results = filterRecipes(recipes, { category: 'Thai favorites', maxKcal: 250, minProtein: 24, maxCarbs: 15, maxFat: 12, maxSodium: 650, tags: [] })
@@ -69,14 +69,14 @@ describe('favorites persistence', () => {
 })
 
 describe('recipe data validation', () => {
-  it('contains exactly 100 image-ready curated recipes with valid catalog fields', () => {
+  it('contains exactly 150 image-ready curated recipes with valid catalog fields', () => {
     const ids = new Set(recipes.map(recipe => recipe.id))
     const images = new Set(recipes.map(recipe => recipe.image))
     const categories = new Set(['Quick meals', 'Thai favorites', 'High protein', 'Plant-forward', 'Light bowls'])
 
-    expect(recipes).toHaveLength(100)
-    expect(ids.size).toBe(100)
-    expect(images.size).toBe(100)
+    expect(recipes).toHaveLength(150)
+    expect(ids.size).toBe(150)
+    expect(images.size).toBe(150)
     expect(recipes.every(recipe => /^\/recipes\/[a-z0-9]+(?:-[a-z0-9]+)*\.webp$/.test(recipe.image))).toBe(true)
     expect(recipes.every(recipe => categories.has(recipe.category))).toBe(true)
     expect(recipes.every(recipe => Number.isInteger(recipe.servings) && recipe.servings > 0)).toBe(true)
@@ -85,8 +85,8 @@ describe('recipe data validation', () => {
   })
 
   it('accepts the curated recipe dataset', () => expect(validateRecipes(recipes)).toEqual([]))
-  it('accepts complete Thai and English content for all 100 recipes', () => {
-    expect(recipes).toHaveLength(100)
+  it('accepts complete Thai and English content for all 150 recipes', () => {
+    expect(recipes).toHaveLength(150)
     expect(recipes.every(recipe => recipe.name.th.trim() && recipe.name.en.trim())).toBe(true)
     expect(recipes.every(recipe => recipe.ingredients.length > 0 && recipe.ingredients.every(ingredient => ingredient.item.th.trim() && ingredient.item.en.trim() && String(ingredient.quantity).trim()))).toBe(true)
     expect(recipes.every(recipe => recipe.instructions.length > 0 && recipe.instructions.every(instruction => instruction.th.trim() && instruction.en.trim()))).toBe(true)

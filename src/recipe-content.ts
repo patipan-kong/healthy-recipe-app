@@ -1,4 +1,5 @@
 import { thaiRecipeContentExpansion } from './recipe-expansion'
+import { thaiRecipeContentAdditions } from './recipe-additions'
 
 export type ThaiRecipeContent = {
   name: string
@@ -58,4 +59,5 @@ export const thaiRecipeContent: Record<string, ThaiRecipeContent> = {
   'pumpkin-soup-with-egg': { name: 'ซุปฟักทองกับไข่ต้ม', ingredients: ['ฟักทองปอกเปลือกหั่นเต๋า', 'ไข่ไก่', 'น้ำสต๊อกผักโซเดียมต่ำ', 'โยเกิร์ตกรีกธรรมชาติ', 'หอมใหญ่สับ', 'เมล็ดฟักทอง'], instructions: ['ต้มฟักทอง หอมใหญ่ และน้ำสต๊อกจนฟักทองนุ่มมาก', 'ปั่นจนเนียน เทกลับหม้อแล้วอุ่นเบา ๆ', 'ต้มไข่ 8–9 นาที พักให้เย็น ปอกเปลือก แล้วผ่าครึ่ง', 'เสิร์ฟซุปพร้อมไข่ โยเกิร์ต และเมล็ดฟักทอง'] },
   'egg-avocado-toast': { name: 'ขนมปังโฮลวีตไข่อะโวคาโด', ingredients: ['ขนมปังโฮลวีต', 'ไข่ไก่', 'อะโวคาโด', 'มะเขือเทศเชอร์รีผ่าครึ่ง', 'น้ำมะนาว', 'เมล็ดฟักทอง'], instructions: ['ปิ้งขนมปังจนกรอบ', 'บดอะโวคาโดกับน้ำมะนาวแล้วทาบนขนมปัง', 'ลวกหรือต้มไข่จนไข่ขาวสุก', 'วางไข่ มะเขือเทศ และเมล็ดฟักทองบนขนมปัง'] },
   ...thaiRecipeContentExpansion,
+  ...thaiRecipeContentAdditions,
 }

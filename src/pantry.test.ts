@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { canonicalIngredientIdForItem, canonicalIngredientIds, canonicalIngredients, countRecipesByIngredient, filterRecipesByIngredient, isExcludedPantryIngredient, loadPantrySelection, pantryStorageKey, rankRecipesByPantry, savePantrySelection, togglePantryIngredient } from './pantry'
+import { canonicalIngredientIdForItem, canonicalIngredientIds, canonicalIngredients, countRecipesByIngredient, filterRecipesByIngredient, isExcludedPantryIngredient, isShoppingOnlyIngredient, loadPantrySelection, pantryStorageKey, rankRecipesByPantry, savePantrySelection, togglePantryIngredient } from './pantry'
 import { recipes } from './recipes'
 
 describe('pantry ingredient model', () => {
   it('audits every recipe ingredient against the canonical vocabulary', () => {
     const entries = recipes.flatMap(recipe => recipe.ingredients)
     const unmapped = [...new Set(entries.filter(ingredient => !ingredient.ingredientId).map(ingredient => ingredient.item.en))]
-    expect(entries).toHaveLength(729)
-    expect(entries.filter(ingredient => ingredient.ingredientId)).toHaveLength(660)
-    expect(unmapped.every(item => isExcludedPantryIngredient(item))).toBe(true)
+    expect(entries).toHaveLength(1223)
+    expect(entries.filter(ingredient => ingredient.ingredientId)).toHaveLength(1075)
+    expect(unmapped.every(item => isExcludedPantryIngredient(item) || isShoppingOnlyIngredient(item))).toBe(true)
     expect(canonicalIngredients.length).toBeGreaterThan(20)
     expect(new Set(canonicalIngredients.map(ingredient => ingredient.id)).size).toBe(canonicalIngredients.length)
     expect(canonicalIngredients.every(ingredient => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(ingredient.id))).toBe(true)

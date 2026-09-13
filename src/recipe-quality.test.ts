@@ -116,7 +116,7 @@ describe('high-priority recipe quality corrections', () => {
     expect(highPriorityIds).toHaveLength(24)
     expect(new Set(highPriorityIds).size).toBe(24)
     expect(highPriorityIds.every(id => recipes.some(recipe => recipe.id === id))).toBe(true)
-    expect(recipes).toHaveLength(100)
+    expect(recipes).toHaveLength(150)
     expect(validateRecipes(recipes)).toEqual([])
   })
 
@@ -198,8 +198,8 @@ describe('high-priority recipe quality corrections', () => {
 
 describe('medium-priority culinary corrections', () => {
   it('keeps the bounded MEDIUM set complete and structurally valid', () => {
-    expect(mediumPriorityIds).toHaveLength(34)
-    expect(new Set(mediumPriorityIds).size).toBe(34)
+    expect(mediumPriorityIds).toHaveLength(33)
+    expect(new Set(mediumPriorityIds).size).toBe(33)
     expect(mediumPriorityIds.every(id => recipes.some(recipe => recipe.id === id))).toBe(true)
     for (const id of mediumPriorityIds) {
       const recipe = recipeById(id)

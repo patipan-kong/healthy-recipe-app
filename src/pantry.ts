@@ -149,7 +149,7 @@ const mappingRules: readonly [RegExp, string][] = [
   [/basil pesto/, 'pesto'],
   [/peanut lime sauce/, 'peanut-lime-sauce'],
   [/chilli bean paste/, 'chilli-bean-paste'],
-  [/red curry paste|green curry paste/, 'curry-paste'],
+  [/^curry paste|red curry paste|green curry paste/, 'curry-paste'],
   [/^skinless chicken breast/, 'chicken-breast'],
   [/^skinless chicken thigh|^skinless chicken thighs/, 'chicken-thigh'],
   [/^lean chicken mince|^skinless chicken mince/, 'chicken-mince'],
@@ -274,6 +274,7 @@ const excludedIngredientRules: readonly RegExp[] = [
   /^dried chilli flakes$/,
   /^birds eye chilli sliced$/,
   /^cinnamon$/,
+  /^ground cardamom$/,
   /^dried oregano$/,
   /^fine salt$/,
   /^brown sugar$/,
@@ -296,6 +297,12 @@ export function canonicalIngredientIdForItem(item: string): string | undefined {
 
 export function isExcludedPantryIngredient(item: string): boolean {
   return excludedIngredientRules.some(rule => rule.test(normalizeIngredientText(item)))
+}
+
+// This product requirement must remain visible as a raw Shopping line. Mapping it
+// to ordinary Parmesan would erase the vegetarian-rennet requirement.
+export function isShoppingOnlyIngredient(item: string): boolean {
+  return /^vegetarian certified hard cheese grated microbial rennet$/.test(normalizeIngredientText(item))
 }
 
 export const ingredientCategoryOrder: readonly IngredientCategory[] = ['protein', 'vegetable', 'carbs', 'fruit', 'dairy', 'plant-protein', 'pantry']
