@@ -4,6 +4,7 @@ import { canonicalIngredientIdForItem, canonicalIngredientIds } from './pantry'
 import { thaiRecipeContent } from './recipe-content'
 import { recipeAdditionSeeds } from './recipe-additions'
 import { recipeExpansionSeeds } from './recipe-expansion'
+import { recipeFinalSeeds } from './recipe-final-expansion'
 import type { Filters, LocalizedText, Recipe } from './types'
 
 export const emptyFilters: Filters = { category: '', tags: [] }
@@ -84,6 +85,7 @@ export const recipes: Recipe[] = [
   r({ id:'egg-avocado-toast', sourceId:'slice1-35', name:'ขนมปังโฮลวีตไข่อะโวคาโด', englishName:'Egg and Avocado Toast', category:'Quick meals', cuisine:'International', servings:2, prepMinutes:8, cookMinutes:8, ingredients:[{item:'Whole-wheat bread',amount:'4 slices'},{item:'Eggs',amount:'4'},{item:'Avocado',amount:'1 medium'},{item:'Cherry tomatoes, halved',amount:'120 g'},{item:'Lime juice',amount:'1 tbsp'},{item:'Pumpkin seeds',amount:'1 tbsp'}], instructions:['Toast the bread until crisp.','Mash avocado with lime juice and spread over the toast.','Poach or soft-boil eggs until the whites are set.','Top toast with egg, tomatoes and pumpkin seeds.'], nutrition:{kcal:380,protein:17,carbs:35,fat:19,fiber:9,sodium:390}, tags:['Vegetarian','Balanced','Quick'], accent:'coral' }),
   ...recipeExpansionSeeds.map(recipe => r(recipe)),
   ...recipeAdditionSeeds.map(recipe => r(recipe)),
+  ...recipeFinalSeeds.map(recipe => r(recipe)),
 ]
 
 export function filterRecipes(items: Recipe[], filters: Filters): Recipe[] {

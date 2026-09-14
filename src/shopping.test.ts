@@ -33,6 +33,36 @@ function line(lines: ReturnType<typeof aggregateShoppingIngredients>, id: string
 }
 
 describe('shopping aggregation', () => {
+  it('merges compatible measurement states and separates dry, cooked and unspecified noodles', () => {
+    const items = [
+      recipe('dry-a', [ingredient('Whole-wheat noodles, dry', '150', 'g', 'whole-wheat-noodles')]),
+      recipe('dry-b', [ingredient('Whole-wheat noodles, dry, divided', '100', 'g', 'whole-wheat-noodles')]),
+      recipe('cooked-a', [ingredient('Whole-wheat noodles, cooked', '300', 'g', 'whole-wheat-noodles')]),
+      recipe('cooked-b', [ingredient('Whole-wheat noodles, cooked', '200', 'g', 'whole-wheat-noodles')]),
+      recipe('unknown', [ingredient('Whole-wheat noodles', '50', 'g', 'whole-wheat-noodles')]),
+    ]
+    const lines = aggregateShoppingIngredients(items, items.map(item => item.id))
+    expect(lines).toHaveLength(3)
+    expect(line(lines, 'canonical:whole-wheat-noodles::g::dry')).toMatchObject({ quantity: '250', item: { en: 'Whole-wheat noodles (dry)' } })
+    expect(line(lines, 'canonical:whole-wheat-noodles::g::cooked').quantity).toBe('500')
+    expect(line(lines, 'canonical:whole-wheat-noodles::g').quantity).toBe('50')
+    const scaled = aggregateShoppingIngredients(items, ['dry-a', 'cooked-a'], { 'dry-a': 2 })
+    expect(line(scaled, 'canonical:whole-wheat-noodles::g::dry').quantity).toBe('300')
+    expect(line(scaled, 'canonical:whole-wheat-noodles::g::cooked').quantity).toBe('300')
+    expect(aggregateShoppingIngredients(items, ['dry-a'])[0].id).toBe(line(scaled, 'canonical:whole-wheat-noodles::g::dry').id)
+  })
+
+  it('keeps vegetable stock and vegetarian requirements visible without changing Pantry IDs', () => {
+    const items = [recipe('qualified', [
+      ingredient('Low-sodium vegetable stock', '500', 'ml', 'stock'),
+      ingredient('Feta cheese, vegetarian-certified, crumbled', '40', 'g', 'feta'),
+    ]), recipe('ordinary', [ingredient('Low-sodium stock', '200', 'ml', 'stock')])]
+    const lines = aggregateShoppingIngredients(items, ['qualified', 'ordinary'])
+    expect(lines).toHaveLength(3)
+    expect(line(lines, 'canonical:stock::ml::vegetable').item.en).toContain('vegetable')
+    expect(line(lines, 'canonical:feta::g::vegetarian-certified').item.en).toContain('vegetarian-certified')
+  })
+
   it('aggregates one recipe, deduplicates recipe IDs, and ignores stale IDs', () => {
     const items = [
       recipe('first', [ingredient('Cucumber, ribbons', '150', 'g', 'cucumber'), ingredient('Eggs', '1', 'egg', 'eggs'), ingredient('Olive oil', '1', 'tsp')]),

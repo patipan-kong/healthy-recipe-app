@@ -1,5 +1,6 @@
 import { thaiRecipeContentExpansion } from './recipe-expansion'
 import { thaiRecipeContentAdditions } from './recipe-additions'
+import { thaiRecipeContentFinal } from './recipe-final-content'
 
 export type ThaiRecipeContent = {
   name: string
@@ -60,4 +61,5 @@ export const thaiRecipeContent: Record<string, ThaiRecipeContent> = {
   'egg-avocado-toast': { name: 'ขนมปังโฮลวีตไข่อะโวคาโด', ingredients: ['ขนมปังโฮลวีต', 'ไข่ไก่', 'อะโวคาโด', 'มะเขือเทศเชอร์รีผ่าครึ่ง', 'น้ำมะนาว', 'เมล็ดฟักทอง'], instructions: ['ปิ้งขนมปังจนกรอบ', 'บดอะโวคาโดกับน้ำมะนาวแล้วทาบนขนมปัง', 'ลวกหรือต้มไข่จนไข่ขาวสุก', 'วางไข่ มะเขือเทศ และเมล็ดฟักทองบนขนมปัง'] },
   ...thaiRecipeContentExpansion,
   ...thaiRecipeContentAdditions,
+  ...thaiRecipeContentFinal,
 }

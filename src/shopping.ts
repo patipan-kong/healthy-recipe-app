@@ -272,13 +272,39 @@ function normalizeFallbackIdentity(item: string): string {
 
 export function shoppingIngredientLineId(ingredient: Pick<Ingredient, 'ingredientId' | 'item' | 'unit'>): string {
   const identity = ingredient.ingredientId ? `canonical:${ingredient.ingredientId}` : `raw:${normalizeFallbackIdentity(ingredient.item.en)}`
-  return `${identity}::${ingredient.unit ?? 'none'}`
+  const state = measurementState(ingredient)
+  const requirement = productRequirement(ingredient.item.en)
+  return `${identity}::${ingredient.unit ?? 'none'}${state ? `::${state}` : ''}${requirement ? `::${requirement}` : ''}`
+}
+
+// State refers to the quantity being measured, not what happens during cooking.
+// Unspecified quantities are deliberately not inferred to be dry or cooked.
+function measurementState(ingredient: Pick<Ingredient, 'ingredientId' | 'item'>): 'dry' | 'cooked' | undefined {
+  if (!['whole-wheat-noodles', 'rice-noodles', 'rice-vermicelli', 'glass-noodles', 'soba', 'udon', 'pasta', 'brown-rice', 'jasmine-rice', 'sushi-rice', 'quinoa', 'barley', 'couscous', 'lentils', 'chickpeas'].includes(ingredient.ingredientId ?? '')) return undefined
+  if (/\bdry\b/i.test(ingredient.item.en)) return 'dry'
+  if (/\bcooked\b/i.test(ingredient.item.en) && !/\bnot cooked\b/i.test(ingredient.item.en)) return 'cooked'
+  return undefined
+}
+
+function productRequirement(item: string): string | undefined {
+  if (/vegetarian.certified/i.test(item)) return 'vegetarian-certified'
+  if (/vegetable stock/i.test(item)) return 'vegetable'
+  if (/^red lentils/i.test(item)) return 'red-lentils'
+  return undefined
 }
 
 function displayIngredient(ingredient: Ingredient): { item: LocalizedText; order: number } {
   if (ingredient.ingredientId) {
     const canonical = canonicalIngredients.find(candidate => candidate.id === ingredient.ingredientId)
-    if (canonical) return { item: canonical.name, order: canonicalIngredients.indexOf(canonical) }
+    if (canonical) {
+      const state = measurementState(ingredient)
+      // Preserve dietary/product requirements in the list used to buy the food.
+      const item = productRequirement(ingredient.item.en) ? ingredient.item : state ? {
+        en: `${canonical.name.en} (${state})`,
+        th: `${canonical.name.th} (${state === 'dry' ? 'แห้ง' : 'สุก'})`,
+      } : canonical.name
+      return { item, order: canonicalIngredients.indexOf(canonical) }
+    }
   }
   return { item: ingredient.item, order: canonicalIngredients.length }
 }

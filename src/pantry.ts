@@ -168,7 +168,7 @@ const mappingRules: readonly [RegExp, string][] = [
   [/^firm tofu/, 'tofu'],
   [/^shelled edamame|^edamame cooked/, 'edamame'],
   [/^chickpeas/, 'chickpeas'],
-  [/^green lentils/, 'lentils'],
+  [/^green lentils|^red lentils/, 'lentils'],
   [/^black beans/, 'black-beans'],
   [/^cannellini beans|^white beans/, 'white-beans'],
   [/^hummus$/, 'hummus'],
@@ -302,7 +302,7 @@ export function isExcludedPantryIngredient(item: string): boolean {
 // This product requirement must remain visible as a raw Shopping line. Mapping it
 // to ordinary Parmesan would erase the vegetarian-rennet requirement.
 export function isShoppingOnlyIngredient(item: string): boolean {
-  return /^vegetarian certified hard cheese grated microbial rennet$/.test(normalizeIngredientText(item))
+  return /^(?:vegetarian certified hard cheese grated microbial rennet|galangal sliced)$/.test(normalizeIngredientText(item))
 }
 
 export const ingredientCategoryOrder: readonly IngredientCategory[] = ['protein', 'vegetable', 'carbs', 'fruit', 'dairy', 'plant-protein', 'pantry']
