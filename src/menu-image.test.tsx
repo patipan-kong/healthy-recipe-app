@@ -77,6 +77,25 @@ describe('MenuItemImage in Pick Focus', () => {
     expect(container.querySelector('.menu-pick-card .menu-item-nutrition')).not.toBeNull()
   })
 
+  it('keeps kcal and protein in the primary nutrition group before secondary metrics on both Pick surfaces', () => {
+    const assertNutritionHierarchy = (scope: string) => {
+      const primary = container.querySelector(`${scope} .menu-item-nutrition-primary`)
+      const secondary = container.querySelector(`${scope} .menu-item-nutrition-secondary`)
+      expect(primary?.textContent).toContain(String(noImageItem.nutrition.kcal))
+      expect(primary?.textContent).toContain(`${noImageItem.nutrition.protein}g`)
+      expect(secondary?.textContent).toContain(`${noImageItem.nutrition.carbs}g`)
+      expect(secondary?.textContent).toContain(`${noImageItem.nutrition.fat}g`)
+    }
+
+    act(() => root.render(<RestaurantMenuView locale="en" restaurantId="ootoya-thailand" onBack={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={[noImageItem]} />))
+    clickPick()
+    assertNutritionHierarchy('.restaurant-menu-view .menu-pick-card')
+
+    act(() => root.render(<ExploreView locale="en" onOpenRestaurant={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={[noImageItem]} />))
+    clickPick('.explore-view')
+    assertNutritionHierarchy('.explore-view .menu-pick-card')
+  })
+
   it('does not render menu images on normal restaurant-local list rows, even for items that have one', () => {
     act(() => root.render(<RestaurantMenuView locale="en" restaurantId="ootoya-thailand" onBack={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={restaurantMenuItems} />))
     const rows = container.querySelectorAll('.menu-list .menu-item-row')

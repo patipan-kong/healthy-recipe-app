@@ -414,13 +414,17 @@ export function RestaurantMenuView({ locale, restaurantId, onBack, favoriteIds, 
           <p className="card-category">{menuCategoryLabel(locale, pickedItem.category)}</p>
           <h3>{pickedItem.name[locale]}</h3>
         </div>
-        <div className="menu-item-nutrition">
-          <span><b>{pickedItem.nutrition.kcal}</b> {copy.kcalEstimate}</span>
-          <span><b>{pickedItem.nutrition.protein}g</b> {copy.protein}</span>
-          <span><b>{pickedItem.nutrition.carbs}g</b> {copy.carbs}</span>
-          <span><b>{pickedItem.nutrition.fat}g</b> {copy.fat}</span>
-          {pickedItem.nutrition.sodium !== undefined && <span><b>{pickedItem.nutrition.sodium}mg</b> {copy.sodium}</span>}
-          <span className={`confidence-badge confidence-${pickedItem.nutritionSource.confidence}`}>{nutritionConfidenceLabel(locale, pickedItem.nutritionSource.confidence)}</span>
+        <div className="menu-item-nutrition menu-pick-nutrition">
+          <div className="menu-item-nutrition-primary">
+            <span><b>{pickedItem.nutrition.kcal}</b> {copy.kcalEstimate}</span>
+            <span><b>{pickedItem.nutrition.protein}g</b> {copy.protein}</span>
+          </div>
+          <div className="menu-item-nutrition-secondary">
+            <span><b>{pickedItem.nutrition.carbs}g</b> {copy.carbs}</span>
+            <span><b>{pickedItem.nutrition.fat}g</b> {copy.fat}</span>
+            {pickedItem.nutrition.sodium !== undefined && <span><b>{pickedItem.nutrition.sodium}mg</b> {copy.sodium}</span>}
+            <span className={`confidence-badge confidence-${pickedItem.nutritionSource.confidence}`}>{nutritionConfidenceLabel(locale, pickedItem.nutritionSource.confidence)}</span>
+          </div>
         </div>
         {pickedItem.servingNote && <p className="menu-item-note">{pickedItem.servingNote[locale]}</p>}
         {pickedItem.customizationNotes?.length ? <ul className="menu-item-customizations">{pickedItem.customizationNotes.map((note, index) => <li key={index}>{note[locale]}</li>)}</ul> : null}
@@ -458,13 +462,26 @@ function ExploreItemCard({ locale, item, restaurant, onOpenRestaurant, favorite,
       {!focus && item.servingNote && <p className="menu-item-note">{item.servingNote[locale]}</p>}
       {!focus && item.customizationNotes?.length ? <ul className="menu-item-customizations">{item.customizationNotes.map((note, index) => <li key={index}>{note[locale]}</li>)}</ul> : null}
     </div>
-    <div className="menu-item-nutrition">
-      <span><b>{item.nutrition.kcal}</b> {copy.kcalEstimate}</span>
-      <span><b>{item.nutrition.protein}g</b> {copy.protein}</span>
-      <span><b>{item.nutrition.carbs}g</b> {copy.carbs}</span>
-      <span><b>{item.nutrition.fat}g</b> {copy.fat}</span>
-      {item.nutrition.sodium !== undefined && <span><b>{item.nutrition.sodium}mg</b> {copy.sodium}</span>}
-      <span className={`confidence-badge confidence-${item.nutritionSource.confidence}`}>{nutritionConfidenceLabel(locale, item.nutritionSource.confidence)}</span>
+    <div className={`menu-item-nutrition ${focus ? 'menu-pick-nutrition' : ''}`}>
+      {focus ? <>
+        <div className="menu-item-nutrition-primary">
+          <span><b>{item.nutrition.kcal}</b> {copy.kcalEstimate}</span>
+          <span><b>{item.nutrition.protein}g</b> {copy.protein}</span>
+        </div>
+        <div className="menu-item-nutrition-secondary">
+          <span><b>{item.nutrition.carbs}g</b> {copy.carbs}</span>
+          <span><b>{item.nutrition.fat}g</b> {copy.fat}</span>
+          {item.nutrition.sodium !== undefined && <span><b>{item.nutrition.sodium}mg</b> {copy.sodium}</span>}
+          <span className={`confidence-badge confidence-${item.nutritionSource.confidence}`}>{nutritionConfidenceLabel(locale, item.nutritionSource.confidence)}</span>
+        </div>
+      </> : <>
+        <span><b>{item.nutrition.kcal}</b> {copy.kcalEstimate}</span>
+        <span><b>{item.nutrition.protein}g</b> {copy.protein}</span>
+        <span><b>{item.nutrition.carbs}g</b> {copy.carbs}</span>
+        <span><b>{item.nutrition.fat}g</b> {copy.fat}</span>
+        {item.nutrition.sodium !== undefined && <span><b>{item.nutrition.sodium}mg</b> {copy.sodium}</span>}
+        <span className={`confidence-badge confidence-${item.nutritionSource.confidence}`}>{nutritionConfidenceLabel(locale, item.nutritionSource.confidence)}</span>
+      </>}
     </div>
     {focus && item.servingNote && <p className="menu-item-note">{item.servingNote[locale]}</p>}
     {focus && item.customizationNotes?.length ? <ul className="menu-item-customizations">{item.customizationNotes.map((note, index) => <li key={index}>{note[locale]}</li>)}</ul> : null}
