@@ -107,7 +107,7 @@ export function searchRecipes(items: Recipe[], rawQuery: string): Recipe[] {
   return items.filter(recipe => [recipe.name.th, recipe.name.en, recipe.category, recipe.cuisine.th, recipe.cuisine.en, ...recipe.tags, ...recipe.ingredients.flatMap(ingredient => [ingredient.item.th, ingredient.item.en]), ...recipe.instructions.flatMap(instruction => [instruction.th, instruction.en])].join(' ').toLocaleLowerCase().includes(query))
 }
 
-export function chooseRandom(items: Recipe[], previousId?: string, random = Math.random): Recipe | undefined {
+export function chooseRandom<T extends { id: string }>(items: T[], previousId?: string, random = Math.random): T | undefined {
   if (!items.length) return undefined
   const choices = items.length > 1 && previousId ? items.filter(item => item.id !== previousId) : items
   return choices[Math.floor(random() * choices.length)]

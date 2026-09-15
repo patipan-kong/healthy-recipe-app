@@ -1,4 +1,4 @@
-import type { Locale } from './types'
+import type { ExplorePresetId, Locale, MenuCategory, NutritionConfidence } from './types'
 import type { IngredientCategory } from './pantry'
 
 export const localeStorageKey = 'healthy-recipe-locale-v1'
@@ -92,6 +92,34 @@ type MessageSet = {
   emptyFavoriteFilteredText: string
   clearFilters: string
   storageNote: string
+  restaurants: string
+  restaurantsTitle: string
+  restaurantsBack: string
+  restaurantsEmptyTitle: string
+  restaurantsEmptyText: string
+  menuEmptyTitle: string
+  menuEmptyText: string
+  openRestaurant: (name: string) => string
+  sodium: string
+  pickForMe: string
+  pickAgain: string
+  yourPick: string
+  pickNoMatches: string
+  explore: string
+  exploreTitle: string
+  exploreMatchCount: (count: number) => string
+  viewRestaurant: (name: string) => string
+  exploreGoals: string
+  explorePresetCustomLabel: string
+  exploreGoalsDisclaimer: string
+  favoriteRecipesHeading: string
+  favoriteRestaurantMenusHeading: string
+  emptyRestaurantFavoritesText: string
+  addMenuFavorite: (name: string) => string
+  removeMenuFavorite: (name: string) => string
+  restaurantFavoritesStorageNote: string
+  exploreSearchPlaceholder: string
+  clearSearch: string
 }
 
 export const messages: Record<Locale, MessageSet> = {
@@ -184,6 +212,34 @@ export const messages: Record<Locale, MessageSet> = {
     emptyFavoriteFilteredText: 'ลองล้างการค้นหาหรือตัวกรองเพื่อดูเมนูที่บันทึกไว้',
     clearFilters: 'ล้างตัวกรอง',
     storageNote: 'รายการโปรดยังใช้ได้ในเซสชันนี้ แต่เบราว์เซอร์ไม่พร้อมบันทึกข้อมูล',
+    restaurants: 'ร้านอาหาร',
+    restaurantsTitle: 'เลือกร้านอาหาร',
+    restaurantsBack: 'กลับไปที่ร้านอาหาร',
+    restaurantsEmptyTitle: 'ยังไม่มีร้านอาหาร',
+    restaurantsEmptyText: 'เร็ว ๆ นี้จะมีร้านอาหารให้เลือกดู',
+    menuEmptyTitle: 'ยังไม่มีเมนูของร้านนี้',
+    menuEmptyText: 'ลองกลับไปเลือกร้านอื่นดูก่อน',
+    openRestaurant: name => `เปิดร้าน ${name}`,
+    sodium: 'โซเดียม',
+    pickForMe: 'สุ่มเลือกให้',
+    pickAgain: 'สุ่มใหม่',
+    yourPick: 'เมนูที่สุ่มได้',
+    pickNoMatches: 'ไม่มีเมนูที่ตรงกับตัวกรองให้สุ่มเลือก',
+    explore: 'หาเมนู',
+    exploreTitle: 'หาเมนูจากทุกร้าน',
+    exploreMatchCount: count => `${count} เมนูที่ตรงกัน`,
+    viewRestaurant: name => `ดูร้าน ${name}`,
+    exploreGoals: 'เป้าหมายด่วน',
+    explorePresetCustomLabel: 'กำหนดเอง',
+    exploreGoalsDisclaimer: 'เป้าหมายเหล่านี้เป็นตัวช่วยกรองเมนูทั่วไป ไม่ใช่คำแนะนำทางการแพทย์',
+    favoriteRecipesHeading: 'สูตรอาหาร',
+    favoriteRestaurantMenusHeading: 'เมนูร้านอาหาร',
+    emptyRestaurantFavoritesText: 'ยังไม่มีเมนูร้านอาหารที่บันทึกไว้',
+    addMenuFavorite: name => `บันทึก ${name}`,
+    removeMenuFavorite: name => `นำ ${name} ออกจากรายการโปรด`,
+    restaurantFavoritesStorageNote: 'เมนูร้านอาหารที่บันทึกไว้ยังใช้ได้ในเซสชันนี้ แต่เบราว์เซอร์ไม่พร้อมบันทึกข้อมูล',
+    exploreSearchPlaceholder: 'ค้นหาเมนูหรือร้านอาหาร',
+    clearSearch: 'ล้างการค้นหา',
   },
   en: {
     language: 'Language',
@@ -274,6 +330,34 @@ export const messages: Record<Locale, MessageSet> = {
     emptyFavoriteFilteredText: 'Try clearing your search or filters to see your saved recipes.',
     clearFilters: 'Clear filters',
     storageNote: 'Favorites will stay available for this session, but browser storage is unavailable.',
+    restaurants: 'Restaurants',
+    restaurantsTitle: 'Choose a restaurant',
+    restaurantsBack: 'Back to restaurants',
+    restaurantsEmptyTitle: 'No restaurants yet',
+    restaurantsEmptyText: 'Restaurants will appear here soon.',
+    menuEmptyTitle: 'No menu items yet',
+    menuEmptyText: 'Try another restaurant for now.',
+    openRestaurant: name => `Open ${name}`,
+    sodium: 'sodium',
+    pickForMe: 'Pick for me',
+    pickAgain: 'Pick again',
+    yourPick: 'Your pick',
+    pickNoMatches: 'No matching items available to pick',
+    explore: 'Explore',
+    exploreTitle: 'Explore menus across restaurants',
+    exploreMatchCount: count => `${count} matching menus`,
+    viewRestaurant: name => `View ${name}`,
+    exploreGoals: 'Quick goals',
+    explorePresetCustomLabel: 'Custom',
+    exploreGoalsDisclaimer: 'These goals are general menu filters, not medical advice.',
+    favoriteRecipesHeading: 'Recipes',
+    favoriteRestaurantMenusHeading: 'Restaurant menus',
+    emptyRestaurantFavoritesText: 'No favorite restaurant menus yet.',
+    addMenuFavorite: name => `Favorite ${name}`,
+    removeMenuFavorite: name => `Remove ${name} from favorites`,
+    restaurantFavoritesStorageNote: 'Favorite restaurant menus will stay available for this session, but browser storage is unavailable.',
+    exploreSearchPlaceholder: 'Search menus or restaurants',
+    clearSearch: 'Clear search',
   },
 }
 
@@ -331,6 +415,49 @@ const ingredientCategoryLabels: Record<IngredientCategory, { th: string; en: str
 
 export function categoryLabel(locale: Locale, category: string) {
   return categoryLabels[category]?.[locale] ?? category
+}
+
+const menuCategoryLabels: Record<MenuCategory, { th: string; en: string }> = {
+  'Rice & noodles': { th: 'ข้าวและเส้น', en: 'Rice & noodles' },
+  Salad: { th: 'สลัด', en: 'Salad' },
+  'Grilled/BBQ': { th: 'ปิ้งย่าง', en: 'Grilled/BBQ' },
+  Soup: { th: 'ซุป', en: 'Soup' },
+  'Set meal': { th: 'เซ็ต', en: 'Set meal' },
+}
+
+export function menuCategoryLabel(locale: Locale, category: MenuCategory) {
+  return menuCategoryLabels[category][locale]
+}
+
+const nutritionConfidenceLabels: Record<NutritionConfidence, { th: string; en: string }> = {
+  official: { th: 'ข้อมูลทางการจากร้าน', en: 'Official' },
+  label: { th: 'จากฉลากผลิตภัณฑ์', en: 'Label' },
+  curated: { th: 'ประเมินโดยทีมงาน', en: 'Curated estimate' },
+  estimated: { th: 'ค่าประมาณ', en: 'Estimated' },
+}
+
+export function nutritionConfidenceLabel(locale: Locale, confidence: NutritionConfidence) {
+  return nutritionConfidenceLabels[confidence][locale]
+}
+
+const explorePresetLabels: Record<ExplorePresetId, { th: string; en: string }> = {
+  'high-protein': { th: 'โปรตีนสูง', en: 'High Protein' },
+  'light-meal': { th: 'มื้อเบา ๆ', en: 'Light Meal' },
+  balanced: { th: 'สมดุล', en: 'Balanced' },
+}
+
+const explorePresetSummaries: Record<ExplorePresetId, { th: string; en: string }> = {
+  'high-protein': { th: 'โปรตีนอย่างน้อย 30 กรัม • ไม่เกิน 700 kcal', en: 'At least 30g protein • Up to 700 kcal' },
+  'light-meal': { th: 'ไม่เกิน 450 kcal', en: 'Up to 450 kcal' },
+  balanced: { th: 'ไม่เกิน 650 kcal • โปรตีนอย่างน้อย 25 กรัม • ไขมันไม่เกิน 25 กรัม', en: 'Up to 650 kcal • At least 25g protein • Up to 25g fat' },
+}
+
+export function explorePresetLabel(locale: Locale, id: ExplorePresetId) {
+  return explorePresetLabels[id][locale]
+}
+
+export function explorePresetSummary(locale: Locale, id: ExplorePresetId) {
+  return explorePresetSummaries[id][locale]
 }
 
 export function cuisineText(cuisine: string) {

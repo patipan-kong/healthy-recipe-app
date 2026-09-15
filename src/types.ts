@@ -41,3 +41,43 @@ export type Filters = {
   maxSodium?: number
   tags: string[]
 }
+
+export type Restaurant = {
+  id: string
+  name: LocalizedText
+  cuisine?: LocalizedText
+  tags?: string[]
+}
+
+export type MenuCategory = 'Rice & noodles' | 'Salad' | 'Grilled/BBQ' | 'Soup' | 'Set meal'
+
+export type NutritionConfidence = 'official' | 'label' | 'curated' | 'estimated'
+
+export type NutritionSource = {
+  confidence: NutritionConfidence
+  note?: LocalizedText
+  asOf?: string
+}
+
+export type RestaurantMenuItem = {
+  id: string
+  restaurantId: string
+  name: LocalizedText
+  category: MenuCategory
+  nutrition: Nutrition
+  nutritionSource: NutritionSource
+  tags: string[]
+  servingNote?: LocalizedText
+  customizationNotes?: LocalizedText[]
+  image?: string
+}
+
+export type RestaurantMenuFilters = {
+  maxKcal?: number
+  minProtein?: number
+  maxCarbs?: number
+  maxFat?: number
+  maxSodium?: number
+}
+
+export type ExplorePresetId = 'high-protein' | 'light-meal' | 'balanced'
