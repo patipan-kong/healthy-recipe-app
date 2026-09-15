@@ -80,6 +80,11 @@ const asOf20 = '2026-09-15'
 const oyakodonIndividualPriceNote = { th: 'ราคานี้คือราคา "จานเดียว" ไม่ใช่ราคาชุดที่มีซุปมิโสะและเครื่องเคียงเพิ่มเติม ซึ่งมีราคาแยกต่างหาก', en: 'This is the "single plate" (individual bowl) price, not the set version, which adds miso soup and side dishes for an additional fee.' }
 const mkPremiumSukiBranchPriceNote = { th: 'ราคานี้จำหน่ายเฉพาะสาขาเซ็นทรัลเวิลด์และสามย่านมิตรทาวน์เท่านั้น สาขาอื่นอาจมีราคาต่างกันหรือไม่มีเมนูนี้', en: 'This price applies only at the CentralWorld and Samyan Mitrtown branches; other branches may price this differently or not carry this item.' }
 
+// Slice 22 menu-price coverage expansion batch 2 (2026-09-15). Research
+// methodology, rejected candidates, and the MK audit confirmation are
+// recorded in docs/restaurant-price-expansion-22.md.
+const asOf22 = '2026-09-15'
+
 export const restaurants: Restaurant[] = [
   {
     id: 'ootoya-thailand',
@@ -763,6 +768,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 380, protein: 28, carbs: 2, fat: 29, sodium: 450 },
     nutritionSource: { confidence: 'estimated', note: nittayaEstimateNote, asOf: asOf14 },
     tags: ['pork', 'grilled', 'high-protein', 'isan'],
+    price: { amount: 130, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
   },
   {
     id: 'nittaya-som-tam-thai',
@@ -773,6 +779,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: nittayaEstimateNote, asOf: asOf14 },
     tags: ['salad', 'isan', 'spicy'],
     servingNote: { th: 'เสิร์ฟ 1 จานสำหรับแบ่งกันกิน ค่าพลังงานนี้คือทั้งจาน ไม่ใช่ต่อคน', en: 'Served as one shared plate; this figure is for the whole plate, not a per-person portion.' },
+    price: { amount: 75, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
   },
   {
     id: 'nittaya-som-tam-salted-egg',
@@ -783,6 +790,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: nittayaEstimateNote, asOf: asOf14 },
     tags: ['salad', 'isan', 'spicy'],
     servingNote: { th: 'เสิร์ฟ 1 จานสำหรับแบ่งกันกิน (รวมไข่เค็ม 1 ฟอง) ค่าพลังงานนี้คือทั้งจาน', en: 'Served as one shared plate (includes 1 salted egg); this figure is for the whole plate.' },
+    price: { amount: 85, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
   },
   {
     id: 'nittaya-larb-moo',
@@ -792,6 +800,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 260, protein: 26, carbs: 10, fat: 15, sodium: 600 },
     nutritionSource: { confidence: 'estimated', note: nittayaEstimateNote, asOf: asOf14 },
     tags: ['pork', 'salad', 'isan', 'high-protein'],
+    price: { amount: 95, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
   },
   {
     id: 'nittaya-tom-saep-grilled-chicken-soup',
@@ -811,6 +820,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 480, protein: 30, carbs: 8, fat: 35, sodium: 550 },
     nutritionSource: { confidence: 'estimated', note: nittayaEstimateNote, asOf: asOf14 },
     tags: ['pork', 'fried', 'isan'],
+    price: { amount: 105, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
   },
   {
     id: 'zaab-eli-grilled-chicken',
@@ -821,6 +831,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: zaabEliEstimateNote, asOf: asOf14 },
     tags: ['chicken', 'grilled', 'high-protein', 'isan'],
     servingNote: { th: 'ราคา (฿299) สื่อถึงชิ้นส่วนที่ใหญ่กว่าสำหรับแบ่งกัน ค่าพลังงานนี้คือส่วนน่องสะโพก 1 ชิ้นต่อคน', en: 'The price point (฿299) implies a larger shared cut; this figure is for one leg-thigh quarter piece as a per-person portion.' },
+    price: { amount: 299, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
   },
   {
     id: 'zaab-eli-fried-chicken',
@@ -849,6 +860,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: zaabEliEstimateNote, asOf: asOf14 },
     tags: ['salad', 'isan', 'spicy'],
     servingNote: { th: 'เสิร์ฟ 1 จานสำหรับแบ่งกันกิน ค่าพลังงานนี้คือทั้งจาน', en: 'Served as one shared plate; this figure is for the whole plate.' },
+    price: { amount: 120, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
   },
   {
     id: 'zaab-eli-corn-salted-egg-som-tam',
@@ -859,6 +871,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: zaabEliFusionNote, asOf: asOf14 },
     tags: ['salad', 'isan', 'spicy'],
     servingNote: { th: 'เสิร์ฟ 1 จานสำหรับแบ่งกันกิน ค่าพลังงานนี้คือทั้งจาน', en: 'Served as one shared plate; this figure is for the whole plate.' },
+    price: { amount: 120, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
   },
   {
     id: 'zaab-eli-larb-moo',
@@ -868,6 +881,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 270, protein: 25, carbs: 11, fat: 16, sodium: 650 },
     nutritionSource: { confidence: 'estimated', note: zaabEliEstimateNote, asOf: asOf14 },
     tags: ['pork', 'salad', 'isan', 'high-protein'],
+    price: { amount: 125, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
   },
   {
     id: 'zaab-eli-tom-saep-beef-tendon-soup',

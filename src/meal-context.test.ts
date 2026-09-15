@@ -441,3 +441,154 @@ describe('Slice 20 price coverage expansion', () => {
     }
   })
 })
+
+describe('Slice 22 price coverage expansion batch 2', () => {
+  // The 9 items given a new price in Slice 22. The 3 MK items audited this
+  // slice (mk-special-kurobuta-set/plate, mk-premium-suki-set) were confirmed
+  // unchanged, not corrected, and are not counted as new coverage here.
+  const newlyPricedIds = [
+    'nittaya-grilled-pork-neck',
+    'nittaya-som-tam-thai',
+    'nittaya-som-tam-salted-egg',
+    'nittaya-larb-moo',
+    'nittaya-chiang-mai-fried-pork',
+    'zaab-eli-grilled-chicken',
+    'zaab-eli-som-tam-salted-egg',
+    'zaab-eli-corn-salted-egg-som-tam',
+    'zaab-eli-larb-moo',
+  ]
+
+  it('keeps the dataset at 13 restaurants / 84 items', () => {
+    expect(restaurants).toHaveLength(13)
+    expect(restaurantMenuItems).toHaveLength(84)
+  })
+
+  it('adds a new price to exactly the 9 targeted items, within the 8-12 target range and the 12 hard maximum', () => {
+    const actualIds = restaurantMenuItems.filter(item => newlyPricedIds.includes(item.id)).map(item => item.id)
+    expect(actualIds.sort()).toEqual([...newlyPricedIds].sort())
+    expect(newlyPricedIds.length).toBeGreaterThanOrEqual(8)
+    expect(newlyPricedIds.length).toBeLessThanOrEqual(12)
+  })
+
+  it('brings total priced coverage to 24 items (15 from before Slice 22 + 9 new)', () => {
+    expect(restaurantMenuItems.filter(item => item.price)).toHaveLength(24)
+  })
+
+  it('produces zero validation errors for every priced item', () => {
+    const priced = restaurantMenuItems.filter(item => item.price)
+    expect(validateRestaurantMenuItems(priced, restaurants)).toEqual([])
+  })
+
+  it('gives every price a valid THB amount, currency, and asOf date', () => {
+    const priced = restaurantMenuItems.filter(item => item.price)
+    expect(priced.length).toBeGreaterThan(0)
+    for (const item of priced) {
+      expect(validateMenuPrice(item.price)).toEqual([])
+      expect(item.price?.currency).toBe('THB')
+      expect(item.price?.amount).toBeGreaterThan(0)
+      expect(Number.isFinite(item.price?.amount)).toBe(true)
+      expect(item.price?.asOf).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    }
+  })
+
+  it('has no negative or zero prices anywhere in production', () => {
+    for (const item of restaurantMenuItems) {
+      if (item.price) expect(item.price.amount).toBeGreaterThan(0)
+    }
+  })
+
+  it('never duplicates a price object reference or produces conflicting amounts for the same id', () => {
+    const ids = restaurantMenuItems.filter(item => item.price).map(item => item.id)
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('gives every new Slice 22 price a fresh 2026-09-15 asOf', () => {
+    for (const id of newlyPricedIds) {
+      expect(restaurantMenuItems.find(item => item.id === id)?.price?.asOf).toBe('2026-09-15')
+    }
+  })
+
+  it('sets the exact researched amount for each newly priced item', () => {
+    const expectedAmounts: Record<string, number> = {
+      'nittaya-grilled-pork-neck': 130,
+      'nittaya-som-tam-thai': 75,
+      'nittaya-som-tam-salted-egg': 85,
+      'nittaya-larb-moo': 95,
+      'nittaya-chiang-mai-fried-pork': 105,
+      'zaab-eli-grilled-chicken': 299,
+      'zaab-eli-som-tam-salted-egg': 120,
+      'zaab-eli-corn-salted-egg-som-tam': 120,
+      'zaab-eli-larb-moo': 125,
+    }
+    for (const id of newlyPricedIds) {
+      expect(restaurantMenuItems.find(item => item.id === id)?.price?.amount).toBe(expectedAmounts[id])
+    }
+  })
+
+  it('confirms the three audited MK prices are unchanged (no correction was made or needed)', () => {
+    expect(restaurantMenuItems.find(item => item.id === 'mk-special-kurobuta-set')?.price).toMatchObject({ amount: 223, currency: 'THB' })
+    expect(restaurantMenuItems.find(item => item.id === 'mk-special-kurobuta-plate')?.price).toMatchObject({ amount: 75, currency: 'THB' })
+    expect(restaurantMenuItems.find(item => item.id === 'mk-premium-suki-set')?.price).toMatchObject({ amount: 259, currency: 'THB' })
+  })
+
+  it('leaves rejected candidates unpriced (size/variant/shared-dish-name mismatches were not guessed at)', () => {
+    expect(restaurantMenuItems.find(item => item.id === 'nittaya-grilled-chicken-quarter')?.price).toBeUndefined()
+    expect(restaurantMenuItems.find(item => item.id === 'nittaya-tom-saep-grilled-chicken-soup')?.price).toBeUndefined()
+    expect(restaurantMenuItems.find(item => item.id === 'zaab-eli-fried-chicken')?.price).toBeUndefined()
+    expect(restaurantMenuItems.find(item => item.id === 'zaab-eli-grilled-pork-neck')?.price).toBeUndefined()
+    expect(restaurantMenuItems.find(item => item.id === 'zaab-eli-tom-saep-beef-tendon-soup')?.price).toBeUndefined()
+  })
+
+  it('leaves Somtam Nua entirely unpriced (no accessible current source was found)', () => {
+    const somtamNuaItems = restaurantMenuItems.filter(item => item.restaurantId === 'somtam-nua-thailand')
+    expect(somtamNuaItems).toHaveLength(8)
+    expect(somtamNuaItems.every(item => !item.price)).toBe(true)
+  })
+
+  it('leaves menuImage coverage exactly as Slice 19 left it (7 items, same ids)', () => {
+    const withImage = restaurantMenuItems.filter(item => item.menuImage)
+    expect(withImage).toHaveLength(7)
+    expect(withImage.map(item => item.id).sort()).toEqual([
+      'ootoya-grilled-mackerel',
+      'ootoya-grilled-moromi-chicken',
+      'ootoya-tonteki-pork-chop-set',
+      'salad-factory-grilled-chicken-sesame',
+      'salad-factory-kale-chicken-truffle',
+      'seven-eleven-garlic-pork-egg-rice',
+      'seven-eleven-green-curry-chicken',
+    ])
+  })
+
+  it('leaves nutrition and meal-context semantics unchanged for every newly priced item', () => {
+    const expectedNutrition: Record<string, object> = {
+      'nittaya-grilled-pork-neck': { kcal: 380, protein: 28, carbs: 2, fat: 29, sodium: 450 },
+      'nittaya-som-tam-thai': { kcal: 180, protein: 5, carbs: 28, fat: 6, sodium: 900 },
+      'nittaya-som-tam-salted-egg': { kcal: 260, protein: 9, carbs: 28, fat: 13, sodium: 1300 },
+      'nittaya-larb-moo': { kcal: 260, protein: 26, carbs: 10, fat: 15, sodium: 600 },
+      'nittaya-chiang-mai-fried-pork': { kcal: 480, protein: 30, carbs: 8, fat: 35, sodium: 550 },
+      'zaab-eli-grilled-chicken': { kcal: 430, protein: 48, carbs: 4, fat: 23, sodium: 750 },
+      'zaab-eli-som-tam-salted-egg': { kcal: 270, protein: 9, carbs: 29, fat: 14, sodium: 1250 },
+      'zaab-eli-corn-salted-egg-som-tam': { kcal: 280, protein: 8, carbs: 35, fat: 12, sodium: 1200 },
+      'zaab-eli-larb-moo': { kcal: 270, protein: 25, carbs: 11, fat: 16, sodium: 650 },
+    }
+    for (const id of newlyPricedIds) {
+      const found = restaurantMenuItems.find(item => item.id === id)
+      expect(found?.nutrition).toEqual(expectedNutrition[id])
+      expect(found?.mealContext).toBeUndefined()
+    }
+  })
+
+  it('lets search still find every newly priced item, and leaves eligibility/Quick-Goal counts unchanged with vs. without the new price', () => {
+    for (const id of newlyPricedIds) {
+      const withPrice = restaurantMenuItems.find(item => item.id === id)!
+      expect(searchRestaurantMenuItems(restaurantMenuItems, restaurants, withPrice.name.en.split(/\s+/)[0].toLowerCase()).some(item => item.id === id)).toBe(true)
+
+      const withoutPrice: RestaurantMenuItem = { ...withPrice, price: undefined }
+      expect(searchRestaurantMenuItems([withPrice], restaurants, withPrice.name.en.split(/\s+/)[0]).length).toBe(searchRestaurantMenuItems([withoutPrice], restaurants, withPrice.name.en.split(/\s+/)[0]).length)
+      for (const presetId of Object.keys(explorePresetFilters) as (keyof typeof explorePresetFilters)[]) {
+        const filters = explorePresetFilters[presetId]
+        expect(filterRestaurantMenuItems([withPrice], filters).length).toBe(filterRestaurantMenuItems([withoutPrice], filters).length)
+      }
+    }
+  })
+})
