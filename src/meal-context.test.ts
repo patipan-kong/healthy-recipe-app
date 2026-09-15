@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { calculateMealNutrition } from './meal-context'
+import { calculateMealNutrition, validateMenuImage } from './meal-context'
 import { explorePresetFilters, filterRestaurantMenuItems, restaurantMenuItems, restaurants, searchRestaurantMenuItems, validateRestaurantMenuItems } from './restaurants'
 import type { RestaurantMenuItem } from './types'
 
@@ -163,5 +163,71 @@ describe('optional restaurant meal context and price validation', () => {
     expect(filterRestaurantMenuItems(shima, { maxKcal: 300 })).toEqual(shima)
     expect(filterRestaurantMenuItems(shima, explorePresetFilters['light-meal'])).toEqual(shima)
     expect(filterRestaurantMenuItems(shima, { maxKcal: 280 })).toEqual([])
+  })
+})
+
+describe('optional menu image validation (Slice 18 pilot)', () => {
+  const validImage = {
+    src: 'https://www.ootoya.co.th/upload_file/menu/Fish-Menu/example-big.png',
+    alt: { th: 'ตัวอย่างภาพเมนู', en: 'Example menu photo' },
+    kind: 'official-remote' as const,
+    sourceUrl: 'https://www.ootoya.co.th/menu-details.php?id=3',
+    sourceLabel: { th: 'ภาพจากเว็บไซต์ทางการของโอโตยะ', en: 'Image from Ootoya official website' },
+    asOf: '2026-09-15',
+  }
+
+  it('accepts an item without a menu image', () => {
+    expect(validateRestaurantMenuItems([item({ menuImage: undefined })], restaurants)).toEqual([])
+  })
+
+  it('accepts a fully-populated valid menu image', () => {
+    expect(validateMenuImage(validImage)).toEqual([])
+    expect(validateRestaurantMenuItems([item({ menuImage: validImage })], restaurants)).toEqual([])
+  })
+
+  it('accepts a bundled image without source fields', () => {
+    expect(validateMenuImage({ src: '/menu/example.webp', alt: { th: 'ตัวอย่าง', en: 'Example' }, kind: 'bundled' })).toEqual([])
+  })
+
+  it('rejects a missing src', () => {
+    expect(validateMenuImage({ ...validImage, src: '' })).toContain('Invalid menu image src')
+  })
+
+  it('rejects missing or partial localized alt text', () => {
+    expect(validateMenuImage({ ...validImage, alt: undefined })).toContain('Invalid menu image alt')
+    expect(validateMenuImage({ ...validImage, alt: { th: 'ตัวอย่าง', en: '' } })).toContain('Invalid menu image alt')
+  })
+
+  it('rejects an invalid kind', () => {
+    expect(validateMenuImage({ ...validImage, kind: 'ai-generated' })).toContain('Invalid menu image kind')
+  })
+
+  it('rejects a malformed sourceLabel or asOf when present', () => {
+    expect(validateMenuImage({ ...validImage, sourceLabel: { th: 'ตัวอย่าง', en: '' } })).toContain('Invalid menu image sourceLabel')
+    expect(validateMenuImage({ ...validImage, asOf: '2026-02-30' })).toContain('Invalid menu image asOf')
+  })
+
+  it('fails safely (without throwing) on a malformed menu image', () => {
+    expect(() => validateRestaurantMenuItems([item({ menuImage: 'not-an-object' as never })], restaurants)).not.toThrow()
+    expect(validateRestaurantMenuItems([item({ menuImage: 'not-an-object' as never })], restaurants)).toContain('Invalid menu image: meal-context-test-item')
+  })
+
+  it('has exactly the two researched pilot items with a menu image, both Ootoya, both official-remote', () => {
+    const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage)
+    expect(withImage.map(candidate => candidate.id).sort()).toEqual(['ootoya-grilled-mackerel', 'ootoya-tonteki-pork-chop-set'])
+    for (const candidate of withImage) {
+      expect(candidate.restaurantId).toBe('ootoya-thailand')
+      expect(candidate.menuImage?.kind).toBe('official-remote')
+      expect(candidate.menuImage?.sourceUrl).toMatch(/^https:\/\/www\.ootoya\.co\.th\//)
+    }
+  })
+
+  it('does not let menu image metadata affect filters, search, or Quick Goals eligibility', () => {
+    const mackerel = restaurantMenuItems.find(candidate => candidate.id === 'ootoya-grilled-mackerel')!
+    const withoutImage: RestaurantMenuItem = { ...mackerel, menuImage: undefined }
+    expect(filterRestaurantMenuItems([mackerel], { maxKcal: 600 }).length).toBe(filterRestaurantMenuItems([withoutImage], { maxKcal: 600 }).length)
+    expect(searchRestaurantMenuItems([mackerel], restaurants, 'mackerel').length).toBe(searchRestaurantMenuItems([withoutImage], restaurants, 'mackerel').length)
+    const filters = explorePresetFilters['high-protein']
+    expect(filterRestaurantMenuItems([mackerel], filters).length).toBe(filterRestaurantMenuItems([withoutImage], filters).length)
   })
 })

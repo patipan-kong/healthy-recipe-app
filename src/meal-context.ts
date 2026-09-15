@@ -1,4 +1,4 @@
-import type { LocalizedText, MealContext, MenuPrice, Nutrition, NutritionConfidence, NutritionSource } from './types'
+import type { LocalizedText, MealContext, MenuImage, MenuPrice, Nutrition, NutritionConfidence, NutritionSource } from './types'
 
 const nutritionConfidences: readonly NutritionConfidence[] = ['official', 'label', 'curated', 'estimated']
 const nutritionKeys = ['kcal', 'protein', 'carbs', 'fat', 'fiber', 'sodium'] as const
@@ -58,6 +58,19 @@ export function validateMenuPrice(value: unknown): string[] {
   if (price.currency !== 'THB') errors.push('Invalid price currency')
   if (!isValidIsoDate(price.asOf)) errors.push('Invalid price asOf')
   if (price.note !== undefined && !hasLocalizedText(price.note)) errors.push('Invalid price note')
+  return errors
+}
+
+export function validateMenuImage(value: unknown): string[] {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return ['Invalid menu image']
+  const image = value as Partial<MenuImage>
+  const errors: string[] = []
+  if (!hasText(image.src)) errors.push('Invalid menu image src')
+  if (!hasLocalizedText(image.alt)) errors.push('Invalid menu image alt')
+  if (image.kind !== 'official-remote' && image.kind !== 'bundled') errors.push('Invalid menu image kind')
+  if (image.sourceUrl !== undefined && !hasText(image.sourceUrl)) errors.push('Invalid menu image sourceUrl')
+  if (image.sourceLabel !== undefined && !hasLocalizedText(image.sourceLabel)) errors.push('Invalid menu image sourceLabel')
+  if (image.asOf !== undefined && !isValidIsoDate(image.asOf)) errors.push('Invalid menu image asOf')
   return errors
 }
 

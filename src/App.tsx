@@ -10,6 +10,7 @@ import { adjustShoppingRecipeServings, aggregateShoppingIngredients, emptyShoppi
 import { emptyRestaurantMenuFilters, explorePresetFilters, explorePresetIds, filterRestaurantMenuItems, matchingExplorePresetId, restaurantMenuItems, restaurants, searchRestaurantMenuItems } from './restaurants'
 import { RestaurantIdentity } from './restaurant-identity'
 import { MealContextDetails } from './meal-context-ui'
+import { MenuItemImage } from './menu-image'
 import type { ExplorePresetId, Filters, Locale, Recipe, Restaurant, RestaurantMenuFilters, RestaurantMenuItem } from './types'
 
 const categories = ['Quick meals', 'Thai favorites', 'High protein', 'Plant-forward', 'Light bowls']
@@ -408,6 +409,7 @@ export function RestaurantMenuView({ locale, restaurantId, onBack, favoriteIds, 
       </div>
       {pickedItem ? <article className="menu-item-row menu-pick-card">
         <MenuFavoriteButton locale={locale} name={pickedItem.name[locale]} favorite={favoriteIds.includes(pickedItem.id)} onToggle={() => onFavorite(pickedItem.id)} />
+        <MenuItemImage image={pickedItem.menuImage} locale={locale} />
         <div className="menu-item-copy">
           <p className="card-category">{menuCategoryLabel(locale, pickedItem.category)}</p>
           <h3>{pickedItem.name[locale]}</h3>
@@ -448,6 +450,7 @@ function ExploreItemCard({ locale, item, restaurant, onOpenRestaurant, favorite,
   const copy = messages[locale]
   return <>
     <MenuFavoriteButton locale={locale} name={item.name[locale]} favorite={favorite} onToggle={onFavorite} />
+    {focus && <MenuItemImage image={item.menuImage} locale={locale} />}
     <div className="menu-item-copy">
       <p className="card-category">{menuCategoryLabel(locale, item.category)}</p>
       <h3>{item.name[locale]}</h3>

@@ -1,5 +1,5 @@
 import type { ExplorePresetId, LocalizedText, MenuCategory, NutritionConfidence, Restaurant, RestaurantMenuFilters, RestaurantMenuItem } from './types'
-import { isValidNutrition, validateMealContext, validateMenuPrice } from './meal-context'
+import { isValidNutrition, validateMealContext, validateMenuImage, validateMenuPrice } from './meal-context'
 
 export const menuCategories: readonly MenuCategory[] = ['Rice & noodles', 'Salad', 'Grilled/BBQ', 'Soup', 'Set meal']
 
@@ -54,6 +54,14 @@ const santaFeConfigurableMealContext = {
   label: { th: 'เครื่องเคียงหรือซอสอาจแตกต่างตามที่เลือก', en: 'Sides or sauce may vary by selection.' },
   note: { th: 'สารอาหารด้านบนอ้างอิงจากเมนูหลัก จึงยังไม่ประเมินสารอาหารรวมทั้งมื้อ', en: 'Nutrition above refers to the base menu serving; a full-meal total is not estimated.' },
 }
+
+// Slice 18 real-food-image pilot (2026-09-15). Research methodology, rejected
+// candidates, and rights assessment are recorded in docs/restaurant-image-pilot-18.md.
+// Images are hotlinked to Ootoya Thailand's own official site (ootoya.co.th), not
+// bundled, since redistribution rights are not explicit — only remote linking to
+// the brand's own hosted copy was judged defensible.
+const asOf18 = '2026-09-15'
+const ootoyaImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของโอโตยะ', en: 'Image from Ootoya official website' }
 
 export const restaurants: Restaurant[] = [
   {
@@ -151,6 +159,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['fish', 'grilled', 'high-protein'],
     servingNote: { th: 'เสิร์ฟแบบเดี่ยว ไม่รวมข้าวและซุปมิโสะ', en: 'Served à la carte; rice and miso soup are not included in this figure.' },
     mealContext: { kind: 'add-on', label: { th: 'ข้าว + ซุปมิโสะ + เครื่องเคียง (ตัวเลือกเซ็ต)', en: 'Rice + miso soup + side items (set option)' }, note: ootoyaSetMealContextNote },
+    menuImage: {
+      src: 'https://www.ootoya.co.th/upload_file/menu/Fish-Menu/%E0%B8%9B%E0%B8%A5%E0%B8%B2%E0%B8%8B%E0%B8%B2%E0%B8%9A%E0%B8%B0%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%96%E0%B9%88%E0%B8%B2%E0%B8%99-big.png',
+      alt: { th: 'ปลาซาบะย่างถ่านเสิร์ฟกับหัวไชเท้าขูดและสลัดสาหร่ายวากาเมะ', en: 'Charcoal-grilled mackerel served with grated daikon and a wakame seaweed side' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.ootoya.co.th/menu-details.php?id=3',
+      sourceLabel: ootoyaImageSourceLabel,
+      asOf: asOf18,
+    },
   },
   {
     id: 'ootoya-shima-hokke-grilled',
@@ -201,6 +217,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     servingNote: { th: 'เสิร์ฟเป็นเซ็ต พร้อมข้าว ซุปมิโสะ และผักดอง', en: 'Served as a set with rice, miso soup, and pickled vegetables.' },
     price: { amount: 419, currency: 'THB', asOf: asOf17b, note: currentListedPriceNote },
     mealContext: { kind: 'already-complete', label: { th: 'เซ็ตมื้ออาหารครบชุด', en: 'Complete set meal' }, note: ootoyaCompleteSetNote },
+    menuImage: {
+      src: 'https://www.ootoya.co.th/upload_file/menu/Grilled-Menu/%E0%B8%9E%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%84%E0%B8%8A%E0%B9%87%E0%B8%AD%E0%B8%9B%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%96%E0%B9%88%E0%B8%B2%E0%B8%99%E0%B8%AA%E0%B9%84%E0%B8%95%E0%B8%A5%E0%B9%8C%E0%B8%97%E0%B8%87%E0%B9%80%E0%B8%97%E0%B8%81%E0%B8%B4-big.png',
+      alt: { th: 'พอร์คช็อปย่างถ่านสไตล์ทงเทกิราดซอส เสิร์ฟพร้อมกะหล่ำปลีซอยและเครื่องเคียง', en: 'Charcoal-grilled tonteki-style pork chop with sauce, served with shredded cabbage and side dishes' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.ootoya.co.th/menu-details.php?id=30',
+      sourceLabel: ootoyaImageSourceLabel,
+      asOf: asOf18,
+    },
   },
   {
     id: 'ootoya-grilled-salmon-rice-bowl',
@@ -1072,6 +1096,7 @@ export function validateRestaurantMenuItems(items: RestaurantMenuItem[], knownRe
     if (!item.nutritionSource || typeof item.nutritionSource !== 'object' || !nutritionConfidences.includes(item.nutritionSource.confidence as NutritionConfidence)) errors.push(`Invalid nutrition source: ${id}`)
     if (!Array.isArray(item.tags)) errors.push(`Invalid tags: ${id}`)
     if (item.price !== undefined && validateMenuPrice(item.price).length > 0) errors.push(`Invalid price: ${id}`)
+    if (item.menuImage !== undefined && validateMenuImage(item.menuImage).length > 0) errors.push(`Invalid menu image: ${id}`)
     if (item.mealContext !== undefined) {
       for (const error of validateMealContext(item.mealContext)) errors.push(`${error}: ${id}`)
       if (item.mealContext?.kind === 'add-on' && isValidNutrition(item.mealContext.additionNutrition)) {

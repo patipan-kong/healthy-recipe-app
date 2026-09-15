@@ -91,6 +91,16 @@ export type MealContext =
       note?: LocalizedText
     }
 
+export type MenuImage = {
+  src: string
+  alt: LocalizedText
+  /** 'official-remote' hotlinks a brand-controlled URL; 'bundled' ships the file with the app. */
+  kind: 'official-remote' | 'bundled'
+  sourceUrl?: string
+  sourceLabel?: LocalizedText
+  asOf?: string
+}
+
 export type RestaurantMenuItem = {
   id: string
   restaurantId: string
@@ -101,7 +111,7 @@ export type RestaurantMenuItem = {
   tags: string[]
   servingNote?: LocalizedText
   customizationNotes?: LocalizedText[]
-  image?: string
+  menuImage?: MenuImage
   mealContext?: MealContext
   price?: MenuPrice
 }
