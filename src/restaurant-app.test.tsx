@@ -1531,3 +1531,58 @@ describe('Batch 2 restaurant expansion (Slice 14)', () => {
     expect(container.querySelector('.restaurant-heading h2')?.textContent).toBe('แซ่บอีลี่')
   })
 })
+
+describe('Restaurant visual identity pilot (Slice 15)', () => {
+  let container: HTMLDivElement
+  let root: Root
+
+  beforeEach(() => {
+    window.localStorage.clear()
+    container = document.createElement('div')
+    document.body.append(container)
+    root = createRoot(container)
+    act(() => root.render(<App />))
+  })
+
+  afterEach(() => {
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  it('keeps all 13 restaurant names and gives pilot/fallback identity markers to every row', () => {
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-nav')?.click())
+    const rows = [...container.querySelectorAll<HTMLElement>('.restaurant-row')]
+    expect(rows).toHaveLength(restaurants.length)
+    expect(rows.filter(row => row.querySelector('[data-identity-source="pilot"]'))).toHaveLength(4)
+    expect(rows.filter(row => row.querySelector('[data-identity-source="fallback"]'))).toHaveLength(9)
+    for (const restaurant of restaurants) {
+      const row = rows.find(candidate => candidate.textContent?.includes(restaurant.name.th))
+      expect(row?.querySelector('.restaurant-identity')).not.toBeNull()
+      expect(row?.getAttribute('aria-label')).toContain(restaurant.name.th)
+    }
+  })
+
+  it('renders identity in Random Restaurant without changing the pick actions', () => {
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-nav')?.click())
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-pick-trigger')?.click())
+    expect(container.querySelector('.restaurant-pick-card .restaurant-identity')).not.toBeNull()
+    expect(container.querySelector('.restaurant-pick-again')).not.toBeNull()
+    expect(container.querySelector('.restaurant-pick-view-menu')).not.toBeNull()
+  })
+
+  it('renders a small identity marker on every Explore result while keeping menu ownership text', () => {
+    act(() => container.querySelector<HTMLButtonElement>('.explore-nav')?.click())
+    const rows = container.querySelectorAll('.explore-view .menu-list .menu-item-row')
+    expect(rows).toHaveLength(restaurantMenuItems.length)
+    expect(container.querySelectorAll('.explore-view .menu-item-restaurant-line .restaurant-identity')).toHaveLength(restaurantMenuItems.length)
+    expect(container.querySelector('.explore-view .menu-item-restaurant')?.textContent).toBeTruthy()
+    expect(container.querySelectorAll('.explore-view .menu-favorite-toggle')).toHaveLength(restaurantMenuItems.length)
+  })
+
+  it('reuses the Explore identity treatment in restaurant-menu Favorites', () => {
+    act(() => container.querySelector<HTMLButtonElement>('.explore-nav')?.click())
+    act(() => container.querySelector<HTMLButtonElement>('.menu-item-row .menu-favorite-toggle')?.click())
+    act(() => container.querySelector<HTMLButtonElement>('.icon-button')?.click())
+    expect(container.querySelector('.menu-item-restaurant-line .restaurant-identity')).not.toBeNull()
+  })
+})

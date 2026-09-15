@@ -20,3 +20,14 @@ body .number-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.number-grid .fi
 @media(max-width:559px){.pantry-nav span:nth-child(2){display:none}.shopping-nav span,.restaurant-nav span,.explore-nav span{display:none}}
 @media(max-width:714px){.pantry-nav span:nth-child(2),.shopping-nav span,.restaurant-nav span,.explore-nav span{display:none}.icon-button i{right:0}}
 @media(max-width:390px){.topbar{padding-left:8px;padding-right:8px}.logo{font-size:18px;gap:2px}.logo-mark{font-size:20px}.header-actions{gap:2px}.language-switcher{padding:1px}.language-switcher button{min-width:24px;min-height:26px;padding:2px 4px}.pantry-nav,.shopping-nav,.restaurant-nav,.explore-nav{min-height:32px;padding-left:5px;padding-right:5px}.icon-button{width:30px;height:30px;padding:3px}.icon-button i{right:-2px}}
+.restaurant-identity{display:inline-grid;place-items:center;flex:none;border:1px solid #d6e2d1;border-radius:10px;background:#edf4e9;color:#36523b;font-size:11px;font-weight:800;letter-spacing:.04em;line-height:1;text-align:center;overflow:hidden}
+.restaurant-identity-xs{width:24px;height:24px;border-radius:7px;font-size:9px}
+.restaurant-identity-sm{width:34px;height:34px;border-radius:9px;font-size:10px}
+.restaurant-identity-md{width:46px;height:46px;border-radius:12px;font-size:12px}
+.restaurant-identity-fallback{background:#f4f5ef;border-color:#dfe7dc;color:#667868}
+.restaurant-row-copy{flex:1}
+.restaurant-row-copy b{overflow-wrap:anywhere}
+.restaurant-pick-identity{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.restaurant-pick-text{min-width:0}
+.menu-item-restaurant-line{display:flex;align-items:center;gap:6px;min-width:0}
+.menu-item-restaurant-line .menu-item-restaurant{min-width:0;overflow-wrap:anywhere}

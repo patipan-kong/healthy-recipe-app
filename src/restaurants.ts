@@ -53,12 +53,14 @@ export const restaurants: Restaurant[] = [
     name: { th: 'สลัดแฟคทอรี่', en: 'Salad Factory' },
     cuisine: { th: 'สลัดและอาหารเพื่อสุขภาพ', en: 'Salads & healthy bowls' },
     tags: ['salad'],
+    visualIdentity: { kind: 'initials', label: { th: 'SF', en: 'SF' } },
   },
   {
     id: 'seven-eleven-thailand',
     name: { th: 'เซเว่น อีเลฟเว่น', en: '7-Eleven Thailand' },
     cuisine: { th: 'อาหารพร้อมทานบรรจุภัณฑ์', en: 'Packaged ready-to-eat meals' },
     tags: ['convenience', 'packaged'],
+    visualIdentity: { kind: 'initials', label: { th: '7', en: '7' } },
   },
   {
     id: 'jones-salad-thailand',
@@ -83,6 +85,7 @@ export const restaurants: Restaurant[] = [
     name: { th: 'สุคิยะ', en: 'Sukiya' },
     cuisine: { th: 'อาหารญี่ปุ่น (ข้าวหน้าเนื้อ)', en: 'Japanese cuisine (gyudon beef rice bowls)' },
     tags: ['japanese'],
+    visualIdentity: { kind: 'initials', label: { th: 'SK', en: 'SK' } },
   },
   {
     id: 'santa-fe-steak-thailand',
@@ -95,6 +98,7 @@ export const restaurants: Restaurant[] = [
     name: { th: 'นิตยาไก่ย่าง', en: 'Nittaya Kai Yang' },
     cuisine: { th: 'อาหารอีสาน (ไก่ย่าง ส้มตำ ลาบ)', en: 'Isan cuisine (grilled chicken, papaya salad, larb)' },
     tags: ['isan', 'grilled'],
+    visualIdentity: { kind: 'initials', label: { th: 'นก', en: 'NKY' } },
   },
   {
     id: 'zaab-eli-thailand',

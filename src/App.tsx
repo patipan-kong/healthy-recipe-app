@@ -8,6 +8,7 @@ import { loadRestaurantMenuFavorites, saveRestaurantMenuFavorites, toggleRestaur
 import { canonicalIngredients, categoryIngredients, countRecipesByIngredient, filterRecipesByIngredient, ingredientCategoryOrder, loadPantrySelection, rankRecipesByPantry, savePantrySelection, togglePantryIngredient, type PantryMatch } from './pantry'
 import { adjustShoppingRecipeServings, aggregateShoppingIngredients, emptyShoppingSelection, loadPurchasedShoppingLines, loadShoppingState, savePurchasedShoppingLines, saveShoppingState, togglePurchasedShoppingLine, toggleShoppingRecipeState, type ShoppingLine, type ShoppingSelection } from './shopping'
 import { emptyRestaurantMenuFilters, explorePresetFilters, explorePresetIds, filterRestaurantMenuItems, matchingExplorePresetId, restaurantMenuItems, restaurants, searchRestaurantMenuItems } from './restaurants'
+import { RestaurantIdentity } from './restaurant-identity'
 import type { ExplorePresetId, Filters, Locale, Recipe, Restaurant, RestaurantMenuFilters, RestaurantMenuItem } from './types'
 
 const categories = ['Quick meals', 'Thai favorites', 'High protein', 'Plant-forward', 'Light bowls']
@@ -180,7 +181,7 @@ function App() {
             <div className="menu-item-copy">
               <p className="card-category">{menuCategoryLabel(locale, item.category)}</p>
               <h3>{item.name[locale]}</h3>
-              <p className="menu-item-restaurant">{restaurant.name[locale]}</p>
+              <div className="menu-item-restaurant-line"><RestaurantIdentity restaurant={restaurant} locale={locale} size="xs" /><p className="menu-item-restaurant">{restaurant.name[locale]}</p></div>
               {item.servingNote && <p className="menu-item-note">{item.servingNote[locale]}</p>}
             </div>
             <div className="menu-item-nutrition">
@@ -291,9 +292,14 @@ function RestaurantListView({ locale, onOpen }: { locale: Locale; onOpen(id: str
       </div>
       {pickedRestaurant && <article className="restaurant-pick-card">
         <div className="restaurant-pick-copy">
-          <p className="restaurant-pick-label">{copy.restaurantPickLabel}</p>
-          <h3>{pickedRestaurant.name[locale]}</h3>
-          {pickedRestaurant.cuisine && <p className="restaurant-pick-cuisine">{pickedRestaurant.cuisine[locale]}</p>}
+          <div className="restaurant-pick-identity">
+            <RestaurantIdentity restaurant={pickedRestaurant} locale={locale} size="md" />
+            <div className="restaurant-pick-text">
+              <p className="restaurant-pick-label">{copy.restaurantPickLabel}</p>
+              <h3>{pickedRestaurant.name[locale]}</h3>
+              {pickedRestaurant.cuisine && <p className="restaurant-pick-cuisine">{pickedRestaurant.cuisine[locale]}</p>}
+            </div>
+          </div>
         </div>
         <div className="restaurant-pick-actions">
           <button className="random-button restaurant-pick-again" onClick={pickRestaurant}><Shuffle size={16} /> {copy.pickAgain}</button>
@@ -301,7 +307,7 @@ function RestaurantListView({ locale, onOpen }: { locale: Locale; onOpen(id: str
         </div>
       </article>}
     </section>
-    {restaurants.length ? <div className="restaurant-list">{restaurants.map(restaurant => <button key={restaurant.id} className="restaurant-row" onClick={() => onOpen(restaurant.id)} aria-label={copy.openRestaurant(restaurant.name[locale])}><span className="restaurant-row-copy"><b>{restaurant.name[locale]}</b>{restaurant.cuisine && <em>{restaurant.cuisine[locale]}</em>}</span><ChevronRight size={17} aria-hidden="true" /></button>)}</div>
+    {restaurants.length ? <div className="restaurant-list">{restaurants.map(restaurant => <button key={restaurant.id} className="restaurant-row" onClick={() => onOpen(restaurant.id)} aria-label={copy.openRestaurant(restaurant.name[locale])}><RestaurantIdentity restaurant={restaurant} locale={locale} size="sm" /><span className="restaurant-row-copy"><b>{restaurant.name[locale]}</b>{restaurant.cuisine && <em>{restaurant.cuisine[locale]}</em>}</span><ChevronRight size={17} aria-hidden="true" /></button>)}</div>
       : <div className="empty restaurant-empty" role="status"><span aria-hidden="true">🍽️</span><h3>{copy.restaurantsEmptyTitle}</h3><p>{copy.restaurantsEmptyText}</p></div>}
   </section>
 }
@@ -392,7 +398,7 @@ function ExploreItemCard({ locale, item, restaurant, onOpenRestaurant, favorite,
     <div className="menu-item-copy">
       <p className="card-category">{menuCategoryLabel(locale, item.category)}</p>
       <h3>{item.name[locale]}</h3>
-      {restaurant && <p className="menu-item-restaurant">{restaurant.name[locale]}</p>}
+      {restaurant && <div className="menu-item-restaurant-line"><RestaurantIdentity restaurant={restaurant} locale={locale} size="xs" /><p className="menu-item-restaurant">{restaurant.name[locale]}</p></div>}
       {item.servingNote && <p className="menu-item-note">{item.servingNote[locale]}</p>}
       {item.customizationNotes?.length ? <ul className="menu-item-customizations">{item.customizationNotes.map((note, index) => <li key={index}>{note[locale]}</li>)}</ul> : null}
     </div>

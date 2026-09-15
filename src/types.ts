@@ -47,6 +47,10 @@ export type Restaurant = {
   name: LocalizedText
   cuisine?: LocalizedText
   tags?: string[]
+  visualIdentity?: {
+    kind: 'initials'
+    label?: LocalizedText
+  }
 }
 
 export type MenuCategory = 'Rice & noodles' | 'Salad' | 'Grilled/BBQ' | 'Soup' | 'Set meal'
