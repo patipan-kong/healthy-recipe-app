@@ -326,8 +326,9 @@ function RestaurantMenuView({ locale, restaurantId, onBack, favoriteIds, onFavor
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [pickedId, setPickedId] = useState<string>()
   const [lastPickedId, setLastPickedId] = useState<string>()
-  useEffect(() => { setFilters(emptyRestaurantMenuFilters); setFiltersOpen(false); setPickedId(undefined); setLastPickedId(undefined) }, [restaurantId])
-  useEffect(() => { setPickedId(undefined); setLastPickedId(undefined) }, [filters])
+  const [showAllAfterPick, setShowAllAfterPick] = useState(false)
+  useEffect(() => { setFilters(emptyRestaurantMenuFilters); setFiltersOpen(false); setPickedId(undefined); setLastPickedId(undefined); setShowAllAfterPick(false) }, [restaurantId])
+  useEffect(() => { setPickedId(undefined); setLastPickedId(undefined); setShowAllAfterPick(false) }, [filters])
   const items = filterRestaurantMenuItems(allItems, filters)
   const activeFilterCount = Object.values(filters).filter(value => value !== undefined).length
   const filterLabels: Record<keyof RestaurantMenuFilters, string> = { maxKcal: copy.maxKcal, minProtein: copy.minProtein, maxCarbs: copy.maxCarbs, maxFat: copy.maxFat, maxSodium: copy.maxSodium }
@@ -337,7 +338,7 @@ function RestaurantMenuView({ locale, restaurantId, onBack, favoriteIds, onFavor
   }
   function pickForMe() {
     const result = chooseRandom(items, lastPickedId)
-    if (result) { setLastPickedId(result.id); setPickedId(result.id) }
+    if (result) { setLastPickedId(result.id); setPickedId(result.id); setShowAllAfterPick(false) }
   }
   return <section className="content restaurant-menu-view">
     <div className="restaurant-menu-nav">
@@ -350,7 +351,7 @@ function RestaurantMenuView({ locale, restaurantId, onBack, favoriteIds, onFavor
       <div className="number-grid">{Object.entries(filterLabels).map(([field, label]) => <label key={field} className="field-label">{label}<input type="number" min="0" value={filters[field as keyof RestaurantMenuFilters] ?? ''} onChange={event => updateNumber(field as keyof RestaurantMenuFilters, event.target.value)} /></label>)}</div>
       {activeFilterCount > 0 && <button className="text-button" onClick={() => setFilters(emptyRestaurantMenuFilters)}>{copy.clearFilters}</button>}
     </div>}
-    {allItems.length > 0 && <section className="menu-pick" aria-live="polite">
+    {allItems.length > 0 && <section className={`menu-pick ${pickedItem ? 'menu-pick-focused' : ''}`} aria-live="polite">
       <div className="menu-pick-header">
         <h3>{copy.yourPick}</h3>
         <button className="random-button" disabled={!items.length} onClick={pickForMe}><Shuffle size={17} /> {pickedItem ? copy.pickAgain : copy.pickForMe}</button>
@@ -372,8 +373,9 @@ function RestaurantMenuView({ locale, restaurantId, onBack, favoriteIds, onFavor
           <span className={`confidence-badge confidence-${pickedItem.nutritionSource.confidence}`}>{nutritionConfidenceLabel(locale, pickedItem.nutritionSource.confidence)}</span>
         </div>
       </article> : !items.length && <p className="menu-pick-empty">{copy.pickNoMatches}</p>}
+      {pickedItem && <button type="button" className="menu-list-toggle" aria-expanded={showAllAfterPick} aria-controls="restaurant-menu-list" onClick={() => setShowAllAfterPick(open => !open)}>{showAllAfterPick ? copy.hideMenus : copy.viewAllMenus}</button>}
     </section>}
-    {items.length ? <div className="menu-list">{items.map(item => <article className="menu-item-row" key={item.id}>
+    {items.length ? (!pickedItem || showAllAfterPick) && <div id="restaurant-menu-list" className="menu-list">{items.map(item => <article className="menu-item-row" key={item.id}>
       <MenuFavoriteButton locale={locale} name={item.name[locale]} favorite={favoriteIds.includes(item.id)} onToggle={() => onFavorite(item.id)} />
       <div className="menu-item-copy">
         <p className="card-category">{menuCategoryLabel(locale, item.category)}</p>
@@ -420,6 +422,7 @@ function ExploreView({ locale, onOpenRestaurant, favoriteIds, onFavorite, storag
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [pickedId, setPickedId] = useState<string>()
   const [lastPickedId, setLastPickedId] = useState<string>()
+  const [showAllAfterPick, setShowAllAfterPick] = useState(false)
   const [query, setQuery] = useState('')
   const searched = searchRestaurantMenuItems(restaurantMenuItems, restaurants, query)
   const items = filterRestaurantMenuItems(searched, filters)
@@ -428,7 +431,7 @@ function ExploreView({ locale, onOpenRestaurant, favoriteIds, onFavorite, storag
   const pickedItem = items.find(item => item.id === pickedId)
   const selectedPresetId = matchingExplorePresetId(filters)
   function restaurantFor(item: RestaurantMenuItem) { return restaurants.find(candidate => candidate.id === item.restaurantId) }
-  useEffect(() => { setPickedId(undefined); setLastPickedId(undefined) }, [query, filters])
+  useEffect(() => { setPickedId(undefined); setLastPickedId(undefined); setShowAllAfterPick(false) }, [query, filters])
   function updateNumber(field: keyof RestaurantMenuFilters, value: string) {
     setFilters(current => ({ ...current, [field]: value === '' ? undefined : Number(value) }))
   }
@@ -437,7 +440,7 @@ function ExploreView({ locale, onOpenRestaurant, favoriteIds, onFavorite, storag
   function selectPreset(id: ExplorePresetId) { setFilters({ ...explorePresetFilters[id] }) }
   function pickForMe() {
     const result = chooseRandom(items, lastPickedId)
-    if (result) { setLastPickedId(result.id); setPickedId(result.id) }
+    if (result) { setLastPickedId(result.id); setPickedId(result.id); setShowAllAfterPick(false) }
   }
   return <section className="content explore-view">
     <div className="restaurant-menu-nav">
@@ -463,14 +466,15 @@ function ExploreView({ locale, onOpenRestaurant, favoriteIds, onFavorite, storag
       {activeFilterCount > 0 && <button className="text-button" onClick={clearFilters}>{copy.clearFilters}</button>}
     </div>}
     <p className="explore-result-count">{copy.exploreMatchCount(items.length)}</p>
-    <section className="menu-pick" aria-live="polite">
+    <section className={`menu-pick ${pickedItem ? 'menu-pick-focused' : ''}`} aria-live="polite">
       <div className="menu-pick-header">
         <h3>{copy.yourPick}</h3>
         <button className="random-button" disabled={!items.length} onClick={pickForMe}><Shuffle size={17} /> {pickedItem ? copy.pickAgain : copy.pickForMe}</button>
       </div>
       {pickedItem ? <article className="menu-item-row menu-pick-card"><ExploreItemCard locale={locale} item={pickedItem} restaurant={restaurantFor(pickedItem)} onOpenRestaurant={onOpenRestaurant} favorite={favoriteIds.includes(pickedItem.id)} onFavorite={() => onFavorite(pickedItem.id)} /></article> : !items.length && <p className="menu-pick-empty">{copy.pickNoMatches}</p>}
+      {pickedItem && <button type="button" className="menu-list-toggle" aria-expanded={showAllAfterPick} aria-controls="explore-menu-list" onClick={() => setShowAllAfterPick(open => !open)}>{showAllAfterPick ? copy.hideMenus : copy.viewAllMenus}</button>}
     </section>
-    {items.length ? <div className="menu-list">{items.map(item => <article className="menu-item-row" key={item.id}><ExploreItemCard locale={locale} item={item} restaurant={restaurantFor(item)} onOpenRestaurant={onOpenRestaurant} favorite={favoriteIds.includes(item.id)} onFavorite={() => onFavorite(item.id)} /></article>)}</div>
+    {items.length ? (!pickedItem || showAllAfterPick) && <div id="explore-menu-list" className="menu-list">{items.map(item => <article className="menu-item-row" key={item.id}><ExploreItemCard locale={locale} item={item} restaurant={restaurantFor(item)} onOpenRestaurant={onOpenRestaurant} favorite={favoriteIds.includes(item.id)} onFavorite={() => onFavorite(item.id)} /></article>)}</div>
       : <div className="empty restaurant-empty" role="status"><span aria-hidden="true">🍽️</span><h3>{copy.emptyFilteredTitle}</h3><p>{copy.emptyFilteredText}</p><button className="random-button" onClick={clearFilters}>{copy.clearFilters}</button></div>}
   </section>
 }

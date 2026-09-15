@@ -108,6 +108,8 @@ type MessageSet = {
   pickForMe: string
   pickAgain: string
   yourPick: string
+  viewAllMenus: string
+  hideMenus: string
   pickNoMatches: string
   explore: string
   exploreTitle: string
@@ -231,7 +233,9 @@ export const messages: Record<Locale, MessageSet> = {
     sodium: 'โซเดียม',
     pickForMe: 'สุ่มเลือกให้',
     pickAgain: 'สุ่มใหม่',
-    yourPick: 'เมนูที่สุ่มได้',
+    yourPick: 'เมนูที่เลือกให้',
+    viewAllMenus: 'ดูเมนูทั้งหมด',
+    hideMenus: 'ซ่อนเมนู',
     pickNoMatches: 'ไม่มีเมนูที่ตรงกับตัวกรองให้สุ่มเลือก',
     explore: 'หาเมนู',
     exploreTitle: 'หาเมนูจากทุกร้าน',
@@ -354,6 +358,8 @@ export const messages: Record<Locale, MessageSet> = {
     pickForMe: 'Pick for me',
     pickAgain: 'Pick again',
     yourPick: 'Your pick',
+    viewAllMenus: 'View all menus',
+    hideMenus: 'Hide menus',
     pickNoMatches: 'No matching items available to pick',
     explore: 'Explore',
     exploreTitle: 'Explore menus across restaurants',

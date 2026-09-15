@@ -1586,3 +1586,219 @@ describe('Restaurant visual identity pilot (Slice 15)', () => {
     expect(container.querySelector('.menu-item-restaurant-line .restaurant-identity')).not.toBeNull()
   })
 })
+
+describe('Pick focus mode (Slice 16)', () => {
+  let container: HTMLDivElement
+  let root: Root
+
+  beforeEach(() => {
+    window.localStorage.clear()
+    container = document.createElement('div')
+    document.body.append(container)
+    root = createRoot(container)
+    act(() => root.render(<App />))
+  })
+
+  afterEach(() => {
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  function clickRestaurantsNav() {
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-nav')?.click())
+  }
+
+  function clickExploreNav() {
+    act(() => container.querySelector<HTMLButtonElement>('.explore-nav')?.click())
+  }
+
+  function restaurantRow(name: string) {
+    const row = [...container.querySelectorAll<HTMLElement>('.restaurant-row')].find(candidate => candidate.textContent?.includes(name))
+    if (!row) throw new Error(`Missing restaurant row: ${name}`)
+    return row
+  }
+
+  function clickLocalPick() {
+    const button = container.querySelector<HTMLButtonElement>('.restaurant-menu-view .menu-pick-header button')
+    if (!button) throw new Error('Missing restaurant-local Pick button')
+    act(() => button.click())
+  }
+
+  function clickExplorePick() {
+    const button = container.querySelector<HTMLButtonElement>('.explore-view .menu-pick-header button')
+    if (!button) throw new Error('Missing Explore Pick button')
+    act(() => button.click())
+  }
+
+  function localToggle() {
+    const button = container.querySelector<HTMLButtonElement>('.restaurant-menu-view .menu-list-toggle')
+    if (!button) throw new Error('Missing restaurant menu list toggle')
+    return button
+  }
+
+  function exploreToggle() {
+    const button = container.querySelector<HTMLButtonElement>('.explore-view .menu-list-toggle')
+    if (!button) throw new Error('Missing Explore menu list toggle')
+    return button
+  }
+
+  it('shows exactly one focal restaurant-local result and removes list competition after Pick', () => {
+    clickRestaurantsNav()
+    act(() => restaurantRow(restaurants[0].name.th).click())
+    clickLocalPick()
+
+    expect(container.querySelectorAll('.restaurant-menu-view .menu-pick-card')).toHaveLength(1)
+    expect(container.querySelector('.restaurant-menu-view .menu-list')).toBeNull()
+    expect(container.querySelectorAll('.restaurant-menu-view .menu-item-row')).toHaveLength(1)
+    expect(localToggle().textContent).toContain('ดูเมนูทั้งหมด')
+  })
+
+  it('reveals and hides the restaurant list without clearing the focal result', () => {
+    clickRestaurantsNav()
+    act(() => restaurantRow(restaurants[0].name.th).click())
+    clickLocalPick()
+    const pickedName = container.querySelector('.restaurant-menu-view .menu-pick-card h3')?.textContent
+    const expectedTotal = restaurantMenuItems.filter(item => item.restaurantId === restaurants[0].id).length
+
+    act(() => localToggle().click())
+    expect(container.querySelectorAll('.restaurant-menu-view .menu-list .menu-item-row')).toHaveLength(expectedTotal)
+    expect(container.querySelector('.restaurant-menu-view .menu-pick-card h3')?.textContent).toBe(pickedName)
+    expect(localToggle().getAttribute('aria-expanded')).toBe('true')
+    expect(localToggle().textContent).toContain('ซ่อนเมนู')
+
+    act(() => localToggle().click())
+    expect(container.querySelector('.restaurant-menu-view .menu-list')).toBeNull()
+    expect(localToggle().getAttribute('aria-expanded')).toBe('false')
+  })
+
+  it('keeps local Pick again focused and replaces the previous focal result', () => {
+    clickRestaurantsNav()
+    const target = restaurants.find(candidate => restaurantMenuItems.filter(item => item.restaurantId === candidate.id).length >= 3)
+    if (!target) throw new Error('Fixture needs a restaurant with at least three menu items')
+    act(() => restaurantRow(target.name.th).click())
+    clickLocalPick()
+    const firstName = container.querySelector('.restaurant-menu-view .menu-pick-card h3')?.textContent
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-menu-view .menu-pick-header button')?.click())
+
+    expect(container.querySelector('.restaurant-menu-view .menu-pick-card h3')?.textContent).not.toBe(firstName)
+    expect(container.querySelector('.restaurant-menu-view .menu-list')).toBeNull()
+    expect(container.querySelector('.restaurant-menu-view .menu-pick-header button')?.textContent).toContain('สุ่มใหม่')
+  })
+
+  it('keeps a one-item local pool safe while focus mode remains revealable', () => {
+    clickRestaurantsNav()
+    act(() => restaurantRow(restaurants[0].name.th).click())
+    const soleItem = restaurantMenuItems.filter(item => item.restaurantId === restaurants[0].id).reduce((lowest, item) => item.nutrition.kcal < lowest.nutrition.kcal ? item : lowest)
+    const filterButton = container.querySelector<HTMLButtonElement>('.restaurant-menu-nav .filter-button')
+    act(() => filterButton?.click())
+    const input = [...container.querySelectorAll<HTMLInputElement>('.menu-filter-panel input')][0]
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')!.set!
+    act(() => { setter.call(input, String(soleItem.nutrition.kcal)); input.dispatchEvent(new Event('input', { bubbles: true })) })
+
+    clickLocalPick()
+    expect(container.querySelector('.restaurant-menu-view .menu-pick-card h3')?.textContent).toBe(soleItem.name.th)
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-menu-view .menu-pick-header button')?.click())
+    expect(container.querySelector('.restaurant-menu-view .menu-pick-card h3')?.textContent).toBe(soleItem.name.th)
+    act(() => localToggle().click())
+    expect(container.querySelectorAll('.restaurant-menu-view .menu-list .menu-item-row')).toHaveLength(1)
+  })
+
+  it('clears local focus and returns to browsing when a filter invalidates the Pick', () => {
+    clickRestaurantsNav()
+    act(() => restaurantRow(restaurants[0].name.th).click())
+    clickLocalPick()
+    expect(container.querySelector('.restaurant-menu-view .menu-pick-card')).not.toBeNull()
+
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-menu-nav .filter-button')?.click())
+    const input = [...container.querySelectorAll<HTMLInputElement>('.menu-filter-panel input')][0]
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')!.set!
+    act(() => { setter.call(input, '1'); input.dispatchEvent(new Event('input', { bubbles: true })) })
+
+    expect(container.querySelector('.restaurant-menu-view .menu-pick-card')).toBeNull()
+    expect(container.querySelector('.restaurant-menu-view .menu-list-toggle')).toBeNull()
+    expect(container.querySelector<HTMLButtonElement>('.restaurant-menu-view .menu-pick-header button')?.disabled).toBe(true)
+  })
+
+  it('collapses Explore results to one focal result and restores the constrained list', () => {
+    clickExploreNav()
+    clickExplorePick()
+    expect(container.querySelectorAll('.explore-view .menu-pick-card')).toHaveLength(1)
+    expect(container.querySelector('.explore-view .menu-list')).toBeNull()
+    expect(container.querySelectorAll('.explore-view .menu-pick-card .menu-favorite-toggle')).toHaveLength(1)
+
+    const pickedName = container.querySelector('.explore-view .menu-pick-card h3')?.textContent
+    act(() => exploreToggle().click())
+    expect(container.querySelectorAll('.explore-view .menu-list .menu-item-row')).toHaveLength(restaurantMenuItems.length)
+    expect(container.querySelector('.explore-view .menu-pick-card h3')?.textContent).toBe(pickedName)
+    expect(exploreToggle().textContent).toContain('ซ่อนเมนู')
+  })
+
+  it('keeps Explore Pick again focused and replaces the selected result', () => {
+    clickExploreNav()
+    clickExplorePick()
+    const firstName = container.querySelector('.explore-view .menu-pick-card h3')?.textContent
+    act(() => container.querySelector<HTMLButtonElement>('.explore-view .menu-pick-header button')?.click())
+
+    expect(container.querySelector('.explore-view .menu-pick-card h3')?.textContent).not.toBe(firstName)
+    expect(container.querySelector('.explore-view .menu-list')).toBeNull()
+  })
+
+  it('keeps Explore search visible and clears stale focus when the query changes', () => {
+    clickExploreNav()
+    clickExplorePick()
+    const input = container.querySelector<HTMLInputElement>('.explore-view .search input[type="search"]')
+    if (!input) throw new Error('Missing Explore search input')
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')!.set!
+    act(() => { setter.call(input, 'mackerel'); input.dispatchEvent(new Event('input', { bubbles: true })) })
+
+    const matchingCount = restaurantMenuItems.filter(item => item.name.en.toLocaleLowerCase().includes('mackerel')).length
+    expect(container.querySelector('.explore-view .menu-pick-card')).toBeNull()
+    expect(container.querySelector('.explore-view .menu-list')).not.toBeNull()
+    expect(container.querySelectorAll('.explore-view .menu-list .menu-item-row')).toHaveLength(matchingCount)
+    expect(input.value).toBe('mackerel')
+  })
+
+  it('clears and restricts Explore focus when a Quick Goal changes the eligible pool', () => {
+    clickExploreNav()
+    clickExplorePick()
+    const chip = [...container.querySelectorAll<HTMLButtonElement>('.explore-preset-chip')].find(candidate => candidate.textContent?.includes('โปรตีนสูง'))
+    if (!chip) throw new Error('Missing High Protein preset chip')
+    act(() => chip.click())
+
+    const eligibleItems = restaurantMenuItems.filter(item => item.nutrition.kcal <= 700 && item.nutrition.protein >= 30)
+    expect(container.querySelector('.explore-view .menu-pick-card')).toBeNull()
+    expect(container.querySelectorAll('.explore-view .menu-list .menu-item-row')).toHaveLength(eligibleItems.length)
+    expect(container.querySelector('.explore-view .explore-preset-chip.active')).not.toBeNull()
+  })
+
+  it('supports favorite and View restaurant directly from the Explore focal result', () => {
+    clickExploreNav()
+    clickExplorePick()
+    const pickCard = container.querySelector<HTMLElement>('.explore-view .menu-pick-card')
+    if (!pickCard) throw new Error('Missing Explore focal result')
+    const favorite = pickCard.querySelector<HTMLButtonElement>('.menu-favorite-toggle')
+    const viewRestaurant = pickCard.querySelector<HTMLButtonElement>('.explore-view-restaurant')
+    if (!favorite || !viewRestaurant) throw new Error('Missing focal result action')
+    act(() => favorite.click())
+    expect(favorite.getAttribute('aria-pressed')).toBe('true')
+    act(() => viewRestaurant.click())
+    expect(container.querySelector('.restaurant-menu-view')).not.toBeNull()
+  })
+
+  it('localizes focus controls in English', () => {
+    act(() => container.querySelector<HTMLButtonElement>('.language-switcher button:last-child')?.click())
+    clickExploreNav()
+    clickExplorePick()
+    expect(exploreToggle().textContent).toContain('View all menus')
+    act(() => exploreToggle().click())
+    expect(exploreToggle().textContent).toContain('Hide menus')
+  })
+
+  it('does not leave collapsed menu actions in the keyboard-interactable DOM', () => {
+    clickExploreNav()
+    clickExplorePick()
+    expect(container.querySelector('.explore-view .menu-list')).toBeNull()
+    expect(container.querySelectorAll('.explore-view .menu-list .menu-favorite-toggle')).toHaveLength(0)
+    expect(container.querySelectorAll('.explore-view .menu-list .explore-view-restaurant')).toHaveLength(0)
+  })
+})
