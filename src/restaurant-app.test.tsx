@@ -1584,6 +1584,7 @@ describe('Restaurant visual identity pilot (Slice 15)', () => {
     act(() => container.querySelector<HTMLButtonElement>('.menu-item-row .menu-favorite-toggle')?.click())
     act(() => container.querySelector<HTMLButtonElement>('.icon-button')?.click())
     expect(container.querySelector('.menu-item-restaurant-line .restaurant-identity')).not.toBeNull()
+    expect(container.querySelectorAll('.favorite-menu-item .meal-context-details, .menu-item-row .meal-context-details')).toHaveLength(0)
   })
 })
 

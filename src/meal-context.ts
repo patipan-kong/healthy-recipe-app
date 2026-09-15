@@ -65,7 +65,7 @@ export function validateMealContext(value: unknown): string[] {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return ['Invalid meal context']
   const context = value as Partial<MealContext> & Record<string, unknown>
   const errors: string[] = []
-  if (context.kind !== 'add-on' && context.kind !== 'already-complete') errors.push('Invalid meal context kind')
+  if (context.kind !== 'add-on' && context.kind !== 'already-complete' && context.kind !== 'configurable') errors.push('Invalid meal context kind')
   if (!hasLocalizedText(context.label)) errors.push('Missing meal-context label')
   if (context.note !== undefined && !hasLocalizedText(context.note)) errors.push('Invalid meal-context note')
 
@@ -79,5 +79,6 @@ export function validateMealContext(value: unknown): string[] {
   }
 
   if (context.kind === 'already-complete' && (context.additionNutrition !== undefined || context.additionNutritionSource !== undefined)) errors.push('Complete meal context cannot include addition nutrition')
+  if (context.kind === 'configurable' && (context.additionNutrition !== undefined || context.additionNutritionSource !== undefined)) errors.push('Configurable meal context cannot include addition nutrition')
   return errors
 }

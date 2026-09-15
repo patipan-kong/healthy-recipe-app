@@ -111,6 +111,7 @@ type MessageSet = {
   viewAllMenus: string
   hideMenus: string
   commonMeal: string
+  configurableMeal: string
   estimatedMealTotal: string
   completeMeal: string
   mealIncludesSet: string
@@ -251,6 +252,7 @@ export const messages: Record<Locale, MessageSet> = {
     viewAllMenus: 'ดูเมนูทั้งหมด',
     hideMenus: 'ซ่อนเมนู',
     commonMeal: 'กินเป็นมื้อ',
+    configurableMeal: 'มื้อนี้ปรับเปลี่ยนได้',
     estimatedMealTotal: 'รวมทั้งมื้อโดยประมาณ',
     completeMeal: 'มื้ออาหารครบชุด',
     mealIncludesSet: 'โภชนาการด้านบนรวมชุดอาหารนี้แล้ว',
@@ -389,6 +391,7 @@ export const messages: Record<Locale, MessageSet> = {
     viewAllMenus: 'View all menus',
     hideMenus: 'Hide menus',
     commonMeal: 'Common meal',
+    configurableMeal: 'Configurable meal',
     estimatedMealTotal: 'Estimated meal total',
     completeMeal: 'Complete meal',
     mealIncludesSet: 'Nutrition above already represents the set.',

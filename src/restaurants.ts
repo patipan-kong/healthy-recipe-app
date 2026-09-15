@@ -42,6 +42,19 @@ const somtamNuaEstimateNote = { th: 'ส้มตำนัวเป็นร้�
 const thongSmithEstimateNote = { th: 'ทองสมิทธ์เป็นร้านก๋วยเตี๋ยวเรือ/ข้าวต้มพรีเมียมที่มีสาขาจำนวนมากในห้างสรรพสินค้า ไม่ใช่ร้านไก่ย่าง/อีสานตามที่สันนิษฐานไว้ในตอนแรกของการวิจัย ไม่มีเว็บไซต์ทางการที่แสดงเมนูและราคา ชื่อเมนูยืนยันจากรายงานสื่อ (THE STANDARD, Tatler Asia) และบล็อกรีวิวอาหาร ไม่พบข้อมูลโภชนาการที่เผยแพร่จากร้านหรือแหล่งข้อมูลที่น่าเชื่อถือ ค่าพลังงานและสารอาหารเป็นการประเมินโดยทีมงานจากส่วนประกอบและขนาดเสิร์ฟทั่วไปของก๋วยเตี๋ยว/ข้าวหนึ่งชาม', en: "ThongSmith is a premium boat-noodle/rice-soup restaurant with many mall branches — not a grilled-chicken/Isan brand as originally assumed when this research began. It has no official website with menu/prices; item names are confirmed via media coverage (THE STANDARD, Tatler Asia) and food-review blogs. No nutrition data was found published by the brand or any credible third party. Kcal/macros are a team estimate based on typical ingredients and serving size for one noodle/rice bowl." }
 const steakAndMoreEstimateNote = { th: 'เดอะสเต๊กแอนด์มอร์ดำเนินการโดยไมเนอร์ฟู้ด เปิดตัวปลายปี 2024 และขยายสาขาอย่างรวดเร็ว ยืนยันตัวตนจากเว็บไซต์บริษัทแม่ (minorfood.com) แต่ไม่มีข้อมูลโภชนาการเผยแพร่ที่ใดเลยเนื่องจากเป็นแบรนด์ใหม่ ชื่อเมนูยืนยันจากหน้าสาขาบน Wongnai และเอกสารประชาสัมพันธ์ของไมเนอร์ฟู้ด ค่าพลังงานและสารอาหารเป็นการประเมินโดยทีมงาน โดยเมนูสเต็กรวมค่าประมาณของเครื่องเคียง/สลัด/ขนมปังที่มักเสิร์ฟมาด้วยตามชุด', en: "The Steak & More is operated by Minor Food, launched in late 2024 and has expanded rapidly. Brand identity is confirmed via the parent company's own site (minorfood.com), but no nutrition data is published anywhere for this new brand. Menu item names are confirmed via Wongnai branch listings and Minor Food's own press materials. Kcal/macros are a team estimate; steak items' estimates include the bundled side salad/bread typically served with the set, not just the protein alone." }
 
+// Slice 17B production research (2026-09-15). Evidence and rejected sources
+// are recorded item-by-item in docs/restaurant-meal-context-price-research-17b.md.
+const asOf17b = '2026-09-15'
+const currentListedPriceNote = { th: 'ราคาที่ตรวจสอบจากเมนูปัจจุบัน อาจแตกต่างตามสาขาหรือข้อยกเว้นที่ร้านระบุ', en: 'Current listed menu price; branch exceptions may apply.' }
+const ootoyaSetMealContextNote = { th: 'หลักฐานเมนูไทยแสดงทั้งแบบจานเดี่ยวและแบบเซ็ต โดยเซ็ตมีข้าว ซุปมิโสะ และเครื่องเคียงเป็นองค์ประกอบของมื้อ แต่ยังไม่พบข้อมูลโภชนาการส่วนเพิ่มที่เป็นทางการของไทย', en: 'Thailand menu evidence shows both à la carte and set options with rice, miso soup, and side items; no Thailand-specific addition nutrition was published.' }
+const ootoyaShimaAdditionNutritionNote = { th: 'โภชนาการส่วนเพิ่มเป็นค่าประมาณจากการหักค่าโภชนาการเมนูเดี่ยวออกจากค่าเซ็ตปลาชิมาฮอกเกะอย่างเป็นทางการของ Ootoya Japan ไม่ใช่ข้อมูลโภชนาการทางการของประเทศไทย และยังไม่ทราบโซเดียมของส่วนเพิ่ม', en: "Addition nutrition is estimated by subtracting Ootoya Japan's official Shima Hokke single-item values from its official set values; it is not Thailand-official, and addition sodium remains unknown." }
+const ootoyaCompleteSetNote = { th: 'เซ็ตนี้รวมข้าว ซุปมิโสะ และผักดองแล้ว จึงไม่ควรบวกส่วนเพิ่มซ้ำ', en: 'This listed set already includes rice, miso soup, and pickled vegetables; do not add another meal component.' }
+const santaFeConfigurableMealContext = {
+  kind: 'configurable' as const,
+  label: { th: 'เครื่องเคียงหรือซอสอาจแตกต่างตามที่เลือก', en: 'Sides or sauce may vary by selection.' },
+  note: { th: 'สารอาหารด้านบนอ้างอิงจากเมนูหลัก จึงยังไม่ประเมินสารอาหารรวมทั้งมื้อ', en: 'Nutrition above refers to the base menu serving; a full-meal total is not estimated.' },
+}
+
 export const restaurants: Restaurant[] = [
   {
     id: 'ootoya-thailand',
@@ -137,6 +150,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'curated', note: ootoyaSameChainNote, asOf },
     tags: ['fish', 'grilled', 'high-protein'],
     servingNote: { th: 'เสิร์ฟแบบเดี่ยว ไม่รวมข้าวและซุปมิโสะ', en: 'Served à la carte; rice and miso soup are not included in this figure.' },
+    mealContext: { kind: 'add-on', label: { th: 'ข้าว + ซุปมิโสะ + เครื่องเคียง (ตัวเลือกเซ็ต)', en: 'Rice + miso soup + side items (set option)' }, note: ootoyaSetMealContextNote },
   },
   {
     id: 'ootoya-shima-hokke-grilled',
@@ -147,6 +161,13 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'curated', note: ootoyaSameChainNote, asOf },
     tags: ['fish', 'grilled', 'high-protein', 'low-carb'],
     servingNote: { th: 'เสิร์ฟแบบเดี่ยว ไม่รวมข้าวและซุปมิโสะ', en: 'Served à la carte; rice and miso soup are not included in this figure.' },
+    mealContext: {
+      kind: 'add-on',
+      label: { th: 'ข้าว + ซุปมิโสะ + เครื่องเคียง (ตัวเลือกเซ็ต)', en: 'Rice + miso soup + side items (set option)' },
+      additionNutrition: { kcal: 330, protein: 6, carbs: 70, fat: 1.1, fiber: 1.4 },
+      additionNutritionSource: { confidence: 'estimated', asOf: asOf17b, note: ootoyaShimaAdditionNutritionNote },
+      note: ootoyaSetMealContextNote,
+    },
   },
   {
     id: 'ootoya-grilled-moromi-chicken',
@@ -178,6 +199,8 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: ootoyaStandardDishNote, asOf },
     tags: ['pork', 'grilled', 'high-protein'],
     servingNote: { th: 'เสิร์ฟเป็นเซ็ต พร้อมข้าว ซุปมิโสะ และผักดอง', en: 'Served as a set with rice, miso soup, and pickled vegetables.' },
+    price: { amount: 419, currency: 'THB', asOf: asOf17b, note: currentListedPriceNote },
+    mealContext: { kind: 'already-complete', label: { th: 'เซ็ตมื้ออาหารครบชุด', en: 'Complete set meal' }, note: ootoyaCompleteSetNote },
   },
   {
     id: 'ootoya-grilled-salmon-rice-bowl',
@@ -578,6 +601,8 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 400, protein: 32, carbs: 4, fat: 29 },
     nutritionSource: { confidence: 'estimated', note: santaFeEstimateNote, asOf: asOf11 },
     tags: ['fish', 'grilled', 'high-protein', 'low-carb'],
+    mealContext: santaFeConfigurableMealContext,
+    price: { amount: 329, currency: 'THB', asOf: asOf17b, note: currentListedPriceNote },
   },
   {
     id: 'santa-fe-dory-fish-steak',
@@ -587,6 +612,8 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 280, protein: 26, carbs: 8, fat: 17 },
     nutritionSource: { confidence: 'estimated', note: santaFeEstimateNote, asOf: asOf11 },
     tags: ['fish', 'grilled'],
+    mealContext: santaFeConfigurableMealContext,
+    price: { amount: 209, currency: 'THB', asOf: asOf17b, note: currentListedPriceNote },
   },
   {
     id: 'santa-fe-seabass-steak',
@@ -605,6 +632,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 410, protein: 33, carbs: 6, fat: 29 },
     nutritionSource: { confidence: 'estimated', note: santaFeEstimateNote, asOf: asOf11 },
     tags: ['pork', 'grilled', 'high-protein'],
+    mealContext: santaFeConfigurableMealContext,
   },
   {
     id: 'santa-fe-chicken-steak-jaew',

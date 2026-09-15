@@ -84,6 +84,12 @@ export type MealContext =
       label: LocalizedText
       note?: LocalizedText
     }
+  | {
+      /** Informational only: the base serving is known, but the full plate varies by selection. */
+      kind: 'configurable'
+      label: LocalizedText
+      note?: LocalizedText
+    }
 
 export type RestaurantMenuItem = {
   id: string

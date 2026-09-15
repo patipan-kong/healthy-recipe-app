@@ -40,6 +40,11 @@ export function MealContextDetails({ item, locale }: { item: RestaurantMenuItem;
         </div>
       </div>}
     </section>}
+    {context?.kind === 'configurable' && <section className="meal-context-section meal-context-configurable" aria-label={copy.configurableMeal}>
+      <p className="meal-context-heading">{copy.configurableMeal}</p>
+      <p className="meal-context-name">{context.label[locale]}</p>
+      {context.note && <p className="meal-context-note">{context.note[locale]}</p>}
+    </section>}
     {context?.kind === 'already-complete' && <section className="meal-context-section meal-context-complete" aria-label={copy.completeMeal}>
       <p className="meal-context-heading">{copy.completeMeal}</p>
       <p className="meal-context-name">{context.label[locale]}</p>
