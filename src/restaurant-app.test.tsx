@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
 import { restaurantMenuItems, restaurants, searchRestaurantMenuItems } from './restaurants'
+import type { RestaurantMenuItem } from './types'
 
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
@@ -387,9 +388,12 @@ describe('Cross-restaurant explore flow', () => {
     clickExploreNav()
     const rows = exploreRows()
     expect(rows.length).toBeGreaterThan(0)
+    // Matched on (item name, restaurant name) rather than item name alone: several
+    // real Isan dish names (e.g. "คอหมูย่าง", "ลาบหมู") are legitimately reused
+    // across independent restaurants, so name text alone is not a unique key.
     for (const item of restaurantMenuItems) {
       const restaurant = restaurants.find(candidate => candidate.id === item.restaurantId)
-      const row = [...rows].find(candidate => candidate.querySelector('h3')?.textContent === item.name.th)
+      const row = [...rows].find(candidate => candidate.querySelector('h3')?.textContent === item.name.th && candidate.querySelector('.menu-item-restaurant')?.textContent === restaurant?.name.th)
       expect(row?.querySelector('.menu-item-restaurant')?.textContent).toBe(restaurant?.name.th)
     }
   })
@@ -405,8 +409,14 @@ describe('Cross-restaurant explore flow', () => {
     expect(excludedItems.length).toBeGreaterThan(0)
     const rows = exploreRows()
     expect(rows).toHaveLength(expectedItems.length)
-    for (const item of expectedItems) expect([...rows].some(row => row.querySelector('h3')?.textContent === item.name.th)).toBe(true)
-    for (const item of excludedItems) expect([...rows].some(row => row.querySelector('h3')?.textContent === item.name.th)).toBe(false)
+    // Matched on (item name, restaurant name) since some real dish names repeat
+    // across independent restaurants (see note above).
+    const matches = (item: RestaurantMenuItem) => {
+      const restaurant = restaurants.find(candidate => candidate.id === item.restaurantId)
+      return [...rows].some(row => row.querySelector('h3')?.textContent === item.name.th && row.querySelector('.menu-item-restaurant')?.textContent === restaurant?.name.th)
+    }
+    for (const item of expectedItems) expect(matches(item)).toBe(true)
+    for (const item of excludedItems) expect(matches(item)).toBe(false)
   })
 
   it('filters matching items down by min protein across every restaurant', () => {
@@ -1296,11 +1306,11 @@ describe('Batch 1 restaurant expansion (Slice 11)', () => {
     return container.querySelectorAll<HTMLElement>('.explore-view .menu-list .menu-item-row')
   }
 
-  it('shows all 8 restaurants (3 pilot + 5 Batch 1) cleanly in the restaurant list', () => {
+  it('shows every production restaurant cleanly in the restaurant list, with no hardcoded restaurant-count assumption', () => {
     clickRestaurantsNav()
     const rows = container.querySelectorAll('.restaurant-row')
     expect(rows).toHaveLength(restaurants.length)
-    expect(restaurants.length).toBe(8)
+    expect(restaurants.length).toBeGreaterThanOrEqual(8)
     for (const restaurant of restaurants) expect([...rows].some(row => row.textContent?.includes(restaurant.name.th))).toBe(true)
   })
 
@@ -1372,5 +1382,152 @@ describe('Batch 1 restaurant expansion (Slice 11)', () => {
     clickFavoritesNav()
     const favoritedRows = container.querySelectorAll('.menu-item-row')
     expect([...favoritedRows].some(favRow => favRow.querySelector('h3')?.textContent === itemName)).toBe(true)
+  })
+})
+
+// Slice 14 smoke coverage for the Batch 2 dataset expansion (Nittaya Kai
+// Yang, Zaab Eli, Somtam Nua, ThongSmith, The Steak & More). No browser
+// automation tool was available in this environment (see the Slice 14 final
+// report), so this is the strongest available substitute for the spec's
+// "browser smoke test" section: a jsdom interaction pass exercising the same
+// flows against the further-expanded dataset.
+describe('Batch 2 restaurant expansion (Slice 14)', () => {
+  let container: HTMLDivElement
+  let root: Root
+  const newRestaurantIds = ['nittaya-kai-yang-thailand', 'zaab-eli-thailand', 'somtam-nua-thailand', 'thongsmith-boat-noodle-thailand', 'steak-and-more-thailand']
+
+  beforeEach(() => {
+    window.localStorage.clear()
+    container = document.createElement('div')
+    document.body.append(container)
+    root = createRoot(container)
+    act(() => root.render(<App />))
+  })
+
+  afterEach(() => {
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  function clickRestaurantsNav() {
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-nav')?.click())
+  }
+
+  function clickExploreNav() {
+    act(() => container.querySelector<HTMLButtonElement>('.explore-nav')?.click())
+  }
+
+  function clickFavoritesNav() {
+    act(() => container.querySelector<HTMLButtonElement>('.icon-button')?.click())
+  }
+
+  function restaurantRow(name: string) {
+    const row = [...container.querySelectorAll<HTMLElement>('.restaurant-row')].find(candidate => candidate.textContent?.includes(name))
+    if (!row) throw new Error(`Missing restaurant row: ${name}`)
+    return row
+  }
+
+  function typeExploreSearch(value: string) {
+    const input = container.querySelector<HTMLInputElement>('.explore-view .search input[type="search"]')
+    if (!input) throw new Error('Missing Explore search input')
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')!.set!
+    act(() => {
+      setter.call(input, value)
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+  }
+
+  function exploreRows() {
+    return container.querySelectorAll<HTMLElement>('.explore-view .menu-list .menu-item-row')
+  }
+
+  it('includes all five new Batch 2 restaurants in the production restaurant array', () => {
+    for (const id of newRestaurantIds) expect(restaurants.some(restaurant => restaurant.id === id)).toBe(true)
+  })
+
+  it('opens each of the five new Batch 2 restaurants and shows only that restaurant\'s real menu items', () => {
+    clickRestaurantsNav()
+    for (const restaurantId of newRestaurantIds) {
+      const restaurant = restaurants.find(r => r.id === restaurantId)
+      if (!restaurant) throw new Error(`Missing restaurant fixture: ${restaurantId}`)
+      act(() => restaurantRow(restaurant.name.th).click())
+      expect(container.querySelector('.restaurant-heading h2')?.textContent).toBe(restaurant.name.th)
+      const expectedItems = restaurantMenuItems.filter(item => item.restaurantId === restaurantId)
+      const rows = container.querySelectorAll('.menu-item-row')
+      expect(rows).toHaveLength(expectedItems.length)
+      expect(rows.length).toBeGreaterThanOrEqual(5)
+      act(() => container.querySelector<HTMLButtonElement>('.restaurant-back')?.click())
+    }
+  })
+
+  it('renders the further-expanded Explore dataset with items from every restaurant reachable', () => {
+    clickExploreNav()
+    expect(exploreRows().length).toBe(restaurantMenuItems.length)
+  })
+
+  it('finds a new Batch 2 restaurant/menu item by English name via Explore search', () => {
+    clickExploreNav()
+    typeExploreSearch('Zaab Eli')
+    const results = searchRestaurantMenuItems(restaurantMenuItems, restaurants, 'Zaab Eli')
+    expect(results.length).toBeGreaterThan(0)
+    expect(exploreRows()).toHaveLength(results.length)
+  })
+
+  it('finds a new Batch 2 restaurant/menu item by Thai name via Explore search', () => {
+    clickExploreNav()
+    typeExploreSearch('นิตยาไก่ย่าง')
+    const results = searchRestaurantMenuItems(restaurantMenuItems, restaurants, 'นิตยาไก่ย่าง')
+    expect(results.length).toBeGreaterThan(0)
+    expect(exploreRows()).toHaveLength(results.length)
+  })
+
+  it('still produces sensible Quick Goal results against the further-expanded pool', () => {
+    clickExploreNav()
+    const balancedChip = [...container.querySelectorAll<HTMLButtonElement>('.explore-preset-chip')].find(candidate => candidate.textContent?.includes('สมดุล'))
+    if (!balancedChip) throw new Error('Missing Balanced preset chip')
+    act(() => balancedChip.click())
+    expect(exploreRows().length).toBeGreaterThan(0)
+    expect(exploreRows().length).toBeLessThan(restaurantMenuItems.length)
+  })
+
+  it('Pick for me works against the further-expanded pool', () => {
+    clickExploreNav()
+    const pickButton = container.querySelector<HTMLButtonElement>('.explore-view .menu-pick-header button')
+    if (!pickButton) throw new Error('Missing Pick for me button')
+    act(() => pickButton.click())
+    const pickedName = container.querySelector('.explore-view .menu-pick-card h3')?.textContent
+    expect(pickedName).toBeTruthy()
+    expect(restaurantMenuItems.some(item => item.name.th === pickedName)).toBe(true)
+  })
+
+  it('restaurant-local Pick works inside a new Batch 2 restaurant', () => {
+    clickRestaurantsNav()
+    act(() => restaurantRow('ส้มตำนัว').click())
+    const pickButton = container.querySelector<HTMLButtonElement>('.restaurant-menu-view .menu-pick-header button')
+    if (!pickButton) throw new Error('Missing restaurant-local Pick button')
+    act(() => pickButton.click())
+    const pickedName = container.querySelector('.restaurant-menu-view .menu-pick-card h3')?.textContent
+    expect(pickedName).toBeTruthy()
+    expect(restaurantMenuItems.filter(item => item.restaurantId === 'somtam-nua-thailand').some(item => item.name.th === pickedName)).toBe(true)
+  })
+
+  it('favorites a new Batch 2 menu item, confirms it appears in Favorites, and View restaurant opens the correct restaurant', () => {
+    clickExploreNav()
+    typeExploreSearch('Zaab Eli')
+    const row = [...exploreRows()][0]
+    if (!row) throw new Error('Expected at least one Zaab Eli search result')
+    const itemName = row.querySelector('h3')?.textContent
+    const favoriteButton = row.querySelector<HTMLButtonElement>('.menu-favorite-toggle')
+    if (!favoriteButton) throw new Error('Missing favorite toggle')
+    act(() => favoriteButton.click())
+
+    clickFavoritesNav()
+    const favoritedRows = container.querySelectorAll('.menu-item-row')
+    const favoritedRow = [...favoritedRows].find(favRow => favRow.querySelector('h3')?.textContent === itemName)
+    expect(favoritedRow).toBeTruthy()
+    const viewRestaurantButton = favoritedRow?.querySelector<HTMLButtonElement>('.explore-view-restaurant')
+    if (!viewRestaurantButton) throw new Error('Missing View restaurant button')
+    act(() => viewRestaurantButton.click())
+    expect(container.querySelector('.restaurant-heading h2')?.textContent).toBe('แซ่บอีลี่')
   })
 })

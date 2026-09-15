@@ -329,3 +329,170 @@ composition.
 Sources:
 - https://www.menuinthai.com/santa-fe-steak-price/ (Thai-script item names, cross-checked via raw HTML)
 - https://www.santafesteak.com/ (official brand identity, operator: FAB FOOD HOLDING Co., Ltd.; menu itself is images only, not text-extractable)
+
+---
+
+# Batch 2 Expansion (Slice 14) — checked 2026-09-15
+
+Eight candidate brands were researched via parallel web-search/fetch sub-agents
+(automated fetch + manual verification and cross-checking by the lead agent,
+not a scraping pipeline), then five were selected for production per the
+selection gate below. Every accepted item is `estimated` (composition-based):
+none of the eight candidates had any official, label, or credible-secondary
+nutrition source — this is disclosed honestly rather than assigning a higher
+tier to items whose only defensible basis is composition estimation.
+
+## Selection gate
+
+| Restaurant | Decision | Reason |
+|---|---|---|
+| Eat Am Are | DEFER | Real, verifiable multi-branch chain (confirmed via Thai corporate registry, reg. no. 0105557139761), but is legally registered and consistently described as a **steak/Western casual-dining chain**, not the "health-food/clean-eating brand" this candidate was assumed to be. Zero nutrition sourcing at any tier. Menu shape (steak, pasta, fried sides, salad) duplicates the already-accepted Santa Fe' Steak (Batch 1) with no differentiating value, so it was not added purely to hit a restaurant-count target. A same-named but unrelated restaurant in Pasadena, California (`eatamarethai.com`) was found and explicitly **not** used as a source — a same-name-different-chain trap. |
+| Steak & More | ACCEPT | Operated by Minor Food (verifiable via minorfood.com corporate pages), launched Dec 2024, expanded to 23+ branches within ~9 months — real and credibly documented. No nutrition data exists anywhere (too new a brand), but its menu genuinely includes Thai-fusion sides (Som Tam, Yum Woon Sen) alongside Western steak/pasta, giving real cuisine diversity rather than duplicating Santa Fe' Steak. |
+| Fam Time | DEFER | Real, operating (confirmed via official site famtimebkk.com and active social channels), but its own menu is an inaccessible Anyflip flipbook (403 error) — item names could only be sourced from third-party review blogs, not the restaurant's own menu. More importantly, it is an **Italian/Western restaurant** (pasta, pizza, steak), not a Thai-cuisine brand, so it does not serve this batch's stated goal of improving Thai/Isan/noodle representation. Zero nutrition sourcing at any tier. |
+| ทองสมิทธ์ / ThongSmith | ACCEPT | Real, well-documented chain (THE STANDARD, Tatler Asia editorial coverage; 20+ mall branches: Siam Paragon, EmQuartier, ICONSIAM, etc.). **Correction to the original candidate brief**: ThongSmith is a premium boat-noodle (ก๋วยเตี๋ยวเรือ) and Thai rice-soup restaurant, not a grilled-chicken/Isan chain — no kai yang, som tam, or larb exists on its menu under any source checked. Accepted for its genuine noodle/rice dishes, which directly serve this batch's "improve noodle representation" goal, using the restaurant's real identity rather than the originally-assumed one. No nutrition data exists anywhere; every item is a composition estimate. |
+| นิตยาไก่ย่าง / Nittaya Kai Yang | ACCEPT | Real, multi-branch (5 provinces) Isan grilled-chicken chain, confirmed via official site (nittayakaiyang.com) and multiple independently-reviewed Wongnai branch pages. No nutrition data published anywhere (expected for this restaurant category); every item is a disciplined composition estimate with an explicit shared-dish/portion basis. |
+| แซ่บอีลี่ / Zaab Eli | ACCEPT | Real, active 16-17 branch modern-Isan chain. No dedicated corporate website, but identity is solidly confirmed via official Instagram (@zaabeli, bio states branch count and delivery-platform presence) and consistent branch listings on Wongnai/OpenRice. No nutrition data published anywhere; composition estimates used throughout, with the fusion corn-and-salted-egg papaya salad flagged as carrying extra recipe uncertainty. |
+| ส้มตำนัว / Somtam Nua | ACCEPT | Real, well-known independent Bangkok Isan restaurant (not a large chain) operating since ~2003 across 3-4 locations (Siam Square, Siam Center, Central Embassy). No official website; menu item names cross-corroborated across multiple independent food blogs (eatingthaifood.com, bangkokbeyond.com, aroimakmak.com). No nutrition data published anywhere; composition estimates use an explicit **whole-dish serving basis** (not a fabricated per-person split), matching how papaya salad/larb/fried chicken are actually ordered and shared at this restaurant. |
+| Subway Thailand | DEFER | Real chain (master franchisee About Passion Co. Ltd. per Subway's own newsroom release), but its own official site (subway.co.th) is under construction with no menu/nutrition content, and every attempt to fetch subway.com's global nutrition pages — repeated independently by both the research sub-agent and the lead agent — was geo-redirected back to the empty Thailand site. Secondary aggregators disagree materially on the same nominal configuration (e.g. one source's "6-inch Veggie Delite, Italian bread" was 320 kcal, another's was 200 kcal on a different bread assumption — a ~60% swing from bread choice alone). Given the task's explicit requirement that no Subway item may carry an ambiguous, unverified configuration, and that a genuinely reliable source could not be reached this session, "no reliable nutrition source found" is the honest outcome here rather than forcing a number from disagreeing secondary sources. |
+
+## นิตยาไก่ย่าง / Nittaya Kai Yang (id: `nittaya-kai-yang-thailand`)
+
+Official site (nittayakaiyang.com) confirms the brand and lists a branch
+locator across 5 provinces; the Thai-language menu sub-path 404s, so item
+names/prices were cross-verified via multiple independently-reviewed Wongnai
+branch pages (e.g. the Pinklao branch, 3.8/5, 178 ratings) instead. No
+nutrition data exists on the official site or anywhere else searched. Every
+item is `estimated` from typical ingredients and serving size, with sugar/
+fish-sauce/salted-egg content in the papaya-salad items deliberately not
+underestimated (these are the components most likely to be glossed over).
+A candidate sticky-rice item was dropped because its exact menu listing
+(name/price) could not be independently confirmed — flagging existence
+uncertainty, not just nutrition uncertainty, was reason enough to exclude it.
+
+| Menu item | Thai name (source) | Serving basis | Confidence |
+|---|---|---|---|
+| Original Recipe Grilled Chicken (Leg-Thigh Quarter) | ไก่ย่าง (น่องสะโพกต้นตำรับ) | Whole/half bird sold for sharing; figure uses a defensible per-person quarter-piece portion (~200-220g cooked, skin on), clearly stated in-app | estimated |
+| Grilled Pork Neck | คอหมูย่าง (Wongnai, ฿130-150) | Single-person portion (~150g cooked) | estimated |
+| Thai-Style Papaya Salad | ส้มตำไทย (Wongnai, ฿80) | Whole shared plate (~350g, typically 2-3 people); figure is for the whole plate, not divided per-person | estimated |
+| Papaya Salad with Salted Egg | ส้มตำไข่เค็ม (Wongnai, ฿90) | Whole shared plate (~400g incl. 1 salted egg); salted egg alone contributes meaningfully to sodium/fat and was not glossed over | estimated |
+| Pork Larb | ลาบหมู (Wongnai, ฿95) | Single-person portion (~150g) | estimated |
+| Spicy Grilled-Chicken Tom Saep Soup | ต้มแซ่บไก่ย่าง (Wongnai, ฿155; no official English name found — conservative translation used) | Shared bowl (~500ml, 2-3 people); figure uses a per-person portion (~250ml broth + ~80g chicken), clearly stated | estimated |
+| Chiang Mai-Style Fried Pork | หมูทอดเชียงใหม่ (Wongnai, ฿115) | Single-person portion (~200g) | estimated |
+
+Sources:
+- https://www.nittayakaiyang.com/ (official brand/branch confirmation; Thai menu sub-page 404s)
+- Wongnai branch pages (menu item names/prices, e.g. Pinklao branch) — used for menu-item existence/naming, not nutrition
+
+## แซ่บอีลี่ / Zaab Eli (id: `zaab-eli-thailand`)
+
+No dedicated corporate website exists; brand identity and current operation
+are confirmed via official Instagram (@zaabeli, 8,564 followers, bio states
+"17 สาขา" and delivery-platform presence) and consistent branch listings on
+Wongnai/OpenRice (Silom Complex, EmQuartier, True Digital Park, Esplanade
+Ratchada). No nutrition data exists anywhere. Every item is `estimated`.
+The corn-and-salted-egg papaya salad is a trendy fusion variant whose exact
+recipe (added sweet sauces beyond classic som tam) could not be confirmed —
+its carb/sugar figure is disclosed as a floor, not a ceiling. A candidate
+crab-paste sticky rice item was dropped: its preparation details were too
+uncertain to defend even a composition estimate.
+
+| Menu item | Thai name (source) | Serving basis | Confidence |
+|---|---|---|---|
+| Zaab Eli Grilled Chicken | ไก่ย่างแซ่บอีลี่ (menu-confirmed, ฿299) | Price point implies a larger shared cut; figure uses a defensible per-person quarter-piece portion, clearly stated | estimated |
+| Zaab Eli Fried Chicken | ไก่ทอดแซ่บอีลี่ (menu-confirmed) | Single-person portion (~200g, a few pieces) | estimated |
+| Grilled Pork Neck | คอหมูย่าง (menu-confirmed, ฿165) | Single-person portion (~180g) | estimated |
+| Thai Papaya Salad with Salted Egg | ส้มตำไทยไข่เค็ม (menu-confirmed, ฿120) | Whole shared plate (~400g) | estimated |
+| Corn & Salted Egg Papaya Salad | ตำข้าวโพดไข่เค็ม (menu-confirmed, ฿105) | Whole shared plate (~380g); fusion recipe, extra uncertainty disclosed | estimated (lower confidence) |
+| Pork Larb | ลาบหมู (menu-confirmed, ฿125) | Single-person portion (~150g) | estimated |
+| Spicy Beef Shank & Tendon Soup | ต้มแซ่บเอ็นแก้วเนื้อน่องลาย (menu-confirmed, ฿249; no official English name found — conservative translation used) | Shared bowl (2-3 people); figure uses a per-person portion (~300ml broth + ~100g meat/tendon) | estimated |
+
+Sources:
+- Instagram @zaabeli (official brand identity/branch count)
+- Wongnai / OpenRice branch pages (menu item names/prices) — used for menu-item existence/naming, not nutrition
+
+## ส้มตำนัว / Somtam Nua (id: `somtam-nua-thailand`)
+
+A well-known independent Bangkok Isan restaurant (opened ~2003, Siam Square
+Soi 5; additional locations at Siam Center and Central Embassy), not a large
+branded chain. No official website; menu item names are cross-corroborated
+across multiple independent food blogs (eatingthaifood.com,
+bangkokbeyond.com, aroimakmak.com) that agree with each other, rather than
+sourced from a single official menu. No nutrition data exists anywhere.
+**Serving-basis decision**: papaya salad, larb, and fried chicken at this
+restaurant are ordered and priced as one shared plate per dish, not
+per-person. Rather than fabricate an unverified per-person split, every
+estimate below uses the **whole dish as served** — the app displays this as
+the whole-plate figure, clearly noted as shared, not a fabricated per-person
+number.
+
+| Menu item | Thai name | Serving basis | Confidence |
+|---|---|---|---|
+| Thai-Style Papaya Salad (Dried Shrimp & Peanut) | ส้มตำไทย | Whole shared plate | estimated |
+| Papaya Salad with Salted Crab & Fermented Fish Sauce | ส้มตำปูปลาร้า | Whole shared plate; very high sodium from fermented fish sauce (plara), not underestimated | estimated |
+| Mixed Papaya Salad with Rice Noodles & Crispy Pork Rind | ตำมั่ว | Whole shared plate | estimated |
+| Pork Larb with Liver | ลาบหมู | Whole shared plate | estimated |
+| Crispy Fried Fish Larb | ลาบปลาทอด | Whole shared plate | estimated |
+| Thai Fried Chicken Wings | ไก่ทอด | Whole plate (several pieces), typically shared | estimated |
+| Spicy Isan Pork-Bone Soup | ต้มแซ่บกระดูกหมูอ่อน | Whole shared bowl | estimated |
+| Sticky Rice | ข้าวเหนียว | One standard individual-serving basket | estimated |
+
+Sources:
+- https://www.eatingthaifood.com/, https://www.bangkokbeyond.com/, https://www.aroimakmak.com/ (independent food-blog cross-corroboration of menu item names)
+- Facebook page facebook.com/Somtamnuathailand/ and multi-branch Tripadvisor listings (identity/operating-status confirmation)
+
+## ทองสมิทธ์ / ThongSmith (id: `thongsmith-boat-noodle-thailand`)
+
+**Correction to a research assumption**: ThongSmith was originally assumed to
+be a grilled-chicken/Isan chain; research found this to be incorrect — it is
+a premium boat-noodle (ก๋วยเตี๋ยวเรือ) and Thai rice-soup restaurant with 20+
+mall branches (Siam Paragon, Central Embassy, EmQuartier, ICONSIAM, Central
+World, etc.), confirmed via editorial coverage from THE STANDARD and Tatler
+Asia. No kai yang, som tam, or larb exists on its menu under any source
+checked — items below reflect the restaurant's real identity. No standalone
+official website exists (normal for a mall-based F&B chain); no dedicated
+official corporate/nutrition page was found. No nutrition data exists
+anywhere; every item is `estimated`. A DIY take-home hot-pot set (explicitly
+stated to serve 4-5 people) and a Thai-dessert item were considered and
+dropped rather than force a shared-serving assumption or add out-of-scope
+sweets, consistent with how Batch 1 excluded smoothies/desserts.
+
+| Menu item | Thai name (source) | Confidence |
+|---|---|---|
+| Wagyu Ribeye "Waterfall" Beef Boat Noodle | น้ำตกวากิวทองสมิทธ์ (ริบอาย) (THE STANDARD, panasm.com) | estimated |
+| Kurobuta Pork Boat Noodle | ก๋วยเตี๋ยวเรือหมูคุโรบุตะ (panasm.com) | estimated |
+| Dry Rice with Kurobuta Pork & Braised Pork | ข้าวต้มแห้งหมูคุโรบูตะ หมูตุ๋น (THE STANDARD) | estimated |
+| Spicy Shredded Chicken (Dry, No Soup) | แซ่บแห้งไก่ฉีก (THE STANDARD; a blog's "described as low-calorie" claim was noted but explicitly not used as a nutrition source — unsupported editorial adjective, not a figure) | estimated |
+| Grilled Pork Meatballs with Sweet Chili Dip | ลูกชิ้นหมูปิ้ง (THE STANDARD) | estimated |
+
+Sources:
+- THE STANDARD (2024-2025 editorial coverage), Tatler Asia, panasm.com (menu item names, branch/operating confirmation)
+- Wongnai's item-level page for this brand returned HTTP 403 and could not be independently verified — any Wongnai-sourced figure for this brand should be treated as unverified until directly fetched
+
+## The Steak & More / เดอะสเต๊กแอนด์มอร์ (id: `steak-and-more-thailand`)
+
+Operated by **Minor Food** (Minor International's food division, also
+operating Sizzler, Bonchon, The Pizza Company, Swensen's in Thailand),
+confirmed via Minor Food's own corporate pages (minorfood.com), including a
+launch announcement (Dec 2024/Jan 2025) and franchise page. Expanded to 23+
+branches within roughly 9 months per a third-party branch locator — a real,
+actively growing chain. No nutrition information exists anywhere (too new a
+brand). Menu item names are confirmed via Wongnai branch pages and Minor
+Food's own press materials, which use the transliterations "Som Tum" and
+"Yum Woon Sen" — the closest thing to official English names found; all
+other English names below are conservative translations, labeled as such.
+Steak items' estimates include the bundled house salad/bread typically
+served with the set (per Wongnai review descriptions), not just the protein
+alone.
+
+| Menu item | Thai name (source) | Confidence |
+|---|---|---|
+| Chicken Steak | สเต็กไก่ (Wongnai; conservative translation) | estimated |
+| Pork Chop Steak | สเต็กหมู (Wongnai; conservative translation) | estimated |
+| Black Squid-Ink Spaghetti with Shrimp | สปาเก็ตตี้หมึกดำกุ้ง (Minor Food press description) | estimated |
+| Caesar Salad | ซีซาร์สลัด (Wongnai, size "(S)") | estimated |
+| Som Tam (Thai Papaya Salad) | ส้มตำ (Minor Food press release, transliterated "Som Tum") | estimated |
+| Yum Woon Sen (Glass Noodle Salad) | ยำวุ้นเส้น (Minor Food press release, transliterated "Yum Woon Sen") | estimated |
+
+Sources:
+- https://www.minorfood.com/en/franchise/thailand/the-steak-and-more and https://www.minorfood.com/en/news/minor-food-launches-the-steak-and-more (operator identity, launch date, official transliterations)
+- Wongnai branch pages (menu item names/prices/sizes) — used for menu-item existence/naming, not nutrition

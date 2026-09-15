@@ -12,9 +12,9 @@ describe('restaurant validation', () => {
   })
 
   it('has real restaurant brands with a small, curated per-restaurant item count', () => {
-    expect(restaurants.length).toBeGreaterThanOrEqual(8)
-    expect(restaurantMenuItems.length).toBeGreaterThanOrEqual(45)
-    expect(restaurantMenuItems.length).toBeLessThanOrEqual(60)
+    expect(restaurants.length).toBeGreaterThanOrEqual(13)
+    expect(restaurantMenuItems.length).toBeGreaterThanOrEqual(80)
+    expect(restaurantMenuItems.length).toBeLessThanOrEqual(105)
     for (const restaurant of restaurants) {
       const count = restaurantMenuItems.filter(item => item.restaurantId === restaurant.id).length
       expect(count).toBeGreaterThanOrEqual(5)
