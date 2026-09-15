@@ -270,8 +270,37 @@ function ShoppingView({ locale, recipeIds, servingsByRecipeId, lines, purchasedI
 
 function RestaurantListView({ locale, onOpen }: { locale: Locale; onOpen(id: string): void }) {
   const copy = messages[locale]
+  const [pickedRestaurantId, setPickedRestaurantId] = useState<string>()
+  const [lastPickedRestaurantId, setLastPickedRestaurantId] = useState<string>()
+  const pickedRestaurant = restaurants.find(restaurant => restaurant.id === pickedRestaurantId)
+
+  function pickRestaurant() {
+    const result = chooseRandom(restaurants, lastPickedRestaurantId)
+    if (result) {
+      setLastPickedRestaurantId(result.id)
+      setPickedRestaurantId(result.id)
+    }
+  }
+
   return <section className="content restaurant-view">
     <div className="section-heading restaurant-heading"><div><p className="eyebrow">{copy.restaurants}</p><h2>{copy.restaurantsTitle}</h2></div></div>
+    <section className="restaurant-pick" aria-live="polite">
+      <div className="restaurant-pick-header">
+        <h3>{copy.restaurantPickHeading}</h3>
+        {!pickedRestaurant && <button className="random-button restaurant-pick-trigger" disabled={!restaurants.length} onClick={pickRestaurant} aria-label={copy.pickRestaurant}><Shuffle size={17} /> {copy.pickRestaurant}</button>}
+      </div>
+      {pickedRestaurant && <article className="restaurant-pick-card">
+        <div className="restaurant-pick-copy">
+          <p className="restaurant-pick-label">{copy.restaurantPickLabel}</p>
+          <h3>{pickedRestaurant.name[locale]}</h3>
+          {pickedRestaurant.cuisine && <p className="restaurant-pick-cuisine">{pickedRestaurant.cuisine[locale]}</p>}
+        </div>
+        <div className="restaurant-pick-actions">
+          <button className="random-button restaurant-pick-again" onClick={pickRestaurant}><Shuffle size={16} /> {copy.pickAgain}</button>
+          <button className="restaurant-pick-view-menu" onClick={() => onOpen(pickedRestaurant.id)}>{copy.viewMenu}</button>
+        </div>
+      </article>}
+    </section>
     {restaurants.length ? <div className="restaurant-list">{restaurants.map(restaurant => <button key={restaurant.id} className="restaurant-row" onClick={() => onOpen(restaurant.id)} aria-label={copy.openRestaurant(restaurant.name[locale])}><span className="restaurant-row-copy"><b>{restaurant.name[locale]}</b>{restaurant.cuisine && <em>{restaurant.cuisine[locale]}</em>}</span><ChevronRight size={17} aria-hidden="true" /></button>)}</div>
       : <div className="empty restaurant-empty" role="status"><span aria-hidden="true">🍽️</span><h3>{copy.restaurantsEmptyTitle}</h3><p>{copy.restaurantsEmptyText}</p></div>}
   </section>

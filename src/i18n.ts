@@ -94,12 +94,16 @@ type MessageSet = {
   storageNote: string
   restaurants: string
   restaurantsTitle: string
+  restaurantPickHeading: string
+  restaurantPickLabel: string
+  pickRestaurant: string
   restaurantsBack: string
   restaurantsEmptyTitle: string
   restaurantsEmptyText: string
   menuEmptyTitle: string
   menuEmptyText: string
   openRestaurant: (name: string) => string
+  viewMenu: string
   sodium: string
   pickForMe: string
   pickAgain: string
@@ -214,12 +218,16 @@ export const messages: Record<Locale, MessageSet> = {
     storageNote: 'รายการโปรดยังใช้ได้ในเซสชันนี้ แต่เบราว์เซอร์ไม่พร้อมบันทึกข้อมูล',
     restaurants: 'ร้านอาหาร',
     restaurantsTitle: 'เลือกร้านอาหาร',
+    restaurantPickHeading: 'ร้านที่สุ่มได้',
+    restaurantPickLabel: 'ผลการสุ่มร้านอาหาร',
+    pickRestaurant: 'สุ่มร้านให้หน่อย',
     restaurantsBack: 'กลับไปที่ร้านอาหาร',
     restaurantsEmptyTitle: 'ยังไม่มีร้านอาหาร',
     restaurantsEmptyText: 'เร็ว ๆ นี้จะมีร้านอาหารให้เลือกดู',
     menuEmptyTitle: 'ยังไม่มีเมนูของร้านนี้',
     menuEmptyText: 'ลองกลับไปเลือกร้านอื่นดูก่อน',
     openRestaurant: name => `เปิดร้าน ${name}`,
+    viewMenu: 'ดูเมนู',
     sodium: 'โซเดียม',
     pickForMe: 'สุ่มเลือกให้',
     pickAgain: 'สุ่มใหม่',
@@ -332,12 +340,16 @@ export const messages: Record<Locale, MessageSet> = {
     storageNote: 'Favorites will stay available for this session, but browser storage is unavailable.',
     restaurants: 'Restaurants',
     restaurantsTitle: 'Choose a restaurant',
+    restaurantPickHeading: 'Your restaurant',
+    restaurantPickLabel: 'Random restaurant pick',
+    pickRestaurant: 'Pick a restaurant',
     restaurantsBack: 'Back to restaurants',
     restaurantsEmptyTitle: 'No restaurants yet',
     restaurantsEmptyText: 'Restaurants will appear here soon.',
     menuEmptyTitle: 'No menu items yet',
     menuEmptyText: 'Try another restaurant for now.',
     openRestaurant: name => `Open ${name}`,
+    viewMenu: 'View menu',
     sodium: 'sodium',
     pickForMe: 'Pick for me',
     pickAgain: 'Pick again',

@@ -153,6 +153,24 @@ describe('chooseRandom reused for restaurant menu items', () => {
   it('returns undefined when no restaurant menu item candidate exists', () => expect(chooseRandom<typeof restaurantMenuItems[number]>([])).toBeUndefined())
 })
 
+describe('chooseRandom reused for restaurants', () => {
+  it('selects only from the production restaurant dataset', () => {
+    const result = chooseRandom(restaurants, undefined, () => 0.99)
+    expect(result).toBe(restaurants[restaurants.length - 1])
+  })
+
+  it('avoids the previous restaurant when more than one candidate exists', () => {
+    const result = chooseRandom(restaurants, restaurants[0].id, () => 0)
+    expect(result).toBe(restaurants[1])
+    expect(result?.id).not.toBe(restaurants[0].id)
+  })
+
+  it('returns the only restaurant safely and returns undefined for an empty array', () => {
+    expect(chooseRandom([restaurants[0]], restaurants[0].id, () => 0.99)).toBe(restaurants[0])
+    expect(chooseRandom<Restaurant>([])).toBeUndefined()
+  })
+})
+
 describe('Explore quick-goal presets', () => {
   it('maps High Protein to max 700 kcal / min 30g protein', () => {
     expect(explorePresetFilters['high-protein']).toEqual({ maxKcal: 700, minProtein: 30 })

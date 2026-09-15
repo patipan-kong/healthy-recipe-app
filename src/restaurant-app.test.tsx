@@ -39,9 +39,62 @@ describe('Restaurant browsing flow', () => {
     clickRestaurantsNav()
     expect(container.querySelector('.restaurant-nav')?.getAttribute('aria-pressed')).toBe('true')
     expect(container.querySelector('.restaurant-view')).not.toBeNull()
+    expect(container.querySelector('.restaurant-pick-trigger')?.textContent).toContain('สุ่มร้านให้หน่อย')
+    expect(container.querySelector('.restaurant-pick-trigger')).not.toBeNull()
     const rows = container.querySelectorAll('.restaurant-row')
     expect(rows).toHaveLength(restaurants.length)
     for (const restaurant of restaurants) expect([...rows].some(row => row.textContent?.includes(restaurant.name.th))).toBe(true)
+  })
+
+  it('picks a valid production restaurant without changing the normal list', () => {
+    clickRestaurantsNav()
+    const listBefore = [...container.querySelectorAll<HTMLElement>('.restaurant-row')].map(row => row.querySelector('b')?.textContent)
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-pick-trigger')?.click())
+
+    const pickedName = container.querySelector('.restaurant-pick-card h3')?.textContent
+    expect(restaurants.some(restaurant => restaurant.name.th === pickedName)).toBe(true)
+    expect(container.querySelector('.restaurant-pick-label')?.textContent).toContain('ผลการสุ่มร้านอาหาร')
+    expect(container.querySelectorAll('.restaurant-row')).toHaveLength(restaurants.length)
+    expect([...container.querySelectorAll<HTMLElement>('.restaurant-row')].map(row => row.querySelector('b')?.textContent)).toEqual(listBefore)
+  })
+
+  it('avoids immediately repeating the restaurant across several Pick again actions', () => {
+    clickRestaurantsNav()
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-pick-trigger')?.click())
+    let previousName = container.querySelector('.restaurant-pick-card h3')?.textContent
+
+    for (let index = 0; index < 4; index += 1) {
+      act(() => container.querySelector<HTMLButtonElement>('.restaurant-pick-again')?.click())
+      const nextName = container.querySelector('.restaurant-pick-card h3')?.textContent
+      expect(nextName).toBeTruthy()
+      expect(nextName).not.toBe(previousName)
+      expect(restaurants.some(restaurant => restaurant.name.th === nextName)).toBe(true)
+      previousName = nextName
+    }
+  })
+
+  it('opens the picked restaurant through the existing View menu handoff', () => {
+    clickRestaurantsNav()
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-pick-trigger')?.click())
+    const pickedName = container.querySelector('.restaurant-pick-card h3')?.textContent
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-pick-view-menu')?.click())
+
+    expect(container.querySelector('.restaurant-view')).toBeNull()
+    expect(container.querySelector('.restaurant-menu-view')).not.toBeNull()
+    expect(container.querySelector('.restaurant-heading h2')?.textContent).toBe(pickedName)
+  })
+
+  it('resets the local random result when leaving and re-entering Restaurants', () => {
+    clickRestaurantsNav()
+    act(() => container.querySelector<HTMLButtonElement>('.restaurant-pick-trigger')?.click())
+    expect(container.querySelector('.restaurant-pick-card')).not.toBeNull()
+
+    clickRestaurantsNav()
+    expect(container.querySelector('.restaurant-view')).toBeNull()
+    clickRestaurantsNav()
+    expect(container.querySelector('.restaurant-pick-card')).toBeNull()
+    expect(container.querySelector('.restaurant-pick-trigger')).not.toBeNull()
+    expect(container.querySelectorAll('.restaurant-row')).toHaveLength(restaurants.length)
   })
 
   it('selects a restaurant and shows only that restaurant\'s menu items', () => {
