@@ -88,7 +88,7 @@ describe('Meal context Pick Focus presentation', () => {
     expect(container.textContent).toContain('Price checked: 2026-09-15')
   })
 
-  it('renders researched Shima Hokke meal context in production Pick without claiming a price', () => {
+  it('renders researched Shima Hokke meal context in production Pick with its à la carte price, not a fake total price', () => {
     const shima = restaurantMenuItems.find(item => item.id === 'ootoya-shima-hokke-grilled')!
     act(() => root.render(<RestaurantMenuView locale="en" restaurantId="ootoya-thailand" onBack={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable={true} menuItems={[shima]} />))
     act(() => container.querySelector<HTMLButtonElement>('.menu-pick-header .random-button')?.click())
@@ -99,8 +99,9 @@ describe('Meal context Pick Focus presentation', () => {
     expect(focus?.textContent).toContain('+330')
     expect(focus?.textContent).toContain('~612')
     expect(focus?.textContent).toContain('Estimated')
-    expect(focus?.textContent).not.toContain('฿')
-    expect(focus?.querySelector('.meal-context-price')).toBeNull()
+    // Slice 20 adds a researched à la carte price (399); it must appear once, tied to the base item, not to the ~612 add-on total.
+    expect(focus?.textContent).toContain('฿399')
+    expect(focus?.querySelector('.meal-context-price')).not.toBeNull()
     expect(focus?.querySelector('.meal-context-total')).not.toBeNull()
   })
 
@@ -111,7 +112,7 @@ describe('Meal context Pick Focus presentation', () => {
 
     const focus = container.querySelector('.menu-pick-card')
     expect(focus?.textContent).toContain('Complete set meal')
-    expect(focus?.textContent).toContain('฿419')
+    expect(focus?.textContent).toContain('฿429')
     expect(focus?.textContent).toContain('Price checked: 2026-09-15')
     expect(focus?.textContent).not.toContain('~')
     expect(focus?.querySelector('.meal-context-total')).toBeNull()

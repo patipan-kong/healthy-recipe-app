@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { calculateMealNutrition, validateMenuImage } from './meal-context'
+import { calculateMealNutrition, validateMenuImage, validateMenuPrice } from './meal-context'
 import { explorePresetFilters, filterRestaurantMenuItems, restaurantMenuItems, restaurants, searchRestaurantMenuItems, validateRestaurantMenuItems } from './restaurants'
 import type { RestaurantMenuItem } from './types'
 
@@ -121,7 +121,7 @@ describe('optional restaurant meal context and price validation', () => {
   it('populates only the researched production price and meal-context fields', () => {
     const researchedItems = restaurantMenuItems.filter(item => item.restaurantId === 'ootoya-thailand' || item.restaurantId === 'santa-fe-steak-thailand')
     expect(researchedItems).toHaveLength(13)
-    expect(researchedItems.filter(item => item.price)).toHaveLength(3)
+    expect(researchedItems.filter(item => item.price)).toHaveLength(7)
     expect(researchedItems.filter(item => item.mealContext)).toHaveLength(6)
     expect(researchedItems.filter(item => item.mealContext?.kind === 'add-on')).toHaveLength(2)
     expect(researchedItems.filter(item => item.mealContext?.kind === 'add-on' && item.mealContext.additionNutrition)).toHaveLength(1)
@@ -145,14 +145,16 @@ describe('optional restaurant meal context and price validation', () => {
 
     const tonteki = restaurantMenuItems.find(item => item.id === 'ootoya-tonteki-pork-chop-set')
     expect(tonteki?.mealContext).toMatchObject({ kind: 'already-complete' })
-    expect(tonteki?.price).toMatchObject({ amount: 419, currency: 'THB', asOf: '2026-09-15' })
+    // Corrected in Slice 20: the official site's current "set" price is ฿429, not the ฿419 recorded in Slice 17B — see docs/restaurant-price-expansion-20.md.
+    expect(tonteki?.price).toMatchObject({ amount: 429, currency: 'THB', asOf: '2026-09-15' })
 
     expect(restaurantMenuItems.find(item => item.id === 'santa-fe-salmon-steak')?.price).toMatchObject({ amount: 329, currency: 'THB', asOf: '2026-09-15' })
     expect(restaurantMenuItems.find(item => item.id === 'santa-fe-dory-fish-steak')?.price).toMatchObject({ amount: 209, currency: 'THB', asOf: '2026-09-15' })
     expect(restaurantMenuItems.find(item => item.id === 'santa-fe-salmon-steak')?.mealContext).toMatchObject({ kind: 'configurable' })
     expect(restaurantMenuItems.find(item => item.id === 'santa-fe-dory-fish-steak')?.mealContext).toMatchObject({ kind: 'configurable' })
     expect(restaurantMenuItems.find(item => item.id === 'santa-fe-kurobuta-pork-chop')?.mealContext).toMatchObject({ kind: 'configurable' })
-    expect(restaurantMenuItems.find(item => item.id === 'ootoya-grilled-mackerel')?.price).toBeUndefined()
+    // Slice 20 added a price for the mackerel (279); it remains undefined for items where no evidence was found.
+    expect(restaurantMenuItems.find(item => item.id === 'ootoya-grilled-mackerel')?.price).toMatchObject({ amount: 279, currency: 'THB' })
     expect(restaurantMenuItems.find(item => item.id === 'ootoya-grilled-salmon-rice-bowl')?.price).toBeUndefined()
     expect(restaurantMenuItems.find(item => item.id === 'santa-fe-seabass-steak')?.price).toBeUndefined()
   })
@@ -212,14 +214,43 @@ describe('optional menu image validation (Slice 18 pilot)', () => {
     expect(validateRestaurantMenuItems([item({ menuImage: 'not-an-object' as never })], restaurants)).toContain('Invalid menu image: meal-context-test-item')
   })
 
-  it('has exactly the two researched pilot items with a menu image, both Ootoya, both official-remote', () => {
+  it('keeps the two Slice 18 pilot items with a menu image, both Ootoya, both official-remote', () => {
     const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage)
-    expect(withImage.map(candidate => candidate.id).sort()).toEqual(['ootoya-grilled-mackerel', 'ootoya-tonteki-pork-chop-set'])
-    for (const candidate of withImage) {
+    const slice18Ids = ['ootoya-grilled-mackerel', 'ootoya-tonteki-pork-chop-set']
+    for (const id of slice18Ids) expect(withImage.map(candidate => candidate.id)).toContain(id)
+    for (const candidate of withImage.filter(candidate => slice18Ids.includes(candidate.id))) {
       expect(candidate.restaurantId).toBe('ootoya-thailand')
       expect(candidate.menuImage?.kind).toBe('official-remote')
       expect(candidate.menuImage?.sourceUrl).toMatch(/^https:\/\/www\.ootoya\.co\.th\//)
     }
+  })
+
+  it('has exactly the Slice 19 expansion batch of new image-backed items, each official-remote and each from its own restaurant\'s domain', () => {
+    const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage)
+    const slice18Ids = ['ootoya-grilled-mackerel', 'ootoya-tonteki-pork-chop-set']
+    const slice19Items = withImage.filter(candidate => !slice18Ids.includes(candidate.id))
+    expect(slice19Items.map(candidate => candidate.id).sort()).toEqual([
+      'ootoya-grilled-moromi-chicken',
+      'salad-factory-grilled-chicken-sesame',
+      'salad-factory-kale-chicken-truffle',
+      'seven-eleven-garlic-pork-egg-rice',
+      'seven-eleven-green-curry-chicken',
+    ])
+    const sourceDomainByRestaurant: Record<string, RegExp> = {
+      'ootoya-thailand': /^https:\/\/www\.ootoya\.co\.th\//,
+      'salad-factory-thailand': /^https:\/\/www\.saladfactorythailand\.com\//,
+      'seven-eleven-thailand': /^https:\/\/(www\.allonline\.7eleven\.co\.th|media\.allonline\.7eleven\.co\.th)\//,
+    }
+    for (const candidate of slice19Items) {
+      expect(candidate.menuImage?.kind).toBe('official-remote')
+      expect(candidate.menuImage?.src).toMatch(sourceDomainByRestaurant[candidate.restaurantId])
+      expect(candidate.menuImage?.sourceUrl).toMatch(sourceDomainByRestaurant[candidate.restaurantId])
+    }
+  })
+
+  it('total menu-image coverage stays within Slice 18 + Slice 19 (7 of 84 items)', () => {
+    const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage)
+    expect(withImage.length).toBe(7)
   })
 
   it('does not let menu image metadata affect filters, search, or Quick Goals eligibility', () => {
@@ -229,5 +260,184 @@ describe('optional menu image validation (Slice 18 pilot)', () => {
     expect(searchRestaurantMenuItems([mackerel], restaurants, 'mackerel').length).toBe(searchRestaurantMenuItems([withoutImage], restaurants, 'mackerel').length)
     const filters = explorePresetFilters['high-protein']
     expect(filterRestaurantMenuItems([mackerel], filters).length).toBe(filterRestaurantMenuItems([withoutImage], filters).length)
+  })
+})
+
+describe('Slice 19 image expansion batch', () => {
+  const slice19Ids = [
+    'ootoya-grilled-moromi-chicken',
+    'salad-factory-grilled-chicken-sesame',
+    'salad-factory-kale-chicken-truffle',
+    'seven-eleven-garlic-pork-egg-rice',
+    'seven-eleven-green-curry-chicken',
+  ]
+
+  it('produces zero validation errors for every Slice 19 item', () => {
+    const items = restaurantMenuItems.filter(candidate => slice19Ids.includes(candidate.id))
+    expect(items).toHaveLength(5)
+    expect(validateRestaurantMenuItems(items, restaurants)).toEqual([])
+  })
+
+  it('lets search find every Slice 19 item by its English name', () => {
+    for (const id of slice19Ids) {
+      const target = restaurantMenuItems.filter(candidate => candidate.id === id)
+      const queryWord = target[0].name.en.split(/\s+/)[0].toLowerCase()
+      expect(searchRestaurantMenuItems(restaurantMenuItems, restaurants, queryWord).some(candidate => candidate.id === id)).toBe(true)
+    }
+  })
+
+  it('leaves nutrition, meal context, and serving notes unchanged for every Slice 19 item vs. its pre-Slice-19 record (price is expected to change: see Slice 20)', () => {
+    const moromi = restaurantMenuItems.find(candidate => candidate.id === 'ootoya-grilled-moromi-chicken')
+    expect(moromi?.nutrition).toEqual({ kcal: 336, protein: 35.1, carbs: 21.5, fat: 13.6 })
+    expect(moromi?.mealContext).toBeUndefined()
+
+    const chickenSesame = restaurantMenuItems.find(candidate => candidate.id === 'salad-factory-grilled-chicken-sesame')
+    expect(chickenSesame?.nutrition).toEqual({ kcal: 430, protein: 36, carbs: 18, fat: 22 })
+
+    const kaleTruffle = restaurantMenuItems.find(candidate => candidate.id === 'salad-factory-kale-chicken-truffle')
+    expect(kaleTruffle?.nutrition).toEqual({ kcal: 450, protein: 32, carbs: 20, fat: 26 })
+
+    const garlicPork = restaurantMenuItems.find(candidate => candidate.id === 'seven-eleven-garlic-pork-egg-rice')
+    expect(garlicPork?.nutrition).toEqual({ kcal: 390, protein: 22, carbs: 54, fat: 10, sodium: 520 })
+    expect(garlicPork?.servingNote?.en).toBe('One packaged ready-to-eat meal.')
+
+    const greenCurry = restaurantMenuItems.find(candidate => candidate.id === 'seven-eleven-green-curry-chicken')
+    expect(greenCurry?.nutrition).toEqual({ kcal: 360, protein: 19, carbs: 56, fat: 7, sodium: 640 })
+    expect(greenCurry?.servingNote?.en).toBe('One packaged ready-to-eat meal.')
+  })
+
+  it('does not change Pick eligibility, filters, or Quick Goal counts for any Slice 19 item', () => {
+    for (const id of slice19Ids) {
+      const withImage = restaurantMenuItems.find(candidate => candidate.id === id)!
+      const withoutImage: RestaurantMenuItem = { ...withImage, menuImage: undefined }
+      for (const presetId of Object.keys(explorePresetFilters) as (keyof typeof explorePresetFilters)[]) {
+        const filters = explorePresetFilters[presetId]
+        expect(filterRestaurantMenuItems([withImage], filters).length).toBe(filterRestaurantMenuItems([withoutImage], filters).length)
+      }
+    }
+  })
+})
+
+describe('Slice 20 price coverage expansion', () => {
+  // The 12 items given a new price in Slice 20. `ootoya-tonteki-pork-chop-set`
+  // already had a price before Slice 20 (corrected 419 -> 429) and is audited
+  // separately, not counted as new coverage here.
+  const newlyPricedIds = [
+    'ootoya-grilled-mackerel',
+    'ootoya-shima-hokke-grilled',
+    'ootoya-grilled-moromi-chicken',
+    'ootoya-oyakodon',
+    'salad-factory-grilled-chicken-sesame',
+    'salad-factory-quinoa-chicken-basil',
+    'salad-factory-kale-chicken-truffle',
+    'seven-eleven-garlic-pork-egg-rice',
+    'seven-eleven-green-curry-chicken',
+    'mk-special-kurobuta-set',
+    'mk-special-kurobuta-plate',
+    'mk-premium-suki-set',
+  ]
+
+  it('keeps the dataset at 13 restaurants / 84 items', () => {
+    expect(restaurants).toHaveLength(13)
+    expect(restaurantMenuItems).toHaveLength(84)
+  })
+
+  it('adds a new price to exactly the 12 targeted items, within the 8-15 target range and the 15 hard maximum', () => {
+    const actualIds = restaurantMenuItems.filter(item => newlyPricedIds.includes(item.id)).map(item => item.id)
+    expect(actualIds.sort()).toEqual([...newlyPricedIds].sort())
+    expect(newlyPricedIds.length).toBeGreaterThanOrEqual(8)
+    expect(newlyPricedIds.length).toBeLessThanOrEqual(15)
+  })
+
+  it('produces zero validation errors for every priced item', () => {
+    const priced = restaurantMenuItems.filter(item => item.price)
+    expect(validateRestaurantMenuItems(priced, restaurants)).toEqual([])
+  })
+
+  it('gives every price a valid THB amount, currency, and asOf date', () => {
+    const priced = restaurantMenuItems.filter(item => item.price)
+    expect(priced.length).toBeGreaterThan(0)
+    for (const item of priced) {
+      expect(validateMenuPrice(item.price)).toEqual([])
+      expect(item.price?.currency).toBe('THB')
+      expect(item.price?.amount).toBeGreaterThan(0)
+      expect(Number.isFinite(item.price?.amount)).toBe(true)
+      expect(item.price?.asOf).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    }
+  })
+
+  it('has no negative or zero prices anywhere in production', () => {
+    for (const item of restaurantMenuItems) {
+      if (item.price) expect(item.price.amount).toBeGreaterThan(0)
+    }
+  })
+
+  it('never duplicates a price object reference or produces conflicting amounts for the same id', () => {
+    const ids = restaurantMenuItems.filter(item => item.price).map(item => item.id)
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('corrects the existing Ootoya Tonteki price (419 -> 429) with a fresh Slice 20 asOf, without touching its meal context or nutrition', () => {
+    const tonteki = restaurantMenuItems.find(item => item.id === 'ootoya-tonteki-pork-chop-set')
+    expect(tonteki?.price).toMatchObject({ amount: 429, currency: 'THB', asOf: '2026-09-15' })
+    expect(tonteki?.nutrition).toEqual({ kcal: 750, protein: 40, carbs: 70, fat: 36 })
+    expect(tonteki?.mealContext).toMatchObject({ kind: 'already-complete' })
+  })
+
+  it('leaves the two audited Santa Fe prices unchanged (confirmed still accurate, no correction needed)', () => {
+    expect(restaurantMenuItems.find(item => item.id === 'santa-fe-salmon-steak')?.price).toMatchObject({ amount: 329, currency: 'THB' })
+    expect(restaurantMenuItems.find(item => item.id === 'santa-fe-dory-fish-steak')?.price).toMatchObject({ amount: 209, currency: 'THB' })
+  })
+
+  it('leaves menuImage coverage exactly as Slice 19 left it (7 items, same ids)', () => {
+    const withImage = restaurantMenuItems.filter(item => item.menuImage)
+    expect(withImage).toHaveLength(7)
+    expect(withImage.map(item => item.id).sort()).toEqual([
+      'ootoya-grilled-mackerel',
+      'ootoya-grilled-moromi-chicken',
+      'ootoya-tonteki-pork-chop-set',
+      'salad-factory-grilled-chicken-sesame',
+      'salad-factory-kale-chicken-truffle',
+      'seven-eleven-garlic-pork-egg-rice',
+      'seven-eleven-green-curry-chicken',
+    ])
+  })
+
+  it('leaves nutrition and meal-context semantics unchanged for every newly priced item', () => {
+    const expectedNutrition: Record<string, object> = {
+      'ootoya-grilled-mackerel': { kcal: 540, protein: 29.9, carbs: 8.3, fat: 46.3 },
+      'ootoya-shima-hokke-grilled': { kcal: 282, protein: 39.5, carbs: 7.9, fat: 12 },
+      'ootoya-grilled-moromi-chicken': { kcal: 336, protein: 35.1, carbs: 21.5, fat: 13.6 },
+      'ootoya-oyakodon': { kcal: 610, protein: 27, carbs: 78, fat: 18 },
+      'salad-factory-grilled-chicken-sesame': { kcal: 430, protein: 36, carbs: 18, fat: 22 },
+      'salad-factory-quinoa-chicken-basil': { kcal: 480, protein: 35, carbs: 46, fat: 16 },
+      'salad-factory-kale-chicken-truffle': { kcal: 450, protein: 32, carbs: 20, fat: 26 },
+      'seven-eleven-garlic-pork-egg-rice': { kcal: 390, protein: 22, carbs: 54, fat: 10, sodium: 520 },
+      'seven-eleven-green-curry-chicken': { kcal: 360, protein: 19, carbs: 56, fat: 7, sodium: 640 },
+      'mk-special-kurobuta-set': { kcal: 303, protein: 18, carbs: 10, fat: 22 },
+      'mk-special-kurobuta-plate': { kcal: 96, protein: 9, carbs: 1, fat: 6 },
+      'mk-premium-suki-set': { kcal: 382, protein: 24, carbs: 16, fat: 26 },
+    }
+    for (const id of newlyPricedIds) {
+      const found = restaurantMenuItems.find(item => item.id === id)
+      expect(found?.nutrition).toEqual(expectedNutrition[id])
+    }
+    // Only the two items that already had an add-on/already-complete meal context keep one; none of the newly priced items gained a new mealContext.
+    const withMealContext = newlyPricedIds.filter(id => restaurantMenuItems.find(item => item.id === id)?.mealContext)
+    expect(withMealContext.sort()).toEqual(['ootoya-grilled-mackerel', 'ootoya-shima-hokke-grilled'])
+  })
+
+  it('lets search still find every newly priced item, and leaves eligibility/Quick-Goal counts unchanged with vs. without the new price', () => {
+    for (const id of newlyPricedIds) {
+      const withPrice = restaurantMenuItems.find(item => item.id === id)!
+      expect(searchRestaurantMenuItems(restaurantMenuItems, restaurants, withPrice.name.en.split(/\s+/)[0].toLowerCase()).some(item => item.id === id)).toBe(true)
+
+      const withoutPrice: RestaurantMenuItem = { ...withPrice, price: undefined }
+      expect(searchRestaurantMenuItems([withPrice], restaurants, withPrice.name.en.split(/\s+/)[0]).length).toBe(searchRestaurantMenuItems([withoutPrice], restaurants, withPrice.name.en.split(/\s+/)[0]).length)
+      for (const presetId of Object.keys(explorePresetFilters) as (keyof typeof explorePresetFilters)[]) {
+        const filters = explorePresetFilters[presetId]
+        expect(filterRestaurantMenuItems([withPrice], filters).length).toBe(filterRestaurantMenuItems([withoutPrice], filters).length)
+      }
+    }
   })
 })

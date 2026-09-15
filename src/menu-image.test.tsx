@@ -167,10 +167,32 @@ describe('Favorites screen stays image-free', () => {
 })
 
 describe('production menu image dataset shape', () => {
-  it('keeps every menuImage-bearing item within the small researched Slice 18 pilot', () => {
+  it('keeps every menuImage-bearing item within the small researched Slice 18 + Slice 19 batch', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     expect(withImage.length).toBeGreaterThan(0)
-    expect(withImage.length).toBeLessThanOrEqual(5)
+    expect(withImage.length).toBeLessThanOrEqual(7)
     for (const item of withImage) expect(restaurants.some(restaurant => restaurant.id === item.restaurantId)).toBe(true)
+  })
+
+  it('spreads Slice 19 image coverage across three restaurants without changing restaurant/item counts', () => {
+    const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
+    const restaurantIds = new Set(withImage.map(item => item.restaurantId))
+    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'salad-factory-thailand', 'seven-eleven-thailand']))
+    expect(restaurants.length).toBe(13)
+    expect(restaurantMenuItems.length).toBe(84)
+  })
+
+  it('gives every menuImage-bearing item non-empty localized alt text', () => {
+    const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
+    for (const item of withImage) {
+      expect(item.menuImage?.alt.th.trim().length).toBeGreaterThan(0)
+      expect(item.menuImage?.alt.en.trim().length).toBeGreaterThan(0)
+    }
+  })
+
+  it('never duplicates a menuImage src across items', () => {
+    const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
+    const srcs = withImage.map(item => item.menuImage!.src)
+    expect(new Set(srcs).size).toBe(srcs.length)
   })
 })

@@ -63,6 +63,23 @@ const santaFeConfigurableMealContext = {
 const asOf18 = '2026-09-15'
 const ootoyaImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของโอโตยะ', en: 'Image from Ootoya official website' }
 
+// Slice 19 real-food-image expansion batch 1 (2026-09-15). Research methodology,
+// rejected candidates, and rights assessment are recorded in
+// docs/restaurant-image-expansion-19.md. Images remain hotlinked to each brand's
+// own official site/ordering platform, not bundled, matching the Slice 18 policy.
+const asOf19 = '2026-09-15'
+const saladFactoryImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของสลัดแฟคทอรี่', en: 'Image from Salad Factory official website' }
+const sevenElevenImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการ All Online ของเซเว่น อีเลฟเว่น', en: 'Image from 7-Eleven official AllOnline website' }
+
+// Slice 20 menu-price coverage expansion (2026-09-15). Research methodology,
+// rejected candidates, and the Ootoya Tonteki price correction are recorded in
+// docs/restaurant-price-expansion-20.md. Price freshness (`asOf20`) is tracked
+// independently of nutrition `asOf` — a new price never backdates or forward-dates
+// the nutrition record it sits next to.
+const asOf20 = '2026-09-15'
+const oyakodonIndividualPriceNote = { th: 'ราคานี้คือราคา "จานเดียว" ไม่ใช่ราคาชุดที่มีซุปมิโสะและเครื่องเคียงเพิ่มเติม ซึ่งมีราคาแยกต่างหาก', en: 'This is the "single plate" (individual bowl) price, not the set version, which adds miso soup and side dishes for an additional fee.' }
+const mkPremiumSukiBranchPriceNote = { th: 'ราคานี้จำหน่ายเฉพาะสาขาเซ็นทรัลเวิลด์และสามย่านมิตรทาวน์เท่านั้น สาขาอื่นอาจมีราคาต่างกันหรือไม่มีเมนูนี้', en: 'This price applies only at the CentralWorld and Samyan Mitrtown branches; other branches may price this differently or not carry this item.' }
+
 export const restaurants: Restaurant[] = [
   {
     id: 'ootoya-thailand',
@@ -159,6 +176,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['fish', 'grilled', 'high-protein'],
     servingNote: { th: 'เสิร์ฟแบบเดี่ยว ไม่รวมข้าวและซุปมิโสะ', en: 'Served à la carte; rice and miso soup are not included in this figure.' },
     mealContext: { kind: 'add-on', label: { th: 'ข้าว + ซุปมิโสะ + เครื่องเคียง (ตัวเลือกเซ็ต)', en: 'Rice + miso soup + side items (set option)' }, note: ootoyaSetMealContextNote },
+    price: { amount: 279, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
     menuImage: {
       src: 'https://www.ootoya.co.th/upload_file/menu/Fish-Menu/%E0%B8%9B%E0%B8%A5%E0%B8%B2%E0%B8%8B%E0%B8%B2%E0%B8%9A%E0%B8%B0%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%96%E0%B9%88%E0%B8%B2%E0%B8%99-big.png',
       alt: { th: 'ปลาซาบะย่างถ่านเสิร์ฟกับหัวไชเท้าขูดและสลัดสาหร่ายวากาเมะ', en: 'Charcoal-grilled mackerel served with grated daikon and a wakame seaweed side' },
@@ -184,6 +202,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
       additionNutritionSource: { confidence: 'estimated', asOf: asOf17b, note: ootoyaShimaAdditionNutritionNote },
       note: ootoyaSetMealContextNote,
     },
+    price: { amount: 399, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
   },
   {
     id: 'ootoya-grilled-moromi-chicken',
@@ -195,6 +214,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['chicken', 'grilled', 'high-protein'],
     servingNote: { th: 'เสิร์ฟแบบเดี่ยว ไม่รวมข้าวและซุปมิโสะ', en: 'Served à la carte; rice and miso soup are not included in this figure.' },
     customizationNotes: [{ th: 'สามารถขอซอสโมโรมิแยกต่างหากเพื่อลดโซเดียมที่ได้รับ', en: 'You can ask for the moromi sauce on the side to manage sodium intake' }],
+    price: { amount: 259, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.ootoya.co.th/upload_file/menu/Grilled-Menu/%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%96%E0%B9%88%E0%B8%B2%E0%B8%99%E0%B8%8B%E0%B8%AD%E0%B8%AA%E0%B9%82%E0%B8%A1%E0%B9%82%E0%B8%A3%E0%B8%A1%E0%B8%B4-big.png',
+      alt: { th: 'ไก่ย่างถ่านราดซอสโมโรมิบนจานหินร้อน เสิร์ฟพร้อมผักรวมและมันฝรั่งบด', en: 'Charcoal-grilled chicken with moromi sauce on a hot stone plate, served with mixed vegetables and potato salad' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.ootoya.co.th/menu-details.php?id=35',
+      sourceLabel: ootoyaImageSourceLabel,
+      asOf: asOf19,
+    },
   },
   {
     id: 'ootoya-oyakodon',
@@ -205,6 +233,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: ootoyaStandardDishNote, asOf },
     tags: ['chicken', 'rice'],
     servingNote: { th: 'หนึ่งชาม รวมข้าว', en: 'One rice bowl, includes rice.' },
+    price: { amount: 199, currency: 'THB', asOf: asOf20, note: oyakodonIndividualPriceNote },
   },
   {
     id: 'ootoya-tonteki-pork-chop-set',
@@ -215,7 +244,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: ootoyaStandardDishNote, asOf },
     tags: ['pork', 'grilled', 'high-protein'],
     servingNote: { th: 'เสิร์ฟเป็นเซ็ต พร้อมข้าว ซุปมิโสะ และผักดอง', en: 'Served as a set with rice, miso soup, and pickled vegetables.' },
-    price: { amount: 419, currency: 'THB', asOf: asOf17b, note: currentListedPriceNote },
+    price: { amount: 429, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
     mealContext: { kind: 'already-complete', label: { th: 'เซ็ตมื้ออาหารครบชุด', en: 'Complete set meal' }, note: ootoyaCompleteSetNote },
     menuImage: {
       src: 'https://www.ootoya.co.th/upload_file/menu/Grilled-Menu/%E0%B8%9E%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%84%E0%B8%8A%E0%B9%87%E0%B8%AD%E0%B8%9B%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%96%E0%B9%88%E0%B8%B2%E0%B8%99%E0%B8%AA%E0%B9%84%E0%B8%95%E0%B8%A5%E0%B9%8C%E0%B8%97%E0%B8%87%E0%B9%80%E0%B8%97%E0%B8%81%E0%B8%B4-big.png',
@@ -245,6 +274,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: saladFactoryEstimateNote, asOf },
     tags: ['chicken', 'salad', 'high-protein', 'grilled'],
     customizationNotes: [{ th: 'หากต้องการลดพลังงาน แนะนำให้ขอน้ำสลัดแยกต่างหาก', en: 'For a lighter option, consider asking for the dressing on the side' }],
+    price: { amount: 155, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.saladfactorythailand.com/65ed250caef8ed66454c2464/668f96e30990d230026c05bb_Main%20Salad-%E0%B8%AA%E0%B8%A5%E0%B8%B1%E0%B8%94%E0%B8%AD%E0%B8%81%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%87%E0%B8%B2%E0%B8%8D%E0%B8%B5%E0%B9%88%E0%B8%9B%E0%B8%B8%E0%B9%88%E0%B8%99.jpg',
+      alt: { th: 'สลัดอกไก่ย่างกับผักรวม ถั่วแระ สาหร่ายโนริ และซอสงาครีมมี่', en: 'Grilled chicken breast salad with mixed greens, edamame, nori, and creamy sesame dressing' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.saladfactorythailand.com/menu/order',
+      sourceLabel: saladFactoryImageSourceLabel,
+      asOf: asOf19,
+    },
   },
   {
     id: 'salad-factory-quinoa-chicken-basil',
@@ -254,6 +292,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 480, protein: 35, carbs: 46, fat: 16 },
     nutritionSource: { confidence: 'estimated', note: saladFactoryEstimateNote, asOf },
     tags: ['chicken', 'salad', 'high-protein'],
+    price: { amount: 195, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
   },
   {
     id: 'salad-factory-kale-chicken-truffle',
@@ -263,6 +302,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 450, protein: 32, carbs: 20, fat: 26 },
     nutritionSource: { confidence: 'estimated', note: saladFactoryEstimateNote, asOf },
     tags: ['chicken', 'salad', 'high-protein'],
+    price: { amount: 235, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.saladfactorythailand.com/65ed250caef8ed66454c2464/6672a5a9ba3a36f4c933ca72_Kale%20Salad-%E0%B8%AA%E0%B8%A5%E0%B8%B1%E0%B8%94%E0%B9%80%E0%B8%84%E0%B8%A5%E0%B8%AD%E0%B8%81%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%97%E0%B8%A3%E0%B8%B1%E0%B8%9F%E0%B9%80%E0%B8%9F%E0%B8%B4%E0%B8%A5.jpg',
+      alt: { th: 'สลัดคะน้ากับอกไก่ย่าง แอปเปิล วอลนัท ถั่วชิกพี และแครนเบอร์รี่', en: 'Kale salad with sliced grilled chicken, apple, walnuts, chickpeas, and dried cranberries' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.saladfactorythailand.com/menu/order',
+      sourceLabel: saladFactoryImageSourceLabel,
+      asOf: asOf19,
+    },
   },
   {
     id: 'salad-factory-rocket-skirt-steak',
@@ -311,6 +359,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'label', note: sevenElevenLabelNote, asOf },
     tags: ['pork', 'rice', 'ready-to-eat', 'packaged', 'high-protein'],
     servingNote: { th: 'บรรจุภัณฑ์พร้อมทาน 1 กล่อง', en: 'One packaged ready-to-eat meal.' },
+    price: { amount: 49, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://media.allonline.7eleven.co.th/pdmain/735977-00-allonline-sm-NewOnlyat.jpg',
+      alt: { th: 'หมูกระเทียมพริกไทยไข่ดาวบนข้าว เสิร์ฟพร้อมแตงกวา บรรจุภัณฑ์ตราอีซี่โก', en: 'Garlic-pepper pork with a fried egg over rice and cucumber, EZYGO package shown' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.allonline.7eleven.co.th/p/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%AB%E0%B8%A1%E0%B8%B9%E0%B8%81%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%97%E0%B8%B5%E0%B8%A2%E0%B8%A1%E0%B9%84%E0%B8%82%E0%B9%88%E0%B8%94%E0%B8%B2%E0%B8%A7-%E0%B8%95%E0%B8%A3%E0%B8%B2-%E0%B8%AD%E0%B8%B5%E0%B8%8B%E0%B8%B5%E0%B9%88%E0%B9%82%E0%B8%81-250-%E0%B8%81%E0%B8%A3%E0%B8%B1%E0%B8%A1/367920/',
+      sourceLabel: sevenElevenImageSourceLabel,
+      asOf: asOf19,
+    },
   },
   {
     id: 'seven-eleven-green-curry-chicken',
@@ -321,6 +378,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'label', note: sevenElevenLabelNote, asOf },
     tags: ['chicken', 'rice', 'ready-to-eat', 'packaged'],
     servingNote: { th: 'บรรจุภัณฑ์พร้อมทาน 1 กล่อง', en: 'One packaged ready-to-eat meal.' },
+    price: { amount: 49, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://media.allonline.7eleven.co.th/pdmain/742077-00-allonline-sm-NewOnlyat.jpg',
+      alt: { th: 'แกงเขียวหวานอกไก่เสิร์ฟคู่ข้าวหอมมะลิ บรรจุภัณฑ์ตราเชฟแคร์ส', en: 'Green curry with chicken breast served beside jasmine rice, Chef Cares package shown' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.allonline.7eleven.co.th/p/%E0%B9%81%E0%B8%81%E0%B8%87%E0%B9%80%E0%B8%82%E0%B8%B5%E0%B8%A2%E0%B8%A7%E0%B8%AB%E0%B8%A7%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%81%E0%B9%84%E0%B8%81%E0%B9%88%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%AB%E0%B8%AD%E0%B8%A1%E0%B8%A1%E0%B8%B0%E0%B8%A5%E0%B8%B4-%E0%B8%95%E0%B8%A3%E0%B8%B2-%E0%B9%80%E0%B8%8A%E0%B8%9F%E0%B9%81%E0%B8%84%E0%B8%A3%E0%B9%8C%E0%B8%AA-275-%E0%B8%81%E0%B8%A3%E0%B8%B1%E0%B8%A1/334743/',
+      sourceLabel: sevenElevenImageSourceLabel,
+      asOf: asOf19,
+    },
   },
   {
     id: 'seven-eleven-pork-bulgogi-rice',
@@ -507,6 +573,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: mkOfficialCalorieNote, asOf: asOf11 },
     tags: ['pork', 'hotpot'],
     servingNote: { th: 'เสิร์ฟดิบสำหรับต้มในหม้อสุกี้', en: 'Served raw for cooking in the shared hot-pot broth.' },
+    price: { amount: 223, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
   },
   {
     id: 'mk-special-kurobuta-plate',
@@ -517,6 +584,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: mkOfficialCalorieNote, asOf: asOf11 },
     tags: ['pork', 'hotpot', 'high-protein', 'low-carb'],
     servingNote: { th: 'เสิร์ฟดิบ 1 จาน สำหรับต้มในหม้อสุกี้', en: 'Served raw, one plate, for cooking in the shared hot-pot broth.' },
+    price: { amount: 75, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
   },
   {
     id: 'mk-premium-suki-set',
@@ -527,6 +595,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: mkOfficialCalorieNote, asOf: asOf11 },
     tags: ['pork', 'seafood', 'hotpot'],
     servingNote: { th: 'เสิร์ฟดิบสำหรับต้มในหม้อสุกี้ 1 หม้อ', en: 'Served raw for cooking in one shared hot pot.' },
+    price: { amount: 259, currency: 'THB', asOf: asOf20, note: mkPremiumSukiBranchPriceNote },
   },
   {
     id: 'mk-seafood-suki-broth',
