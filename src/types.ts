@@ -63,6 +63,28 @@ export type NutritionSource = {
   asOf?: string
 }
 
+export type MenuPrice = {
+  amount: number
+  currency: 'THB'
+  asOf: string
+  note?: LocalizedText
+}
+
+export type MealContext =
+  | {
+      kind: 'add-on'
+      label: LocalizedText
+      /** Nutrition for the addition only; never the whole meal. */
+      additionNutrition?: Nutrition
+      additionNutritionSource?: NutritionSource
+      note?: LocalizedText
+    }
+  | {
+      kind: 'already-complete'
+      label: LocalizedText
+      note?: LocalizedText
+    }
+
 export type RestaurantMenuItem = {
   id: string
   restaurantId: string
@@ -74,6 +96,8 @@ export type RestaurantMenuItem = {
   servingNote?: LocalizedText
   customizationNotes?: LocalizedText[]
   image?: string
+  mealContext?: MealContext
+  price?: MenuPrice
 }
 
 export type RestaurantMenuFilters = {

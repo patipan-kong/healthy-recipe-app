@@ -110,6 +110,20 @@ type MessageSet = {
   yourPick: string
   viewAllMenus: string
   hideMenus: string
+  commonMeal: string
+  estimatedMealTotal: string
+  completeMeal: string
+  mealIncludesSet: string
+  price: string
+  priceChecked: (asOf: string) => string
+  nutritionChecked: (asOf: string) => string
+  mealContextPilotEyebrow: string
+  mealContextPilotTitle: string
+  mealContextPilotNotice: string
+  mealContextPilotLocal: string
+  mealContextPilotExplore: string
+  mealContextPilotCases: string
+  mealContextPilotLoading: string
   pickNoMatches: string
   explore: string
   exploreTitle: string
@@ -236,6 +250,20 @@ export const messages: Record<Locale, MessageSet> = {
     yourPick: 'เมนูที่เลือกให้',
     viewAllMenus: 'ดูเมนูทั้งหมด',
     hideMenus: 'ซ่อนเมนู',
+    commonMeal: 'กินเป็นมื้อ',
+    estimatedMealTotal: 'รวมทั้งมื้อโดยประมาณ',
+    completeMeal: 'มื้ออาหารครบชุด',
+    mealIncludesSet: 'โภชนาการด้านบนรวมชุดอาหารนี้แล้ว',
+    price: 'ราคา',
+    priceChecked: asOf => `ข้อมูลราคา ณ วันที่ ${asOf}`,
+    nutritionChecked: asOf => `ข้อมูลโภชนาการ ณ วันที่ ${asOf}`,
+    mealContextPilotEyebrow: 'โหมดทดลองโมเดลมื้ออาหาร',
+    mealContextPilotTitle: 'ทดลองข้อมูลมื้ออาหารและราคา',
+    mealContextPilotNotice: 'ข้อมูลทั้งหมดในหน้านี้เป็นเดโมเพื่อทดสอบ UX เท่านั้น ไม่ใช่ข้อมูลจริงสำหรับการใช้งาน',
+    mealContextPilotLocal: 'Pick Focus ในหน้าร้าน',
+    mealContextPilotExplore: 'Pick Focus ในหน้าหาเมนู',
+    mealContextPilotCases: 'กรณีทดสอบของโมเดล',
+    mealContextPilotLoading: 'กำลังโหลดเดโม…',
     pickNoMatches: 'ไม่มีเมนูที่ตรงกับตัวกรองให้สุ่มเลือก',
     explore: 'หาเมนู',
     exploreTitle: 'หาเมนูจากทุกร้าน',
@@ -360,6 +388,20 @@ export const messages: Record<Locale, MessageSet> = {
     yourPick: 'Your pick',
     viewAllMenus: 'View all menus',
     hideMenus: 'Hide menus',
+    commonMeal: 'Common meal',
+    estimatedMealTotal: 'Estimated meal total',
+    completeMeal: 'Complete meal',
+    mealIncludesSet: 'Nutrition above already represents the set.',
+    price: 'Price',
+    priceChecked: asOf => `Price checked: ${asOf}`,
+    nutritionChecked: asOf => `Nutrition checked: ${asOf}`,
+    mealContextPilotEyebrow: 'Meal context model pilot',
+    mealContextPilotTitle: 'Meal context + price pilot',
+    mealContextPilotNotice: 'Everything on this page is demo data for UX validation only, not production facts.',
+    mealContextPilotLocal: 'Restaurant-local Pick Focus',
+    mealContextPilotExplore: 'Explore Pick Focus',
+    mealContextPilotCases: 'Model fixture cases',
+    mealContextPilotLoading: 'Loading demo…',
     pickNoMatches: 'No matching items available to pick',
     explore: 'Explore',
     exploreTitle: 'Explore menus across restaurants',

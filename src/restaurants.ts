@@ -1,4 +1,5 @@
 import type { ExplorePresetId, LocalizedText, MenuCategory, NutritionConfidence, Restaurant, RestaurantMenuFilters, RestaurantMenuItem } from './types'
+import { isValidNutrition, validateMealContext, validateMenuPrice } from './meal-context'
 
 export const menuCategories: readonly MenuCategory[] = ['Rice & noodles', 'Salad', 'Grilled/BBQ', 'Soup', 'Set meal']
 
@@ -1026,11 +1027,6 @@ export function validateRestaurantMenuItems(items: RestaurantMenuItem[], knownRe
   if (!Array.isArray(items)) return ['Invalid restaurant menu item array']
   const restaurantIds = new Set(knownRestaurants.map(restaurant => restaurant.id))
   const ids = new Set<string>()
-  const hasNutrition = (value: unknown): value is RestaurantMenuItem['nutrition'] =>
-    typeof value === 'object' && value !== null &&
-    ['kcal', 'protein', 'carbs', 'fat'].every(key => typeof (value as Record<string, unknown>)[key] === 'number' && Number.isFinite((value as Record<string, number>)[key]) && (value as Record<string, number>)[key] >= 0) &&
-    Object.values(value).every(number => typeof number === 'number' && Number.isFinite(number) && number >= 0)
-
   for (const rawItem of items) {
     const item = (rawItem && typeof rawItem === 'object' ? rawItem : {}) as Partial<RestaurantMenuItem>
     const id = hasText(item.id) ? item.id : '(missing id)'
@@ -1040,13 +1036,21 @@ export function validateRestaurantMenuItems(items: RestaurantMenuItem[], knownRe
     if (!hasLocalizedText(item.name)) errors.push(`Missing menu item name: ${id}`)
     if (!hasText(item.restaurantId) || !restaurantIds.has(item.restaurantId)) errors.push(`Unknown restaurantId: ${id}`)
     if (!menuCategories.includes(item.category as MenuCategory)) errors.push(`Invalid category: ${id}`)
-    if (!hasNutrition(item.nutrition)) errors.push(`Invalid nutrition: ${id}`)
+    if (!isValidNutrition(item.nutrition)) errors.push(`Invalid nutrition: ${id}`)
     else {
       const macroKcal = item.nutrition.protein * 4 + item.nutrition.carbs * 4 + item.nutrition.fat * 9
       if (Math.abs(item.nutrition.kcal - macroKcal) > 180) errors.push(`Nutrition sanity range: ${id}`)
     }
     if (!item.nutritionSource || typeof item.nutritionSource !== 'object' || !nutritionConfidences.includes(item.nutritionSource.confidence as NutritionConfidence)) errors.push(`Invalid nutrition source: ${id}`)
     if (!Array.isArray(item.tags)) errors.push(`Invalid tags: ${id}`)
+    if (item.price !== undefined && validateMenuPrice(item.price).length > 0) errors.push(`Invalid price: ${id}`)
+    if (item.mealContext !== undefined) {
+      for (const error of validateMealContext(item.mealContext)) errors.push(`${error}: ${id}`)
+      if (item.mealContext?.kind === 'add-on' && isValidNutrition(item.mealContext.additionNutrition)) {
+        const macroKcal = item.mealContext.additionNutrition.protein * 4 + item.mealContext.additionNutrition.carbs * 4 + item.mealContext.additionNutrition.fat * 9
+        if (Math.abs(item.mealContext.additionNutrition.kcal - macroKcal) > 180) errors.push(`Addition nutrition sanity range: ${id}`)
+      }
+    }
   }
   return errors
 }
