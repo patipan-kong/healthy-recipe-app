@@ -50,6 +50,8 @@ function App() {
   const [shoppingSelection, setShoppingSelection] = useState<ShoppingSelection>(() => loadShoppingState(undefined, recipes))
   const [shoppingPurchasedIds, setShoppingPurchasedIds] = useState<string[]>(() => loadPurchasedShoppingLines())
   const [lastRandom, setLastRandom] = useState<string>()
+  const [pickedRecipeId, setPickedRecipeId] = useState<string>()
+  const [showAllAfterPick, setShowAllAfterPick] = useState(false)
   const [storageAvailable, setStorageAvailable] = useState(true)
   const [pantryStorageAvailable, setPantryStorageAvailable] = useState(true)
   const [shoppingStorageAvailable, setShoppingStorageAvailable] = useState(true)
@@ -81,6 +83,10 @@ function App() {
 
   const filtered = useMemo(() => searchRecipes(filterRecipes(recipes, filters), query), [query, filters])
   const visible = screen === 'favorites' ? filtered.filter(recipe => favorites.includes(recipe.id)) : filtered
+  const pickedRecipe = filtered.find(recipe => recipe.id === pickedRecipeId)
+  const showPickFocus = screen === 'browse' && Boolean(pickedRecipe)
+
+  useEffect(() => { setPickedRecipeId(undefined); setLastRandom(undefined); setShowAllAfterPick(false) }, [query, filters])
   const favoriteRestaurantMenuEntries = useMemo(() => restaurantMenuFavorites
     .map(id => restaurantMenuItems.find(item => item.id === id))
     .filter((item): item is RestaurantMenuItem => Boolean(item))
@@ -108,7 +114,7 @@ function App() {
 
   function randomRecipe() {
     const result = chooseRandom(filtered, lastRandom)
-    if (result) { setLastRandom(result.id); openRecipe(result) }
+    if (result) { setLastRandom(result.id); setPickedRecipeId(result.id); setShowAllAfterPick(false) }
   }
 
   function updateNumber(field: keyof Omit<Filters, 'category' | 'tags'>, value: string) {
@@ -178,14 +184,15 @@ function App() {
       </div>
     </header>
     {screen === 'meal-context-pilot' ? mealContextPilotItems ? <MealContextPilotView locale={locale} items={mealContextPilotItems} onOpenRestaurant={openRestaurant} /> : <section className="content meal-context-pilot-view"><p className="storage-note" role="status">{copy.mealContextPilotLoading}</p></section> : screen === 'pantry' ? <PantryView locale={locale} mode={pantryMode} selectedIds={pantrySelection} resultSource={pantryResultSource} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={browsePantryIngredient} onViewResults={showPantryResults} onEditIngredients={editPantryIngredients} onClear={clearPantry} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : screen === 'shopping' ? <ShoppingView locale={locale} recipeIds={shoppingSelection.recipeIds} servingsByRecipeId={shoppingSelection.servingsByRecipeId} lines={shoppingLines} purchasedIds={shoppingPurchasedIds} pantryIds={pantrySelection} storageAvailable={shoppingStorageAvailable && shoppingPurchasedStorageAvailable} onTogglePurchased={toggleShoppingPurchased} onChangeServings={adjustShoppingServings} onRemoveRecipe={removeShoppingRecipe} onClear={clearShopping} onOpen={openRecipe} /> : screen === 'restaurants' ? <RestaurantListView locale={locale} onOpen={openRestaurant} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} /> : screen === 'restaurant-detail' ? <RestaurantMenuView locale={locale} restaurantId={selectedRestaurantId} onBack={backToRestaurants} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} storageAvailable={restaurantFavoritesStorageAvailable} /> : screen === 'explore' ? <ExploreView locale={locale} onOpenRestaurant={openRestaurant} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} storageAvailable={restaurantFavoritesStorageAvailable} /> : <>
-      <section className="hero"><p className="eyebrow">{copy.heroEyebrow}</p><h1>{copy.heroTitle}</h1><p>{copy.heroDescription}</p><button className="random-button" disabled={!filtered.length} onClick={randomRecipe}><Shuffle size={19} /> {copy.random}</button></section>
+      <section className="hero"><p className="eyebrow">{copy.heroEyebrow}</p><h1>{copy.heroTitle}</h1><p>{copy.heroDescription}</p>{screen === 'browse' && !showPickFocus && <button className="random-button" disabled={!filtered.length} onClick={randomRecipe}><Shuffle size={19} /> {copy.random}</button>}</section>
       <section className="content">
         {!storageAvailable && <p className="storage-note" role="status">{copy.storageNote}</p>}
          <div className="search-row"><label className="search"><Search size={18} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={copy.searchPlaceholder} aria-label={copy.searchPlaceholder} /></label><button ref={filterTriggerRef} className="filter-button" onClick={() => setFiltersOpen(true)} aria-label={copy.openFilters}><SlidersHorizontal size={19} />{activeFilterCount > 0 && <span>{activeFilterCount}</span>}</button></div>
         <div className="section-heading"><h2>{screen === 'favorites' ? copy.favorites : copy.browse}</h2>{screen === 'favorites' && <button className="text-button" onClick={() => setScreen('browse')}>{copy.browseAll}</button>}</div>
         {screen === 'browse' && <div className="chips" aria-label={copy.recipeCategories}><button className={!filters.category ? 'active' : ''} onClick={() => setFilters(current => ({ ...current, category: '' }))}>{copy.allRecipes}</button>{categories.map(category => <button key={category} className={filters.category === category ? 'active' : ''} onClick={() => setFilters(current => ({ ...current, category }))}>{categoryLabel(locale, category)}</button>)}</div>}
         {screen === 'favorites' && <h3 className="favorites-section-heading">{copy.favoriteRecipesHeading}</h3>}
-        {visible.length ? <div className="recipe-grid">{visible.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} locale={locale} favorite={favorites.includes(recipe.id)} onOpen={() => openRecipe(recipe)} onFavorite={() => favorite(recipe.id)} />)}</div> : <EmptyState locale={locale} favorites={screen === 'favorites'} hasSavedRecipes={favorites.length > 0} hasFilters={Boolean(query.trim() || activeFilterCount)} onClear={() => { setQuery(''); setFilters(emptyFilters) }} />}
+        {showPickFocus && pickedRecipe && <RecipePickFocus recipe={pickedRecipe} locale={locale} favorite={favorites.includes(pickedRecipe.id)} showAll={showAllAfterPick} onPickAgain={randomRecipe} onOpen={() => openRecipe(pickedRecipe)} onFavorite={() => favorite(pickedRecipe.id)} onToggleShowAll={() => setShowAllAfterPick(open => !open)} />}
+        {(!showPickFocus || showAllAfterPick) && (visible.length ? <div id="recipe-browse-grid" className="recipe-grid">{visible.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} locale={locale} favorite={favorites.includes(recipe.id)} onOpen={() => openRecipe(recipe)} onFavorite={() => favorite(recipe.id)} />)}</div> : <EmptyState locale={locale} favorites={screen === 'favorites'} hasSavedRecipes={favorites.length > 0} hasFilters={Boolean(query.trim() || activeFilterCount)} onClear={() => { setQuery(''); setFilters(emptyFilters) }} />)}
         {screen === 'favorites' && <>
           <h3 className="favorites-section-heading">{copy.favoriteRestaurantMenusHeading}</h3>
           {!restaurantFavoritesStorageAvailable && <p className="storage-note" role="status">{copy.restaurantFavoritesStorageNote}</p>}
@@ -673,6 +680,38 @@ function PantryView({ locale, mode, selectedIds, resultSource, query, counts, st
       </div>
       {!hasSelection && <p className="pantry-zero-state" role="status">{copy.pantryNoSelection}</p>}
     </section>}
+  </section>
+}
+
+function RecipePickFocus({ recipe, locale, favorite, showAll, onPickAgain, onOpen, onFavorite, onToggleShowAll }: { recipe: Recipe; locale: Locale; favorite: boolean; showAll: boolean; onPickAgain(): void; onOpen(): void; onFavorite(): void; onToggleShowAll(): void }) {
+  const copy = messages[locale]
+  const name = recipe.name[locale]
+  const favoriteLabel = favorite ? copy.removeFavorite(name) : copy.addFavorite(name)
+  return <section className="recipe-pick recipe-pick-focused" aria-live="polite">
+    <div className="recipe-pick-header">
+      <h3>{copy.yourPick}</h3>
+      <button className="random-button recipe-pick-again" onClick={onPickAgain}><Shuffle size={16} /> {copy.pickAgain}</button>
+    </div>
+    <article className="recipe-pick-card">
+      <button className={`food-art ${recipe.accent}`} onClick={onOpen} aria-label={copy.openRecipe(name)}><RecipeImage recipe={recipe} variant="card" locale={locale} /><span className="time-pill"><Clock3 size={13} /> {recipe.prepMinutes + recipe.cookMinutes} min</span></button>
+      <div className="recipe-pick-copy">
+        <p className="card-category">{categoryLabel(locale, recipe.category)}</p>
+        <h3>{name}</h3>
+        <p className="english">{recipe.name[otherLocale(locale)]}</p>
+        <div className="facts recipe-pick-facts"><span><Clock3 size={15} /> {copy.prep} {recipe.prepMinutes} min</span><span>{copy.cook} {recipe.cookMinutes} min</span><span>{copy.serves} {recipe.servings}</span></div>
+        <div className="nutrition-card recipe-pick-nutrition">
+          <div><b>{recipe.nutrition.kcal}</b><span>kcal</span></div>
+          <div><b>{recipe.nutrition.protein}g</b><span>{copy.protein}</span></div>
+          <div><b>{recipe.nutrition.carbs}g</b><span>{copy.carbs}</span></div>
+          <div><b>{recipe.nutrition.fat}g</b><span>{copy.fat}</span></div>
+        </div>
+      </div>
+      <div className="recipe-pick-actions">
+        <button className={`heart ${favorite ? 'saved' : ''}`} onClick={onFavorite} aria-label={favoriteLabel} aria-pressed={favorite}><Heart size={20} fill={favorite ? 'currentColor' : 'none'} /></button>
+        <button className="recipe-pick-view" onClick={onOpen}>{copy.viewRecipe}</button>
+      </div>
+    </article>
+    <button type="button" className="menu-list-toggle" aria-expanded={showAll} aria-controls="recipe-browse-grid" onClick={onToggleShowAll}>{showAll ? copy.hideRecipes : copy.viewAllRecipes}</button>
   </section>
 }
 

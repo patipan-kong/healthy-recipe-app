@@ -47,6 +47,16 @@ describe('random recipes', () => {
     expect(result?.id).not.toBe(candidates[0].id)
   })
   it('returns undefined when no candidate exists', () => expect(chooseRandom([])).toBeUndefined())
+  it('returns the sole candidate when only one item is eligible, even matching the previous id', () => {
+    const [only] = recipes
+    expect(chooseRandom([only], only.id)).toEqual(only)
+  })
+  it('does not mutate the source candidate array', () => {
+    const candidates = recipes.filter(recipe => recipe.tags.includes('Quick')).slice(0, 5)
+    const snapshot = [...candidates]
+    chooseRandom(candidates, candidates[0].id, () => 0.999)
+    expect(candidates).toEqual(snapshot)
+  })
 })
 
 describe('favorites persistence', () => {

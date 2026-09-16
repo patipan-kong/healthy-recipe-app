@@ -82,6 +82,9 @@ type MessageSet = {
   addFavorite: (name: string) => string
   removeFavorite: (name: string) => string
   openRecipe: (name: string) => string
+  viewRecipe: string
+  viewAllRecipes: string
+  hideRecipes: string
   recipeImage: (name: string) => string
   unavailableImage: (name: string) => string
   emptyFilteredTitle: string
@@ -225,6 +228,9 @@ export const messages: Record<Locale, MessageSet> = {
     addFavorite: name => `เพิ่ม ${name} ในรายการโปรด`,
     removeFavorite: name => `นำ ${name} ออกจากรายการโปรด`,
     openRecipe: name => `เปิดเมนู ${name}`,
+    viewRecipe: 'ดูสูตร',
+    viewAllRecipes: 'ดูสูตรทั้งหมด',
+    hideRecipes: 'ซ่อนสูตร',
     recipeImage: name => `ภาพเมนู ${name}`,
     unavailableImage: name => `ไม่มีภาพเมนู ${name}`,
     emptyFilteredTitle: 'ไม่พบเมนูที่ตรงกัน',
@@ -366,6 +372,9 @@ export const messages: Record<Locale, MessageSet> = {
     addFavorite: name => `Add ${name} to favorites`,
     removeFavorite: name => `Remove ${name} from favorites`,
     openRecipe: name => `Open ${name}`,
+    viewRecipe: 'View recipe',
+    viewAllRecipes: 'View all recipes',
+    hideRecipes: 'Hide recipes',
     recipeImage: name => `${name} recipe image`,
     unavailableImage: name => `${name} recipe image unavailable`,
     emptyFilteredTitle: 'Nothing matches those filters',
