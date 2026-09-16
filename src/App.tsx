@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, ChevronRight, Clock3, Compass, Heart, Search, Shuffle, ShoppingBasket, SlidersHorizontal, Store, X } from 'lucide-react'
+import { ArrowLeft, ChefHat, ChevronRight, Clock3, Compass, Heart, Search, Shuffle, ShoppingBasket, SlidersHorizontal, Store, X } from 'lucide-react'
 import { categoryLabel, explorePresetLabel, explorePresetSummary, ingredientCategoryLabel, loadLocale, menuCategoryLabel, messages, nutritionConfidenceLabel, saveLocale, tagLabel } from './i18n'
 import { formatIngredientAmount } from './measurements'
 import { chooseRandom, emptyFilters, filterRecipes, recipes, searchRecipes } from './recipes'
@@ -64,6 +64,7 @@ function App() {
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null)
   const [mealContextPilotItems, setMealContextPilotItems] = useState<RestaurantMenuItem[] | null>(null)
   const filterTriggerRef = useRef<HTMLButtonElement>(null)
+  const recipeSearchRef = useRef<HTMLInputElement>(null)
   const copy = messages[locale]
 
   useEffect(() => setStorageAvailable(saveFavorites(favorites)), [favorites])
@@ -184,12 +185,20 @@ function App() {
       </div>
     </header>
     {screen === 'meal-context-pilot' ? mealContextPilotItems ? <MealContextPilotView locale={locale} items={mealContextPilotItems} onOpenRestaurant={openRestaurant} /> : <section className="content meal-context-pilot-view"><p className="storage-note" role="status">{copy.mealContextPilotLoading}</p></section> : screen === 'pantry' ? <PantryView locale={locale} mode={pantryMode} selectedIds={pantrySelection} resultSource={pantryResultSource} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={browsePantryIngredient} onViewResults={showPantryResults} onEditIngredients={editPantryIngredients} onClear={clearPantry} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : screen === 'shopping' ? <ShoppingView locale={locale} recipeIds={shoppingSelection.recipeIds} servingsByRecipeId={shoppingSelection.servingsByRecipeId} lines={shoppingLines} purchasedIds={shoppingPurchasedIds} pantryIds={pantrySelection} storageAvailable={shoppingStorageAvailable && shoppingPurchasedStorageAvailable} onTogglePurchased={toggleShoppingPurchased} onChangeServings={adjustShoppingServings} onRemoveRecipe={removeShoppingRecipe} onClear={clearShopping} onOpen={openRecipe} /> : screen === 'restaurants' ? <RestaurantListView locale={locale} onOpen={openRestaurant} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} /> : screen === 'restaurant-detail' ? <RestaurantMenuView locale={locale} restaurantId={selectedRestaurantId} onBack={backToRestaurants} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} storageAvailable={restaurantFavoritesStorageAvailable} /> : screen === 'explore' ? <ExploreView locale={locale} onOpenRestaurant={openRestaurant} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} storageAvailable={restaurantFavoritesStorageAvailable} /> : <>
-      <section className="hero"><p className="eyebrow">{copy.heroEyebrow}</p><h1>{copy.heroTitle}</h1><p>{copy.heroDescription}</p>{screen === 'browse' && !showPickFocus && <button className="random-button" disabled={!filtered.length} onClick={randomRecipe}><Shuffle size={19} /> {copy.random}</button>}</section>
+      {screen === 'browse' ? <section className="hero meal-hub" aria-labelledby="meal-hub-title">
+        <h1 id="meal-hub-title">{copy.mealHubTitle}</h1>
+        <p>{copy.mealHubDescription}</p>
+        <div className="meal-hub-actions">
+          <button type="button" className="meal-hub-cook" onClick={() => recipeSearchRef.current?.focus()}><ChefHat size={22} aria-hidden="true" /><span>{copy.cookAtHome}</span></button>
+          <button type="button" className="meal-hub-buy" onClick={toggleRestaurantsScreen}><Store size={22} aria-hidden="true" /><span>{copy.buyFood}</span></button>
+        </div>
+      </section> : <section className="hero"><p className="eyebrow">{copy.heroEyebrow}</p><h1>{copy.heroTitle}</h1><p>{copy.heroDescription}</p></section>}
       <section className="content">
         {!storageAvailable && <p className="storage-note" role="status">{copy.storageNote}</p>}
-         <div className="search-row"><label className="search"><Search size={18} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder={copy.searchPlaceholder} aria-label={copy.searchPlaceholder} /></label><button ref={filterTriggerRef} className="filter-button" onClick={() => setFiltersOpen(true)} aria-label={copy.openFilters}><SlidersHorizontal size={19} />{activeFilterCount > 0 && <span>{activeFilterCount}</span>}</button></div>
+         <div className="search-row"><label className="search"><Search size={18} /><input ref={recipeSearchRef} value={query} onChange={event => setQuery(event.target.value)} placeholder={copy.searchPlaceholder} aria-label={copy.searchPlaceholder} /></label><button ref={filterTriggerRef} className="filter-button" onClick={() => setFiltersOpen(true)} aria-label={copy.openFilters}><SlidersHorizontal size={19} />{activeFilterCount > 0 && <span>{activeFilterCount}</span>}</button></div>
         <div className="section-heading"><h2>{screen === 'favorites' ? copy.favorites : copy.browse}</h2>{screen === 'favorites' && <button className="text-button" onClick={() => setScreen('browse')}>{copy.browseAll}</button>}</div>
         {screen === 'browse' && <div className="chips" aria-label={copy.recipeCategories}><button className={!filters.category ? 'active' : ''} onClick={() => setFilters(current => ({ ...current, category: '' }))}>{copy.allRecipes}</button>{categories.map(category => <button key={category} className={filters.category === category ? 'active' : ''} onClick={() => setFilters(current => ({ ...current, category }))}>{categoryLabel(locale, category)}</button>)}</div>}
+        {screen === 'browse' && !showPickFocus && <button className="random-button recipe-discovery-random" disabled={!filtered.length} onClick={randomRecipe}><Shuffle size={19} aria-hidden="true" /> {copy.random}</button>}
         {screen === 'favorites' && <h3 className="favorites-section-heading">{copy.favoriteRecipesHeading}</h3>}
         {showPickFocus && pickedRecipe && <RecipePickFocus recipe={pickedRecipe} locale={locale} favorite={favorites.includes(pickedRecipe.id)} showAll={showAllAfterPick} onPickAgain={randomRecipe} onOpen={() => openRecipe(pickedRecipe)} onFavorite={() => favorite(pickedRecipe.id)} onToggleShowAll={() => setShowAllAfterPick(open => !open)} />}
         {(!showPickFocus || showAllAfterPick) && (visible.length ? <div id="recipe-browse-grid" className="recipe-grid">{visible.map(recipe => <RecipeCard key={recipe.id} recipe={recipe} locale={locale} favorite={favorites.includes(recipe.id)} onOpen={() => openRecipe(recipe)} onFavorite={() => favorite(recipe.id)} />)}</div> : <EmptyState locale={locale} favorites={screen === 'favorites'} hasSavedRecipes={favorites.length > 0} hasFilters={Boolean(query.trim() || activeFilterCount)} onClear={() => { setQuery(''); setFilters(emptyFilters) }} />)}

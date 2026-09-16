@@ -25,7 +25,7 @@ describe('Recipe Surprise me + Pick Focus flow', () => {
   })
 
   function heroTrigger() {
-    return container.querySelector<HTMLButtonElement>('.hero .random-button')
+    return container.querySelector<HTMLButtonElement>('.recipe-discovery-random')
   }
 
   function clickSurpriseMe() {
@@ -77,7 +77,7 @@ describe('Recipe Surprise me + Pick Focus flow', () => {
     act(() => container.querySelector<HTMLButtonElement>('.detail-nav .round-button')?.click())
   }
 
-  it('shows a Surprise me trigger in the hero that seeds an eligible pick', () => {
+  it('shows a recipe discovery Surprise me trigger that seeds an eligible pick', () => {
     expect(heroTrigger()).not.toBeNull()
     expect(heroTrigger()?.disabled).toBe(false)
     expect(pickCard()).toBeNull()
@@ -87,7 +87,7 @@ describe('Recipe Surprise me + Pick Focus flow', () => {
     expect(recipes.some(recipe => recipe.name.th === name)).toBe(true)
   })
 
-  it('shows exactly one focal recommendation and hides the hero trigger once picked', () => {
+  it('shows exactly one focal recommendation and hides the discovery trigger once picked', () => {
     clickSurpriseMe()
     expect(container.querySelectorAll('.recipe-pick-card')).toHaveLength(1)
     expect(heroTrigger()).toBeNull()

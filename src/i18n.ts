@@ -8,6 +8,10 @@ type MessageSet = {
   heroEyebrow: string
   heroTitle: string
   heroDescription: string
+  mealHubTitle: string
+  mealHubDescription: string
+  cookAtHome: string
+  buyFood: string
   random: string
   browse: string
   pantry: string
@@ -154,6 +158,10 @@ export const messages: Record<Locale, MessageSet> = {
     heroEyebrow: 'ทำอาหารดี ๆ ให้ตัวเอง',
     heroTitle: 'วันนี้อยากทำเมนูอะไรดี?',
     heroDescription: 'สูตรง่าย ๆ วัตถุดิบดี ๆ ทำได้แบบไม่กดดัน',
+    mealHubTitle: 'วันนี้อยากกินอะไรดี?',
+    mealHubDescription: 'ทำเองที่บ้าน หรือจะออกไปกินก็ได้',
+    cookAtHome: 'ทำอาหารเอง',
+    buyFood: 'ซื้ออาหาร',
     random: 'สุ่มเมนู',
     browse: 'เมนูทั้งหมด',
     pantry: 'วัตถุดิบที่มี',
@@ -298,6 +306,10 @@ export const messages: Record<Locale, MessageSet> = {
     heroEyebrow: 'MAKE SOMETHING GOOD',
     heroTitle: 'What feels good to cook today?',
     heroDescription: 'Simple recipes, nourishing ingredients, no pressure.',
+    mealHubTitle: 'What sounds good today?',
+    mealHubDescription: 'Cook it yourself, or go grab it.',
+    cookAtHome: 'Cook at home',
+    buyFood: 'Buy food',
     random: 'Pick a random recipe',
     browse: 'Browse recipes',
     pantry: 'Pantry',
