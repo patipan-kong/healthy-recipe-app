@@ -14,7 +14,7 @@ describe('bounded final-50 corrections', () => {
     const frozen = [2, 4, 6, 8, 10, 11, 12, 13, 15, 18, 21, 27, 29, 31, 35, 36, 48].map(bySlice)
     expect(hash(JSON.stringify(frozen))).toBe('33d035560e409ac84802b97b4da671b90f5bf5f56cd22fdfe72ad0a8fcc810b8')
     expect(hash(readFileSync(new URL('../data/foods.json', import.meta.url)))).toBe('ff39f65f8122f15bb1715e58a34f3a3320422fa5a2a8da1b82eac220cb5e1d9a')
-    expect(canonicalIngredients).toHaveLength(117)
+    expect(canonicalIngredients).toHaveLength(119)
   })
 
   it('uses the correct roots and measured dry red lentils', () => {

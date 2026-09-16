@@ -116,7 +116,7 @@ describe('high-priority recipe quality corrections', () => {
     expect(highPriorityIds).toHaveLength(24)
     expect(new Set(highPriorityIds).size).toBe(24)
     expect(highPriorityIds.every(id => recipes.some(recipe => recipe.id === id))).toBe(true)
-    expect(recipes).toHaveLength(200)
+    expect(recipes).toHaveLength(204)
     expect(validateRecipes(recipes)).toEqual([])
   })
 
@@ -179,7 +179,7 @@ describe('high-priority recipe quality corrections', () => {
   })
 
   it('keeps the canonical pantry vocabulary stable and scales corrected shopping quantities', () => {
-    expect(canonicalIngredients).toHaveLength(117)
+    expect(canonicalIngredients).toHaveLength(119)
     const padLines = aggregateShoppingIngredients(recipes, ['thai-vegetable-pad-see-ew'], { 'thai-vegetable-pad-see-ew': 4 })
     expect(padLines.find(line => line.ingredientId === 'tofu')?.quantity).toBe('360')
     const phoLines = aggregateShoppingIngredients(recipes, ['vietnamese-chicken-pho'], { 'vietnamese-chicken-pho': 4 })

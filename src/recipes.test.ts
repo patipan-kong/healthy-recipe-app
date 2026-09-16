@@ -69,14 +69,14 @@ describe('favorites persistence', () => {
 })
 
 describe('recipe data validation', () => {
-  it('contains exactly 200 image-ready curated recipes with valid catalog fields', () => {
+  it('contains exactly 204 image-ready curated recipes with valid catalog fields', () => {
     const ids = new Set(recipes.map(recipe => recipe.id))
     const images = new Set(recipes.map(recipe => recipe.image))
     const categories = new Set(['Quick meals', 'Thai favorites', 'High protein', 'Plant-forward', 'Light bowls'])
 
-    expect(recipes).toHaveLength(200)
-    expect(ids.size).toBe(200)
-    expect(images.size).toBe(200)
+    expect(recipes).toHaveLength(204)
+    expect(ids.size).toBe(204)
+    expect(images.size).toBe(204)
     expect(recipes.every(recipe => /^\/recipes\/[a-z0-9]+(?:-[a-z0-9]+)*\.webp$/.test(recipe.image))).toBe(true)
     expect(recipes.every(recipe => categories.has(recipe.category))).toBe(true)
     expect(recipes.every(recipe => Number.isInteger(recipe.servings) && recipe.servings > 0)).toBe(true)
@@ -85,8 +85,8 @@ describe('recipe data validation', () => {
   })
 
   it('accepts the curated recipe dataset', () => expect(validateRecipes(recipes)).toEqual([]))
-  it('accepts complete Thai and English content for all 200 recipes', () => {
-    expect(recipes).toHaveLength(200)
+  it('accepts complete Thai and English content for all 204 recipes', () => {
+    expect(recipes).toHaveLength(204)
     expect(recipes.every(recipe => recipe.name.th.trim() && recipe.name.en.trim())).toBe(true)
     expect(recipes.every(recipe => recipe.ingredients.length > 0 && recipe.ingredients.every(ingredient => ingredient.item.th.trim() && ingredient.item.en.trim() && String(ingredient.quantity).trim()))).toBe(true)
     expect(recipes.every(recipe => recipe.instructions.length > 0 && recipe.instructions.every(instruction => instruction.th.trim() && instruction.en.trim()))).toBe(true)

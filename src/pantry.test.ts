@@ -6,8 +6,8 @@ describe('pantry ingredient model', () => {
   it('audits every recipe ingredient against the canonical vocabulary', () => {
     const entries = recipes.flatMap(recipe => recipe.ingredients)
     const unmapped = [...new Set(entries.filter(ingredient => !ingredient.ingredientId).map(ingredient => ingredient.item.en))]
-    expect(entries).toHaveLength(1697)
-    expect(entries.filter(ingredient => ingredient.ingredientId)).toHaveLength(1475)
+    expect(entries).toHaveLength(1730)
+    expect(entries.filter(ingredient => ingredient.ingredientId)).toHaveLength(1503)
     expect(unmapped.every(item => isExcludedPantryIngredient(item) || isShoppingOnlyIngredient(item))).toBe(true)
     expect(canonicalIngredients.length).toBeGreaterThan(20)
     expect(new Set(canonicalIngredients.map(ingredient => ingredient.id)).size).toBe(canonicalIngredients.length)
@@ -53,5 +53,18 @@ describe('pantry ingredient model', () => {
     expect(savePantrySelection([], store)).toBe(true)
     expect(loadPantrySelection(store)).toEqual([])
     expect(canonicalIngredientIdForItem('Ground black pepper')).toBeUndefined()
+  })
+
+  it('recognizes the R3 batch-1 canonical additions: konjac noodles and wakame', () => {
+    const konjac = canonicalIngredients.find(ingredient => ingredient.id === 'konjac-noodles')
+    const wakame = canonicalIngredients.find(ingredient => ingredient.id === 'wakame')
+    expect(konjac).toMatchObject({ id: 'konjac-noodles', category: 'carbs', name: { th: 'บุกเส้น', en: 'Konjac noodles' } })
+    expect(wakame).toMatchObject({ id: 'wakame', category: 'pantry', name: { th: 'สาหร่ายวากาเมะ', en: 'Wakame' } })
+    expect(canonicalIngredientIdForItem('Konjac noodles, drained and rinsed')).toBe('konjac-noodles')
+    expect(canonicalIngredientIdForItem('Wakame, dried')).toBe('wakame')
+    expect(canonicalIngredientIdForItem('Konjac noodles')).toBe('konjac-noodles')
+    expect(canonicalIngredientIdForItem('Wakame')).toBe('wakame')
+    expect(canonicalIngredientIds.has('konjac-noodles')).toBe(true)
+    expect(canonicalIngredientIds.has('wakame')).toBe(true)
   })
 })

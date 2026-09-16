@@ -4,7 +4,7 @@ import { recipes, searchRecipes, validateRecipes } from './recipes'
 
 describe('bilingual ingredient measurements', () => {
   it('keeps the 200-recipe catalog valid and uses only canonical units', () => {
-    expect(recipes).toHaveLength(200)
+    expect(recipes).toHaveLength(204)
     expect(validateRecipes(recipes)).toEqual([])
     expect(recipes.flatMap(recipe => recipe.ingredients).every(ingredient => ingredient.unit === undefined || ingredientUnits.includes(ingredient.unit))).toBe(true)
   })

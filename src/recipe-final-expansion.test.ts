@@ -7,18 +7,18 @@ import { thaiRecipeContentFinal } from './recipe-final-content'
 import { filterRecipes, recipes, searchRecipes, validateRecipes } from './recipes'
 import { aggregateShoppingIngredients } from './shopping'
 
-const finalRecipes = recipes.slice(150)
+const finalRecipes = recipes.slice(150, 200)
 const finalIds = recipeFinalSeeds.map(recipe => recipe.id)
 
 describe('final 50-recipe catalog expansion', () => {
   it('appends exactly 50 recipes after the frozen first 150', () => {
     expect(recipeFinalSeeds).toHaveLength(50)
     expect(new Set(finalIds).size).toBe(50)
-    expect(recipes).toHaveLength(200)
+    expect(recipes).toHaveLength(204)
     expect(finalRecipes.map(recipe => recipe.id)).toEqual(finalIds)
     expect(Object.keys(thaiRecipeContentFinal).sort()).toEqual([...finalIds].sort())
     expect(Object.keys(recipeImagePresentationFinal).sort()).toEqual([...finalIds].sort())
-    expect(recipeImageManifest.slice(150).map(entry => entry.id)).toEqual(finalIds)
+    expect(recipeImageManifest.slice(150, 200).map(entry => entry.id)).toEqual(finalIds)
   })
 
   it('keeps every new recipe bilingual, measurable, and nutritionally sane', () => {

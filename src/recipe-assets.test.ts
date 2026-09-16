@@ -9,11 +9,11 @@ const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const assetDirectory = join(projectRoot, 'public', 'recipes')
 
 describe('recipe image asset pipeline', () => {
-  it('keeps a complete one-to-one manifest for all 200 recipes', () => {
-    expect(recipes).toHaveLength(200)
-    expect(recipeImageManifest).toHaveLength(200)
-    expect(new Set(recipeImageManifestIds).size).toBe(200)
-    expect(new Set(recipes.map(recipe => recipe.image)).size).toBe(200)
+  it('keeps a complete one-to-one manifest for all 204 recipes', () => {
+    expect(recipes).toHaveLength(204)
+    expect(recipeImageManifest).toHaveLength(204)
+    expect(new Set(recipeImageManifestIds).size).toBe(204)
+    expect(new Set(recipes.map(recipe => recipe.image)).size).toBe(204)
     expect(recipeImageManifest.map(entry => entry.id)).toEqual(recipes.map(recipe => recipe.id))
     expect(recipeImageManifest.every(entry => entry.prompt.includes(entry.nameEn) && entry.visualBrief.length > 40 && !entry.visualBrief.includes('plated as a single-serving healthy meal'))).toBe(true)
   })
@@ -21,8 +21,8 @@ describe('recipe image asset pipeline', () => {
   it('maps every expected local path to exactly one production WebP asset', () => {
     const expected = new Set(recipes.map(recipe => recipe.image.slice('/recipes/'.length)))
     const files = readdirSync(assetDirectory).filter(file => file.endsWith('.webp'))
-    expect(files).toHaveLength(200)
-    expect(new Set(files).size).toBe(200)
+    expect(files).toHaveLength(204)
+    expect(new Set(files).size).toBe(204)
     expect(new Set(files)).toEqual(expected)
     for (const recipe of recipes) {
       expect(recipe.image).toMatch(/^\/recipes\/[a-z0-9]+(?:-[a-z0-9]+)*\.webp$/)

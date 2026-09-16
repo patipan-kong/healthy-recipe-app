@@ -56,7 +56,7 @@ describe('bounded culinary correction regressions', () => {
     const line = aggregateShoppingIngredients(recipes, ['italian-lentil-bolognese'], { 'italian-lentil-bolognese': 3 }).find(i => /rennet/.test(i.item.en))!
     expect(line.quantity).toBe('22½')
     expect(line.item.th).toContain('มังสวิรัติ')
-    expect(canonicalIngredients).toHaveLength(117)
+    expect(canonicalIngredients).toHaveLength(119)
     expect(canonicalIngredientIdForItem('Glass noodles, Korean sweet-potato, dry')).toBe('glass-noodles')
   })
 

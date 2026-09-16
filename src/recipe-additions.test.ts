@@ -32,7 +32,7 @@ describe('50-recipe catalog expansion', () => {
   it('appends exactly 50 recipes while keeping the reviewed catalog first', () => {
     expect(recipeAdditionSeeds).toHaveLength(50)
     expect(new Set(additionIds).size).toBe(50)
-    expect(recipes).toHaveLength(200)
+    expect(recipes).toHaveLength(204)
     expect(recipes.slice(100, 150).map(recipe => recipe.id)).toEqual(additionIds)
     expect(recipeAdditionSeeds.map(recipe => recipe.id)).toEqual(additionIds)
     expect(Object.keys(thaiRecipeContentAdditions).sort()).toEqual([...additionIds].sort())
