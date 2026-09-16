@@ -85,6 +85,15 @@ const mkPremiumSukiBranchPriceNote = { th: 'ราคานี้จำหน่
 // recorded in docs/restaurant-price-expansion-22.md.
 const asOf22 = '2026-09-15'
 
+// Slice 24 real-food-image expansion batch 2 (2026-09-16). Research methodology,
+// rejected candidates (including the Sukiya menu-sheet-collage rejection), and
+// rights assessment are recorded in docs/restaurant-image-expansion-24.md.
+// Images remain hotlinked to each brand's own official site, not bundled,
+// matching the Slice 18/19 policy.
+const asOf24 = '2026-09-16'
+const fujiImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของฟูจิ', en: 'Image from Fuji official website' }
+const mkImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของเอ็มเค', en: 'Image from MK official website' }
+
 export const restaurants: Restaurant[] = [
   {
     id: 'ootoya-thailand',
@@ -501,6 +510,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['fish', 'grilled', 'high-protein'],
     servingNote: { th: 'เสิร์ฟเป็นเซ็ต พร้อมข้าวกล้องธัญพืช', en: 'Served as a set with brown rice.' },
+    menuImage: {
+      src: 'https://www.fuji.co.th/wp-content/uploads/2026/06/SALMON-SHIOYAKI-WITH-BROWN-RICE-SET-1-768x768.png',
+      alt: { th: 'แซลมอนย่างเกลือเสิร์ฟกับข้าวกล้องธัญพืช ซุปมิโสะ และเครื่องเคียงผักดอง', en: 'Grilled salmon with mixed-grain brown rice, miso soup, and pickled side dishes' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.fuji.co.th/menu/?lang=en',
+      sourceLabel: fujiImageSourceLabel,
+      asOf: asOf24,
+    },
   },
   {
     id: 'fuji-salmon-shioyaki',
@@ -520,6 +537,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 270, protein: 20, carbs: 14, fat: 15 },
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['fish', 'salad', 'low-carb'],
+    menuImage: {
+      src: 'https://www.fuji.co.th/wp-content/uploads/2026/06/SALMON-TATAKI.png-768x768.png',
+      alt: { th: 'ยำปลาแซลมอนดิบสไตล์ทาทากิ ราดพริก กระเทียม และมะนาว บนผักสลัด', en: 'Salmon tataki slices with chili, garlic, and lime over mixed salad greens' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.fuji.co.th/menu/?lang=en',
+      sourceLabel: fujiImageSourceLabel,
+      asOf: asOf24,
+    },
   },
   {
     id: 'fuji-kinoko-mushroom-salad',
@@ -529,6 +554,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 150, protein: 5, carbs: 16, fat: 8 },
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['vegetarian', 'salad', 'low-carb'],
+    menuImage: {
+      src: 'https://www.fuji.co.th/wp-content/uploads/2026/06/KINOKO-SALAD-768x768.png',
+      alt: { th: 'สลัดเห็ดรวมชิตาเกะและเห็ดเข็มทอง บนผักสลัด มะเขือเทศ และหัวไชเท้า', en: 'Mixed mushroom salad with shiitake and enoki over greens, tomato, and radish' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.fuji.co.th/menu/?lang=en',
+      sourceLabel: fujiImageSourceLabel,
+      asOf: asOf24,
+    },
   },
   {
     id: 'fuji-chicken-teriyaki',
@@ -548,6 +581,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['fish', 'rice'],
     servingNote: { th: 'หนึ่งชาม รวมข้าว', en: 'One rice bowl, includes rice.' },
+    menuImage: {
+      src: 'https://www.fuji.co.th/wp-content/uploads/2026/06/CHIRASHI-SUSHI-DON-SET-768x768.png',
+      alt: { th: 'ข้าวหน้าปลาดิบรวมแซลมอน ทูน่า กุ้ง และหอยเชลล์ เสิร์ฟพร้อมซุปมิโสะ', en: 'Mixed sashimi rice bowl with salmon, tuna, shrimp, and scallop, served with miso soup' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.fuji.co.th/menu/?lang=en',
+      sourceLabel: fujiImageSourceLabel,
+      asOf: asOf24,
+    },
   },
   {
     id: 'mk-health-vegetable-set-small',
@@ -568,6 +609,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: mkOfficialCalorieNote, asOf: asOf11 },
     tags: ['vegetarian', 'hotpot', 'low-carb'],
     servingNote: { th: 'เสิร์ฟดิบสำหรับต้มในหม้อสุกี้', en: 'Served raw for cooking in the shared hot-pot broth.' },
+    menuImage: {
+      src: 'https://www.mkrestaurant.com/public/uploads/mk_menu/images/2d90e4421809ab3c838e94db744ce7df.JPG',
+      alt: { th: 'ผักดิบสำหรับต้มสุกี้ ประกอบด้วยผักกาดหอม ฟักทอง เห็ดเข็มทอง และแครอท', en: 'Raw vegetables for hot-pot cooking, including lettuce, pumpkin, enoki mushroom, and carrot' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.mkrestaurant.com/en/mk-menu/suki/',
+      sourceLabel: mkImageSourceLabel,
+      asOf: asOf24,
+    },
   },
   {
     id: 'mk-special-kurobuta-set',
@@ -579,6 +628,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['pork', 'hotpot'],
     servingNote: { th: 'เสิร์ฟดิบสำหรับต้มในหม้อสุกี้', en: 'Served raw for cooking in the shared hot-pot broth.' },
     price: { amount: 223, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.mkrestaurant.com/public/uploads/mk_menu/images/c46d73452576ddbb21c542893e6efbed.jpg',
+      alt: { th: 'หมูคุโรบุตะหั่นบางจัดเรียงบนจาน สำหรับต้มในหม้อสุกี้', en: 'Thinly sliced kurobuta pork arranged on a plate for hot-pot cooking' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.mkrestaurant.com/en/mk-menu/suki/',
+      sourceLabel: mkImageSourceLabel,
+      asOf: asOf24,
+    },
   },
   {
     id: 'mk-special-kurobuta-plate',
@@ -601,6 +658,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['pork', 'seafood', 'hotpot'],
     servingNote: { th: 'เสิร์ฟดิบสำหรับต้มในหม้อสุกี้ 1 หม้อ', en: 'Served raw for cooking in one shared hot pot.' },
     price: { amount: 259, currency: 'THB', asOf: asOf20, note: mkPremiumSukiBranchPriceNote },
+    menuImage: {
+      src: 'https://www.mkrestaurant.com/public/uploads/mk_menu/images/759b93dc4b3d0153a14656015262c135.JPG',
+      alt: { th: 'หมูสามชั้นหั่นบาง ปลาหมึก กุ้ง และลูกชิ้นปลา พร้อมผักรวมและน้ำจิ้ม', en: 'Sliced pork belly, squid, shrimp, and fish balls with a vegetable bowl and dipping sauce' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.mkrestaurant.com/en/mk-menu/suki/',
+      sourceLabel: mkImageSourceLabel,
+      asOf: asOf24,
+    },
   },
   {
     id: 'mk-seafood-suki-broth',
@@ -611,6 +676,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: mkOfficialCalorieNote, asOf: asOf11 },
     tags: ['fish', 'seafood', 'hotpot', 'high-protein'],
     servingNote: { th: 'เสิร์ฟพร้อมทานในน้ำซุป 1 ชาม', en: 'Served ready-to-eat, one bowl in broth.' },
+    menuImage: {
+      src: 'https://www.mkrestaurant.com/public/uploads/mk_menu/images/74e40820714e487e931bbf7f83d8eb65.jpg',
+      alt: { th: 'สุกี้ทะเลน้ำ พร้อมกุ้ง ปลาหมึก และปลา เสิร์ฟพร้อมทาน', en: 'Seafood suki in broth with shrimp, squid, and fish, ready to eat' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.mkrestaurant.com/en/mk-menu/single-dish',
+      sourceLabel: mkImageSourceLabel,
+      asOf: asOf24,
+    },
   },
   {
     id: 'mk-pork-shabu',

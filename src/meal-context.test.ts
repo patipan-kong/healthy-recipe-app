@@ -228,7 +228,17 @@ describe('optional menu image validation (Slice 18 pilot)', () => {
   it('has exactly the Slice 19 expansion batch of new image-backed items, each official-remote and each from its own restaurant\'s domain', () => {
     const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage)
     const slice18Ids = ['ootoya-grilled-mackerel', 'ootoya-tonteki-pork-chop-set']
-    const slice19Items = withImage.filter(candidate => !slice18Ids.includes(candidate.id))
+    const slice24Ids = [
+      'fuji-chirashi-sushi-don-set',
+      'fuji-kinoko-mushroom-salad',
+      'fuji-salmon-shioyaki-brown-rice-set',
+      'fuji-salmon-tataki',
+      'mk-premium-suki-set',
+      'mk-seafood-suki-broth',
+      'mk-special-kurobuta-set',
+      'mk-special-vegetable-set',
+    ]
+    const slice19Items = withImage.filter(candidate => !slice18Ids.includes(candidate.id) && !slice24Ids.includes(candidate.id))
     expect(slice19Items.map(candidate => candidate.id).sort()).toEqual([
       'ootoya-grilled-moromi-chicken',
       'salad-factory-grilled-chicken-sesame',
@@ -248,9 +258,34 @@ describe('optional menu image validation (Slice 18 pilot)', () => {
     }
   })
 
-  it('total menu-image coverage stays within Slice 18 + Slice 19 (7 of 84 items)', () => {
+  it('has exactly the Slice 24 expansion batch of new image-backed items, each official-remote and each from its own restaurant\'s domain', () => {
     const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage)
-    expect(withImage.length).toBe(7)
+    const slice24Ids = [
+      'fuji-chirashi-sushi-don-set',
+      'fuji-kinoko-mushroom-salad',
+      'fuji-salmon-shioyaki-brown-rice-set',
+      'fuji-salmon-tataki',
+      'mk-premium-suki-set',
+      'mk-seafood-suki-broth',
+      'mk-special-kurobuta-set',
+      'mk-special-vegetable-set',
+    ]
+    const slice24Items = withImage.filter(candidate => slice24Ids.includes(candidate.id))
+    expect(slice24Items.map(candidate => candidate.id).sort()).toEqual([...slice24Ids].sort())
+    const sourceDomainByRestaurant: Record<string, RegExp> = {
+      'fuji-japanese-restaurant-thailand': /^https:\/\/www\.fuji\.co\.th\//,
+      'mk-restaurants-thailand': /^https:\/\/www\.mkrestaurant\.com\//,
+    }
+    for (const candidate of slice24Items) {
+      expect(candidate.menuImage?.kind).toBe('official-remote')
+      expect(candidate.menuImage?.src).toMatch(sourceDomainByRestaurant[candidate.restaurantId])
+      expect(candidate.menuImage?.sourceUrl).toMatch(sourceDomainByRestaurant[candidate.restaurantId])
+    }
+  })
+
+  it('total menu-image coverage as of Slice 24 (15 of 84 items)', () => {
+    const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage)
+    expect(withImage.length).toBe(15)
   })
 
   it('does not let menu image metadata affect filters, search, or Quick Goals eligibility', () => {
@@ -315,6 +350,102 @@ describe('Slice 19 image expansion batch', () => {
         expect(filterRestaurantMenuItems([withImage], filters).length).toBe(filterRestaurantMenuItems([withoutImage], filters).length)
       }
     }
+  })
+})
+
+describe('Slice 24 image expansion batch', () => {
+  const slice24Ids = [
+    'fuji-salmon-shioyaki-brown-rice-set',
+    'fuji-salmon-tataki',
+    'fuji-kinoko-mushroom-salad',
+    'fuji-chirashi-sushi-don-set',
+    'mk-special-vegetable-set',
+    'mk-special-kurobuta-set',
+    'mk-premium-suki-set',
+    'mk-seafood-suki-broth',
+  ]
+
+  it('produces zero validation errors for every Slice 24 item', () => {
+    const items = restaurantMenuItems.filter(candidate => slice24Ids.includes(candidate.id))
+    expect(items).toHaveLength(8)
+    expect(validateRestaurantMenuItems(items, restaurants)).toEqual([])
+  })
+
+  it('passes validateMenuImage for every Slice 24 item individually', () => {
+    for (const id of slice24Ids) {
+      const found = restaurantMenuItems.find(candidate => candidate.id === id)
+      expect(validateMenuImage(found?.menuImage)).toEqual([])
+    }
+  })
+
+  it('lets search find every Slice 24 item by its English name', () => {
+    for (const id of slice24Ids) {
+      const target = restaurantMenuItems.find(candidate => candidate.id === id)!
+      const queryWord = target.name.en.split(/\s+/)[0].toLowerCase()
+      expect(searchRestaurantMenuItems(restaurantMenuItems, restaurants, queryWord).some(candidate => candidate.id === id)).toBe(true)
+    }
+  })
+
+  it('leaves nutrition, category, tags, and serving notes unchanged for every Slice 24 item vs. its pre-Slice-24 record', () => {
+    const expected: Record<string, { nutrition: object; category: string; servingNote?: string }> = {
+      'fuji-salmon-shioyaki-brown-rice-set': { nutrition: { kcal: 520, protein: 34, carbs: 55, fat: 16 }, category: 'Set meal', servingNote: 'Served as a set with brown rice.' },
+      'fuji-salmon-tataki': { nutrition: { kcal: 270, protein: 20, carbs: 14, fat: 15 }, category: 'Salad' },
+      'fuji-kinoko-mushroom-salad': { nutrition: { kcal: 150, protein: 5, carbs: 16, fat: 8 }, category: 'Salad' },
+      'fuji-chirashi-sushi-don-set': { nutrition: { kcal: 560, protein: 26, carbs: 78, fat: 14 }, category: 'Rice & noodles', servingNote: 'One rice bowl, includes rice.' },
+      'mk-special-vegetable-set': { nutrition: { kcal: 90, protein: 3, carbs: 14, fat: 2 }, category: 'Soup', servingNote: 'Served raw for cooking in the shared hot-pot broth.' },
+      'mk-special-kurobuta-set': { nutrition: { kcal: 303, protein: 18, carbs: 10, fat: 22 }, category: 'Soup', servingNote: 'Served raw for cooking in the shared hot-pot broth.' },
+      'mk-premium-suki-set': { nutrition: { kcal: 382, protein: 24, carbs: 16, fat: 26 }, category: 'Soup', servingNote: 'Served raw for cooking in one shared hot pot.' },
+      'mk-seafood-suki-broth': { nutrition: { kcal: 239, protein: 20, carbs: 18, fat: 10 }, category: 'Soup', servingNote: 'Served ready-to-eat, one bowl in broth.' },
+    }
+    for (const id of slice24Ids) {
+      const found = restaurantMenuItems.find(candidate => candidate.id === id)
+      expect(found?.nutrition).toEqual(expected[id].nutrition)
+      expect(found?.category).toBe(expected[id].category)
+      if (expected[id].servingNote) expect(found?.servingNote?.en).toBe(expected[id].servingNote)
+    }
+  })
+
+  it('does not change Pick eligibility, filters, or Quick Goal counts for any Slice 24 item', () => {
+    for (const id of slice24Ids) {
+      const withImage = restaurantMenuItems.find(candidate => candidate.id === id)!
+      const withoutImage: RestaurantMenuItem = { ...withImage, menuImage: undefined }
+      for (const presetId of Object.keys(explorePresetFilters) as (keyof typeof explorePresetFilters)[]) {
+        const filters = explorePresetFilters[presetId]
+        expect(filterRestaurantMenuItems([withImage], filters).length).toBe(filterRestaurantMenuItems([withoutImage], filters).length)
+      }
+    }
+  })
+
+  it('uses HTTPS for every Slice 24 official-remote image src and sourceUrl', () => {
+    for (const id of slice24Ids) {
+      const found = restaurantMenuItems.find(candidate => candidate.id === id)
+      expect(found?.menuImage?.kind).toBe('official-remote')
+      expect(found?.menuImage?.src).toMatch(/^https:\/\//)
+      expect(found?.menuImage?.sourceUrl).toMatch(/^https:\/\//)
+    }
+  })
+
+  it('gives every Slice 24 item bilingual alt text and a source label', () => {
+    for (const id of slice24Ids) {
+      const found = restaurantMenuItems.find(candidate => candidate.id === id)
+      expect(found?.menuImage?.alt.th.trim().length).toBeGreaterThan(0)
+      expect(found?.menuImage?.alt.en.trim().length).toBeGreaterThan(0)
+      expect(found?.menuImage?.sourceLabel?.th.trim().length).toBeGreaterThan(0)
+      expect(found?.menuImage?.sourceLabel?.en.trim().length).toBeGreaterThan(0)
+    }
+  })
+
+  it('leaves the deferred, equally-researched MK candidates (kurobuta plate, pork shabu) without a menuImage', () => {
+    expect(restaurantMenuItems.find(candidate => candidate.id === 'mk-special-kurobuta-plate')?.menuImage).toBeUndefined()
+    expect(restaurantMenuItems.find(candidate => candidate.id === 'mk-pork-shabu')?.menuImage).toBeUndefined()
+  })
+
+  it('leaves the rejected Fuji and Sukiya candidates without a menuImage', () => {
+    expect(restaurantMenuItems.find(candidate => candidate.id === 'fuji-salmon-shioyaki')?.menuImage).toBeUndefined()
+    expect(restaurantMenuItems.find(candidate => candidate.id === 'fuji-chicken-teriyaki')?.menuImage).toBeUndefined()
+    const sukiyaItems = restaurantMenuItems.filter(candidate => candidate.restaurantId === 'sukiya-thailand')
+    expect(sukiyaItems).toHaveLength(6)
+    expect(sukiyaItems.every(candidate => !candidate.menuImage)).toBe(true)
   })
 })
 
@@ -389,10 +520,18 @@ describe('Slice 20 price coverage expansion', () => {
     expect(restaurantMenuItems.find(item => item.id === 'santa-fe-dory-fish-steak')?.price).toMatchObject({ amount: 209, currency: 'THB' })
   })
 
-  it('leaves menuImage coverage exactly as Slice 19 left it (7 items, same ids)', () => {
+  it('leaves menuImage coverage exactly as Slice 24 left it (15 items, same ids)', () => {
     const withImage = restaurantMenuItems.filter(item => item.menuImage)
-    expect(withImage).toHaveLength(7)
+    expect(withImage).toHaveLength(15)
     expect(withImage.map(item => item.id).sort()).toEqual([
+      'fuji-chirashi-sushi-don-set',
+      'fuji-kinoko-mushroom-salad',
+      'fuji-salmon-shioyaki-brown-rice-set',
+      'fuji-salmon-tataki',
+      'mk-premium-suki-set',
+      'mk-seafood-suki-broth',
+      'mk-special-kurobuta-set',
+      'mk-special-vegetable-set',
       'ootoya-grilled-mackerel',
       'ootoya-grilled-moromi-chicken',
       'ootoya-tonteki-pork-chop-set',
@@ -545,10 +684,18 @@ describe('Slice 22 price coverage expansion batch 2', () => {
     expect(somtamNuaItems.every(item => !item.price)).toBe(true)
   })
 
-  it('leaves menuImage coverage exactly as Slice 19 left it (7 items, same ids)', () => {
+  it('leaves menuImage coverage exactly as Slice 24 left it (15 items, same ids)', () => {
     const withImage = restaurantMenuItems.filter(item => item.menuImage)
-    expect(withImage).toHaveLength(7)
+    expect(withImage).toHaveLength(15)
     expect(withImage.map(item => item.id).sort()).toEqual([
+      'fuji-chirashi-sushi-don-set',
+      'fuji-kinoko-mushroom-salad',
+      'fuji-salmon-shioyaki-brown-rice-set',
+      'fuji-salmon-tataki',
+      'mk-premium-suki-set',
+      'mk-seafood-suki-broth',
+      'mk-special-kurobuta-set',
+      'mk-special-vegetable-set',
       'ootoya-grilled-mackerel',
       'ootoya-grilled-moromi-chicken',
       'ootoya-tonteki-pork-chop-set',

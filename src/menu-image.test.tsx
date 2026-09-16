@@ -185,18 +185,59 @@ describe('Favorites screen stays image-free', () => {
   })
 })
 
+describe('Slice 24 image-backed items render in Pick Focus', () => {
+  let container: HTMLDivElement
+  let root: Root
+
+  beforeEach(() => {
+    container = document.createElement('div')
+    document.body.append(container)
+    root = createRoot(container)
+  })
+
+  afterEach(() => {
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  function clickPick(scope = '') {
+    act(() => container.querySelector<HTMLButtonElement>(`${scope} .menu-pick-header button`)?.click())
+  }
+
+  const fujiTataki = restaurantMenuItems.find(item => item.id === 'fuji-salmon-tataki')!
+  const mkVegetableSet = restaurantMenuItems.find(item => item.id === 'mk-special-vegetable-set')!
+
+  if (!fujiTataki.menuImage || !mkVegetableSet.menuImage) throw new Error('Fixture expects the Slice 24 items to carry a menu image')
+
+  it('renders a new Fuji image-backed item in the restaurant-local Pick Focus card', () => {
+    act(() => root.render(<RestaurantMenuView locale="en" restaurantId="fuji-japanese-restaurant-thailand" onBack={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={[fujiTataki]} />))
+    clickPick()
+    const img = container.querySelector<HTMLImageElement>('.menu-pick-card .menu-item-image img')
+    expect(img).not.toBeNull()
+    expect(img?.getAttribute('src')).toBe(fujiTataki.menuImage!.src)
+  })
+
+  it('renders a new MK image-backed item in the Explore Pick Focus card', () => {
+    act(() => root.render(<ExploreView locale="en" onOpenRestaurant={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={[mkVegetableSet]} />))
+    clickPick('.explore-view')
+    const img = container.querySelector<HTMLImageElement>('.explore-view .menu-pick-card .menu-item-image img')
+    expect(img).not.toBeNull()
+    expect(img?.getAttribute('src')).toBe(mkVegetableSet.menuImage!.src)
+  })
+})
+
 describe('production menu image dataset shape', () => {
-  it('keeps every menuImage-bearing item within the small researched Slice 18 + Slice 19 batch', () => {
+  it('keeps every menuImage-bearing item within the small researched Slice 18 + 19 + 24 batch', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     expect(withImage.length).toBeGreaterThan(0)
-    expect(withImage.length).toBeLessThanOrEqual(7)
+    expect(withImage.length).toBeLessThanOrEqual(15)
     for (const item of withImage) expect(restaurants.some(restaurant => restaurant.id === item.restaurantId)).toBe(true)
   })
 
-  it('spreads Slice 19 image coverage across three restaurants without changing restaurant/item counts', () => {
+  it('spreads image coverage across five restaurants as of Slice 24, without changing restaurant/item counts', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     const restaurantIds = new Set(withImage.map(item => item.restaurantId))
-    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'salad-factory-thailand', 'seven-eleven-thailand']))
+    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'salad-factory-thailand', 'seven-eleven-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand']))
     expect(restaurants.length).toBe(13)
     expect(restaurantMenuItems.length).toBe(84)
   })

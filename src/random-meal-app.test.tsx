@@ -189,6 +189,21 @@ describe('Random Meal Restaurants flow (Slice 23)', () => {
     expect(result.textContent).toContain(richItem.servingNote!.th)
   })
 
+  it('renders a new Slice 24 image-backed item via Random Meal without any special-casing', () => {
+    const slice24Item = restaurantMenuItems.find(item => item.id === 'mk-special-kurobuta-set')
+    if (!slice24Item) throw new Error('Fixture needs the Slice 24 mk-special-kurobuta-set item')
+    renderApp()
+    chooseRandomMealIndex(restaurantMenuItems.indexOf(slice24Item))
+    openRestaurants()
+    clickRandomMeal()
+
+    const result = mealResult()
+    expect(result.dataset.menuItemId).toBe(slice24Item.id)
+    const img = result.querySelector<HTMLImageElement>('.menu-item-image img')
+    expect(img).not.toBeNull()
+    expect(img?.getAttribute('src')).toBe(slice24Item.menuImage!.src)
+  })
+
   it('keeps sparse Random Meal metadata natural without placeholders', () => {
     const sparseItem = restaurantMenuItems.find(item => !item.menuImage && !item.price && !item.mealContext)
     if (!sparseItem) throw new Error('Fixture needs a sparse menu item')
