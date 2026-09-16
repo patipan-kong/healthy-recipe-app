@@ -108,6 +108,8 @@ type MessageSet = {
   pickForMe: string
   pickAgain: string
   yourPick: string
+  randomMeal: string
+  randomMealHeading: string
   viewAllMenus: string
   hideMenus: string
   commonMeal: string
@@ -249,6 +251,8 @@ export const messages: Record<Locale, MessageSet> = {
     pickForMe: 'สุ่มเลือกให้',
     pickAgain: 'สุ่มใหม่',
     yourPick: 'เมนูที่เลือกให้',
+    randomMeal: 'สุ่มมื้อให้เลย',
+    randomMealHeading: 'มื้อนี้ลอง...',
     viewAllMenus: 'ดูเมนูทั้งหมด',
     hideMenus: 'ซ่อนเมนู',
     commonMeal: 'กินเป็นมื้อ',
@@ -388,6 +392,8 @@ export const messages: Record<Locale, MessageSet> = {
     pickForMe: 'Pick for me',
     pickAgain: 'Pick again',
     yourPick: 'Your pick',
+    randomMeal: 'Surprise me',
+    randomMealHeading: 'Your random meal',
     viewAllMenus: 'View all menus',
     hideMenus: 'Hide menus',
     commonMeal: 'Common meal',
