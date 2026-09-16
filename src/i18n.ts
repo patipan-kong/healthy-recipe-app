@@ -150,6 +150,10 @@ type MessageSet = {
   restaurantFavoritesStorageNote: string
   exploreSearchPlaceholder: string
   clearSearch: string
+  recipeBridgeHeading: string
+  recipeBridgeSubtitle: string
+  menuBridgeHeading: string
+  menuBridgeSubtitle: string
 }
 
 export const messages: Record<Locale, MessageSet> = {
@@ -300,6 +304,10 @@ export const messages: Record<Locale, MessageSet> = {
     restaurantFavoritesStorageNote: 'เมนูร้านอาหารที่บันทึกไว้ยังใช้ได้ในเซสชันนี้ แต่เบราว์เซอร์ไม่พร้อมบันทึกข้อมูล',
     exploreSearchPlaceholder: 'ค้นหาเมนูหรือร้านอาหาร',
     clearSearch: 'ล้างการค้นหา',
+    recipeBridgeHeading: 'อยากซื้อกิน?',
+    recipeBridgeSubtitle: 'มีเมนูใกล้เคียงที่ร้าน',
+    menuBridgeHeading: 'อยากทำเอง?',
+    menuBridgeSubtitle: 'ลองทำเมนูใกล้เคียง',
   },
   en: {
     language: 'Language',
@@ -448,6 +456,10 @@ export const messages: Record<Locale, MessageSet> = {
     restaurantFavoritesStorageNote: 'Favorite restaurant menus will stay available for this session, but browser storage is unavailable.',
     exploreSearchPlaceholder: 'Search menus or restaurants',
     clearSearch: 'Clear search',
+    recipeBridgeHeading: 'Rather buy it?',
+    recipeBridgeSubtitle: 'Similar dishes at restaurants',
+    menuBridgeHeading: 'Want to make it?',
+    menuBridgeSubtitle: 'Try a similar recipe',
   },
 }
 
