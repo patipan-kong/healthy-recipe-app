@@ -94,6 +94,15 @@ const asOf24 = '2026-09-16'
 const fujiImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของฟูจิ', en: 'Image from Fuji official website' }
 const mkImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของเอ็มเค', en: 'Image from MK official website' }
 
+// Slice 29 image expansion batch 3 (2026-09-16): 2 previously-researched MK
+// candidates deferred in Slice 24 (reconfirmed reachable, byte-identical to
+// the prior research), plus 2 new Nittaya Kai Yang candidates. Relation-linked
+// items (Fuji shioyaki/teriyaki à la carte, Jones' Caesar Chicken Salad, The
+// Steak & More's Yum Woon Sen) were researched first and hardest but yielded
+// no acceptable official image — see docs/restaurant-image-expansion-29.md.
+const asOf29 = '2026-09-16'
+const nittayaImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของนิตยาไก่ย่าง', en: 'Image from Nittaya Kai Yang official website' }
+
 export const restaurants: Restaurant[] = [
   {
     id: 'ootoya-thailand',
@@ -647,6 +656,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['pork', 'hotpot', 'high-protein', 'low-carb'],
     servingNote: { th: 'เสิร์ฟดิบ 1 จาน สำหรับต้มในหม้อสุกี้', en: 'Served raw, one plate, for cooking in the shared hot-pot broth.' },
     price: { amount: 75, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.mkrestaurant.com/public/uploads/mk_menu/images/6e5bc4cef819eb5ecb4b8a08fa92cc2b.jpg',
+      alt: { th: 'หมูคุโรบุตะหั่นบางจัดบนถาดจานเดี่ยว สำหรับต้มในหม้อสุกี้', en: 'Thinly sliced kurobuta pork on a single-serving tray, for hot-pot cooking' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.mkrestaurant.com/en/mk-menu/suki/',
+      sourceLabel: mkImageSourceLabel,
+      asOf: asOf29,
+    },
   },
   {
     id: 'mk-premium-suki-set',
@@ -694,6 +711,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: mkOfficialCalorieNote, asOf: asOf11 },
     tags: ['pork', 'hotpot', 'high-protein', 'low-carb'],
     servingNote: { th: 'เสิร์ฟดิบ 1 จาน สำหรับลวกในหม้อสุกี้', en: 'Served raw, one plate, for cooking in the shared hot-pot broth.' },
+    menuImage: {
+      src: 'https://www.mkrestaurant.com/public/uploads/mk_menu/images/dd1aba57e93fec743c1bbf2b1cbb3e1f.jpg',
+      alt: { th: 'หมูสามชั้นหั่นบางจัดบนถาดจานเดี่ยว สำหรับลวกในหม้อสุกี้', en: 'Thinly sliced pork belly on a single-serving tray, for shabu-style hot-pot cooking' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.mkrestaurant.com/en/mk-menu/suki/',
+      sourceLabel: mkImageSourceLabel,
+      asOf: asOf29,
+    },
   },
   {
     id: 'sukiya-gyudon-regular',
@@ -832,6 +857,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: nittayaEstimateNote, asOf: asOf14 },
     tags: ['chicken', 'grilled', 'high-protein', 'isan'],
     servingNote: { th: 'ไก่ย่างเสิร์ฟเป็นตัว/ครึ่งตัวสำหรับแบ่งกัน ค่าพลังงานนี้คือส่วนน่องสะโพก 1 ชิ้นต่อคน', en: 'Grilled chicken is sold whole/half for sharing; this figure is for one leg-thigh quarter piece as a per-person portion.' },
+    menuImage: {
+      src: 'https://www.nittayakaiyang.com/wp-content/uploads/2023/04/%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%95%E0%B8%B1%E0%B8%A7-07-768x769.png',
+      alt: { th: 'ไก่ย่างสูตรต้นตำรับทั้งตัวหั่นเป็นชิ้น เสิร์ฟพร้อมน้ำจิ้ม', en: 'Whole original-recipe grilled chicken, chopped into pieces, served with dipping sauces' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.nittayakaiyang.com/en/nittaya-kai-yang-recommended-menu/',
+      sourceLabel: nittayaImageSourceLabel,
+      asOf: asOf29,
+    },
   },
   {
     id: 'nittaya-grilled-pork-neck',
@@ -864,6 +897,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['salad', 'isan', 'spicy'],
     servingNote: { th: 'เสิร์ฟ 1 จานสำหรับแบ่งกันกิน (รวมไข่เค็ม 1 ฟอง) ค่าพลังงานนี้คือทั้งจาน', en: 'Served as one shared plate (includes 1 salted egg); this figure is for the whole plate.' },
     price: { amount: 85, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.nittayakaiyang.com/wp-content/uploads/2023/05/%E0%B8%AA%E0%B9%89%E0%B8%A1%E0%B8%95%E0%B8%B3%E0%B9%84%E0%B8%97%E0%B8%A2%E0%B9%84%E0%B8%82%E0%B9%88%E0%B9%80%E0%B8%84%E0%B9%87%E0%B8%A1-1024x1024.jpg',
+      alt: { th: 'ส้มตำไทยใส่ไข่เค็ม จัดเสิร์ฟในจาน', en: 'Thai papaya salad with salted egg, plated' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.nittayakaiyang.com/en/nittaya-kai-yang-recommended-menu/',
+      sourceLabel: nittayaImageSourceLabel,
+      asOf: asOf29,
+    },
   },
   {
     id: 'nittaya-larb-moo',

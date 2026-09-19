@@ -204,6 +204,21 @@ describe('Random Meal Restaurants flow (Slice 23)', () => {
     expect(img?.getAttribute('src')).toBe(slice24Item.menuImage!.src)
   })
 
+  it('renders a new Slice 29 image-backed item via Random Meal without any special-casing', () => {
+    const slice29Item = restaurantMenuItems.find(item => item.id === 'nittaya-grilled-chicken-quarter')
+    if (!slice29Item) throw new Error('Fixture needs the Slice 29 nittaya-grilled-chicken-quarter item')
+    renderApp()
+    chooseRandomMealIndex(restaurantMenuItems.indexOf(slice29Item))
+    openRestaurants()
+    clickRandomMeal()
+
+    const result = mealResult()
+    expect(result.dataset.menuItemId).toBe(slice29Item.id)
+    const img = result.querySelector<HTMLImageElement>('.menu-item-image img')
+    expect(img).not.toBeNull()
+    expect(img?.getAttribute('src')).toBe(slice29Item.menuImage!.src)
+  })
+
   it('keeps sparse Random Meal metadata natural without placeholders', () => {
     const sparseItem = restaurantMenuItems.find(item => !item.menuImage && !item.price && !item.mealContext)
     if (!sparseItem) throw new Error('Fixture needs a sparse menu item')

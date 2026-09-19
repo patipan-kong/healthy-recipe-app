@@ -226,18 +226,70 @@ describe('Slice 24 image-backed items render in Pick Focus', () => {
   })
 })
 
+describe('Slice 29 image-backed items render in Pick Focus', () => {
+  let container: HTMLDivElement
+  let root: Root
+
+  beforeEach(() => {
+    container = document.createElement('div')
+    document.body.append(container)
+    root = createRoot(container)
+  })
+
+  afterEach(() => {
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  function clickPick(scope = '') {
+    act(() => container.querySelector<HTMLButtonElement>(`${scope} .menu-pick-header button`)?.click())
+  }
+
+  const nittayaChicken = restaurantMenuItems.find(item => item.id === 'nittaya-grilled-chicken-quarter')!
+  const nittayaSomTam = restaurantMenuItems.find(item => item.id === 'nittaya-som-tam-salted-egg')!
+
+  if (!nittayaChicken.menuImage || !nittayaSomTam.menuImage) throw new Error('Fixture expects the Slice 29 items to carry a menu image')
+
+  it('renders the new Nittaya grilled chicken image in the restaurant-local Pick Focus card', () => {
+    act(() => root.render(<RestaurantMenuView locale="en" restaurantId="nittaya-kai-yang-thailand" onBack={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={[nittayaChicken]} />))
+    clickPick()
+    const img = container.querySelector<HTMLImageElement>('.menu-pick-card .menu-item-image img')
+    expect(img).not.toBeNull()
+    expect(img?.getAttribute('src')).toBe(nittayaChicken.menuImage!.src)
+  })
+
+  it('renders the new Nittaya papaya salad image in the Explore Pick Focus card', () => {
+    act(() => root.render(<ExploreView locale="en" onOpenRestaurant={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={[nittayaSomTam]} />))
+    clickPick('.explore-view')
+    const img = container.querySelector<HTMLImageElement>('.explore-view .menu-pick-card .menu-item-image img')
+    expect(img).not.toBeNull()
+    expect(img?.getAttribute('src')).toBe(nittayaSomTam.menuImage!.src)
+  })
+
+  it('degrades gracefully if the new Nittaya image fails to load, without removing menu information', () => {
+    act(() => root.render(<RestaurantMenuView locale="en" restaurantId="nittaya-kai-yang-thailand" onBack={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={[nittayaChicken]} />))
+    clickPick()
+    const img = container.querySelector('.menu-item-image img')
+    expect(img).not.toBeNull()
+    act(() => img?.dispatchEvent(new Event('error')))
+    expect(container.querySelector('.menu-pick-card .menu-item-image')).toBeNull()
+    expect(container.querySelector('.menu-pick-card h3')?.textContent).toBe(nittayaChicken.name.en)
+    expect(container.querySelector('.menu-pick-card .menu-item-nutrition')).not.toBeNull()
+  })
+})
+
 describe('production menu image dataset shape', () => {
-  it('keeps every menuImage-bearing item within the small researched Slice 18 + 19 + 24 batch', () => {
+  it('keeps every menuImage-bearing item within the small researched Slice 18 + 19 + 24 + 29 batch', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     expect(withImage.length).toBeGreaterThan(0)
-    expect(withImage.length).toBeLessThanOrEqual(15)
+    expect(withImage.length).toBeLessThanOrEqual(19)
     for (const item of withImage) expect(restaurants.some(restaurant => restaurant.id === item.restaurantId)).toBe(true)
   })
 
-  it('spreads image coverage across five restaurants as of Slice 24, without changing restaurant/item counts', () => {
+  it('spreads image coverage across six restaurants as of Slice 29, without changing restaurant/item counts', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     const restaurantIds = new Set(withImage.map(item => item.restaurantId))
-    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'salad-factory-thailand', 'seven-eleven-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand']))
+    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'salad-factory-thailand', 'seven-eleven-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand', 'nittaya-kai-yang-thailand']))
     expect(restaurants.length).toBe(13)
     expect(restaurantMenuItems.length).toBe(84)
   })

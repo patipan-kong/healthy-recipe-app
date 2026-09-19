@@ -38,6 +38,17 @@ describe('recipe-restaurant relation validation', () => {
     expect(recipeRestaurantRelations.length).toBeGreaterThanOrEqual(5)
     expect(recipeRestaurantRelations.length).toBeLessThanOrEqual(12)
   })
+
+  it('leaves the relation count and pairs exactly as Slice 28 shipped them — Slice 29 is image-only', () => {
+    expect(recipeRestaurantRelations).toHaveLength(5)
+    expect(recipeRestaurantRelations.map(relation => `${relation.recipeId}::${relation.restaurantMenuItemId}`).sort()).toEqual([
+      'chicken-teriyaki-rice-bowl::fuji-chicken-teriyaki',
+      'glass-noodle-seafood-salad::steak-and-more-yum-woon-sen',
+      'grilled-chicken-caesar-salad::jones-caesar-chicken-salad',
+      'grilled-mackerel-bowl::ootoya-grilled-mackerel',
+      'japanese-shioyaki-salmon-sweet-potato::fuji-salmon-shioyaki',
+    ])
+  })
 })
 
 describe('relation lookups', () => {
