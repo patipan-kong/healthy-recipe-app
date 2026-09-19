@@ -34,6 +34,20 @@ export const recipeRestaurantRelations: RecipeRestaurantRelation[] = [
   { recipeId: 'japanese-beef-gyudon', restaurantMenuItemId: 'sukiya-gyudon-regular', relationKind: 'similar-dish' },
   { recipeId: 'japanese-vegetable-curry-rice', restaurantMenuItemId: 'sukiya-curry-rice-regular', relationKind: 'similar-dish' },
   { recipeId: 'garlic-pepper-pork-fried-egg-rice', restaurantMenuItemId: 'seven-eleven-garlic-pork-egg-rice', relationKind: 'similar-dish' },
+  // Slice 33: the 11 HIGH-confidence pairs approved by Slice 32's coverage
+  // audit (docs/relation-coverage-audit-32.md). 7 SAME_DISH-caliber matches:
+  { recipeId: 'spicy-grilled-pork-salad', restaurantMenuItemId: 'salad-factory-spicy-pork-tenderloin', relationKind: 'similar-dish' },
+  { recipeId: 'chicken-vegetable-sukiyaki', restaurantMenuItemId: 'seven-eleven-chicken-sukiyaki', relationKind: 'similar-dish' },
+  { recipeId: 'chicken-green-curry-brown-rice', restaurantMenuItemId: 'seven-eleven-green-curry-chicken', relationKind: 'similar-dish' },
+  { recipeId: 'grilled-chicken-jaew', restaurantMenuItemId: 'santa-fe-chicken-steak-jaew', relationKind: 'similar-dish' },
+  { recipeId: 'herb-grilled-chicken', restaurantMenuItemId: 'nittaya-grilled-chicken-quarter', relationKind: 'similar-dish' },
+  { recipeId: 'herb-grilled-chicken', restaurantMenuItemId: 'zaab-eli-grilled-chicken', relationKind: 'similar-dish' },
+  { recipeId: 'japanese-shioyaki-salmon-sweet-potato', restaurantMenuItemId: 'fuji-salmon-shioyaki-brown-rice-set', relationKind: 'similar-dish' },
+  // 4 SIMILAR_DISH-caliber matches (still 'similar-dish' — the model has one kind):
+  { recipeId: 'salmon-poke-bowl', restaurantMenuItemId: 'salad-factory-salmon-sashimi-shoyu', relationKind: 'similar-dish' },
+  { recipeId: 'baked-cod-lemon-herbs', restaurantMenuItemId: 'santa-fe-dory-fish-steak', relationKind: 'similar-dish' },
+  { recipeId: 'chicken-larb-brown-rice', restaurantMenuItemId: 'nittaya-larb-moo', relationKind: 'similar-dish' },
+  { recipeId: 'chicken-larb-brown-rice', restaurantMenuItemId: 'zaab-eli-larb-moo', relationKind: 'similar-dish' },
 ]
 
 export type RelatedMenuEntry = { item: RestaurantMenuItem; restaurant: Restaurant }

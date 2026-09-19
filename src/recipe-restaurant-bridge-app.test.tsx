@@ -240,3 +240,90 @@ describe('Favorites and random-pick semantics are unaffected by relations', () =
     expect(restaurantMenuItems.some(item => item.id === 'ootoya-grilled-mackerel')).toBe(true)
   })
 })
+
+describe('Slice 33 bridge regression: expanded relation graph flows through the existing UI unchanged', () => {
+  let container: HTMLDivElement
+  let root: Root
+
+  beforeEach(() => {
+    window.localStorage.clear()
+    container = document.createElement('div')
+    document.body.append(container)
+    root = createRoot(container)
+    act(() => root.render(<App />))
+  })
+
+  afterEach(() => {
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  function typeSearch(value: string) {
+    const input = container.querySelector<HTMLInputElement>('.search-row input')!
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')!.set!
+    act(() => {
+      setter.call(input, value)
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+  }
+
+  function openRecipeCard() {
+    act(() => container.querySelector<HTMLButtonElement>('.recipe-card .food-art')?.click())
+  }
+
+  it('renders both destinations, unmodified, for a recipe with a new one-to-many cluster (herb-grilled-chicken)', () => {
+    expect(searchRecipes(recipes, 'herb grilled chicken')).toHaveLength(1)
+    typeSearch('herb grilled chicken')
+    openRecipeCard()
+    const bridge = container.querySelector('.recipe-restaurant-bridge')
+    expect(bridge).not.toBeNull()
+    const cards = bridge!.querySelectorAll('.recipe-bridge-card')
+    expect(cards).toHaveLength(2)
+    const restaurantIds = [...cards].map(card => card.querySelector('[data-restaurant-identity]')?.getAttribute('data-restaurant-identity'))
+    expect(restaurantIds.sort()).toEqual(['nittaya-kai-yang-thailand', 'zaab-eli-thailand'])
+  })
+
+  it('Restaurant Pick Focus renders the new SAME_DISH relation (Santa Fe chicken-steak-jaew -> grilled-chicken-jaew)', () => {
+    const jaewItem = restaurantMenuItems.find(item => item.id === 'santa-fe-chicken-steak-jaew')!
+    let opened: string | undefined
+    act(() => root.render(<RestaurantMenuView locale="en" restaurantId="santa-fe-steak-thailand" onBack={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={[jaewItem]} onOpenRecipe={recipe => { opened = recipe.id }} />))
+    act(() => container.querySelector<HTMLButtonElement>('.menu-pick .random-button')?.click())
+    const bridge = container.querySelector('.menu-recipe-bridge')
+    expect(bridge).not.toBeNull()
+    expect(bridge?.querySelector('.meal-context-heading')?.textContent).toBe('Want to make it?')
+    act(() => container.querySelector<HTMLButtonElement>('.menu-recipe-bridge-view')?.click())
+    expect(opened).toBe('grilled-chicken-jaew')
+  })
+
+  it('Restaurant Pick Focus renders the new SIMILAR_DISH-strength relation (Santa Fe dory-fish-steak -> baked-cod-lemon-herbs) with the same unmodified copy', () => {
+    const doryItem = restaurantMenuItems.find(item => item.id === 'santa-fe-dory-fish-steak')!
+    let opened: string | undefined
+    act(() => root.render(<RestaurantMenuView locale="en" restaurantId="santa-fe-steak-thailand" onBack={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={[doryItem]} onOpenRecipe={recipe => { opened = recipe.id }} />))
+    act(() => container.querySelector<HTMLButtonElement>('.menu-pick .random-button')?.click())
+    const bridge = container.querySelector('.menu-recipe-bridge')
+    expect(bridge).not.toBeNull()
+    expect(bridge?.querySelector('.meal-context-heading')?.textContent).toBe('Want to make it?')
+    expect(bridge?.querySelector('.menu-recipe-bridge-subtitle')?.textContent).toBe('Try a similar recipe')
+    act(() => container.querySelector<HTMLButtonElement>('.menu-recipe-bridge-view')?.click())
+    expect(opened).toBe('baked-cod-lemon-herbs')
+  })
+
+  it('existing Som Tam relation still renders correctly alongside the expanded graph', () => {
+    expect(searchRecipes(recipes, 'som tam')).toHaveLength(1)
+    typeSearch('som tam')
+    openRecipeCard()
+    const bridge = container.querySelector('.recipe-restaurant-bridge')
+    expect(bridge).not.toBeNull()
+    expect(bridge!.querySelectorAll('.recipe-bridge-card')).toHaveLength(3)
+  })
+
+  it('existing Oyakodon relation still renders correctly alongside the expanded graph', () => {
+    expect(searchRecipes(recipes, 'oyakodon')).toHaveLength(1)
+    typeSearch('oyakodon')
+    openRecipeCard()
+    const bridge = container.querySelector('.recipe-restaurant-bridge')
+    expect(bridge).not.toBeNull()
+    expect(bridge!.querySelectorAll('.recipe-bridge-card')).toHaveLength(1)
+    expect(bridge?.querySelector('h3')?.textContent).toBe(restaurantMenuItems.find(item => item.id === 'ootoya-oyakodon')!.name.th)
+  })
+})
