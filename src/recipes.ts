@@ -6,6 +6,7 @@ import { recipeAdditionSeeds } from './recipe-additions'
 import { recipeExpansionSeeds } from './recipe-expansion'
 import { recipeFinalSeeds } from './recipe-final-expansion'
 import { recipeSlice5Seeds } from './recipe-slice5-expansion'
+import { recipeSlice6Seeds } from './recipe-slice6-expansion'
 import type { Filters, LocalizedText, Recipe } from './types'
 
 export const emptyFilters: Filters = { category: '', tags: [] }
@@ -88,6 +89,7 @@ export const recipes: Recipe[] = [
   ...recipeAdditionSeeds.map(recipe => r(recipe)),
   ...recipeFinalSeeds.map(recipe => r(recipe)),
   ...recipeSlice5Seeds.map(recipe => r(recipe)),
+  ...recipeSlice6Seeds.map(recipe => r(recipe)),
 ]
 
 export function filterRecipes(items: Recipe[], filters: Filters): Recipe[] {

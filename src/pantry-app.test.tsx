@@ -130,7 +130,7 @@ describe('Pantry application flow', () => {
     clickPantry()
     const cucumberCount = countRecipesByIngredient(recipes).cucumber
     const cucumberRecipes = filterRecipesByIngredient(recipes, 'cucumber')
-    expect(cucumberCount).toBe(45)
+    expect(cucumberCount).toBe(46)
     expect(cucumberRecipes).toHaveLength(cucumberCount)
     expect(cucumberCount).toBeLessThan(recipes.length)
     expect(cucumberRecipes.every(recipe => recipe.ingredients.some(ingredient => ingredient.ingredientId === 'cucumber'))).toBe(true)

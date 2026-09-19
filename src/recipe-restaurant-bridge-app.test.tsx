@@ -128,8 +128,8 @@ describe('Recipe Detail -> Restaurant bridge (App)', () => {
     expect(container.querySelector('.recipe-bridge-view')).toBeNull()
   })
 
-  it('production dataset counts are unchanged by this slice', () => {
-    expect([recipes.length, restaurants.length, restaurantMenuItems.length]).toEqual([204, 13, 84])
+  it('restaurant dataset counts are unchanged and the recipe catalog reflects Slice 31\'s 4 new recipes', () => {
+    expect([recipes.length, restaurants.length, restaurantMenuItems.length]).toEqual([208, 13, 84])
   })
 })
 

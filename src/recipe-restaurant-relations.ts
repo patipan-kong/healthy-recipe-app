@@ -25,6 +25,15 @@ export const recipeRestaurantRelations: RecipeRestaurantRelation[] = [
   // Slice 31 correction: Slice 30's audit flagged this as an exact-identity match
   // (same dish, same technique, same format) that Slice 28 missed.
   { recipeId: 'chicken-oyakodon', restaurantMenuItemId: 'ootoya-oyakodon', relationKind: 'similar-dish' },
+  // Slice 31 batch 1: Som Tam relates to every restaurant item that is the same
+  // classic dish concept — deliberately excluding salted egg, corn, fermented
+  // crab/pla ra, and mixed-noodle variants, which are materially different dishes.
+  { recipeId: 'thai-papaya-salad', restaurantMenuItemId: 'nittaya-som-tam-thai', relationKind: 'similar-dish' },
+  { recipeId: 'thai-papaya-salad', restaurantMenuItemId: 'somtam-nua-papaya-salad-thai', relationKind: 'similar-dish' },
+  { recipeId: 'thai-papaya-salad', restaurantMenuItemId: 'steak-and-more-som-tam', relationKind: 'similar-dish' },
+  { recipeId: 'japanese-beef-gyudon', restaurantMenuItemId: 'sukiya-gyudon-regular', relationKind: 'similar-dish' },
+  { recipeId: 'japanese-vegetable-curry-rice', restaurantMenuItemId: 'sukiya-curry-rice-regular', relationKind: 'similar-dish' },
+  { recipeId: 'garlic-pepper-pork-fried-egg-rice', restaurantMenuItemId: 'seven-eleven-garlic-pork-egg-rice', relationKind: 'similar-dish' },
 ]
 
 export type RelatedMenuEntry = { item: RestaurantMenuItem; restaurant: Restaurant }

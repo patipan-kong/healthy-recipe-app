@@ -129,6 +129,6 @@ describe('Meal Decision Hub', () => {
     expect(container.querySelector('.meal-hub')).not.toBeNull()
     expect(container.querySelector('.recipe-pick-card')).toBeNull()
     expect(storageSnapshot()).toEqual(before)
-    expect([recipes.length, restaurants.length, restaurantMenuItems.length]).toEqual([204, 13, 84])
+    expect([recipes.length, restaurants.length, restaurantMenuItems.length]).toEqual([208, 13, 84])
   })
 })

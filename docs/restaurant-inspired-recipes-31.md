@@ -1,9 +1,11 @@
 # Slice 31 — Restaurant-Inspired Recipe Expansion, Batch 1
 
-**Status:** Content-authored, integration-blocked. One small corrective relation (Section M)
-was integrated because it required no new asset. The four new recipe concepts below are
-fully authored and gate-checked but **not** merged into production, because this session's
-tool environment has no image-generation capability — see Section J.
+**Status:** Shipped. All four recipes are fully integrated into production. Section J
+originally recorded a hard image-generation blocker (this session's tool environment has
+no image-generation capability). That blocker was resolved when the user supplied a single
+2×2 grid photo of the four finished dishes; it was split into four 1024×1024 WebP files
+and wired in exactly as designed in Sections D–I below. See the **Update** note at the top
+of Section J for the resolution, and Section U for final counts.
 
 **Date:** 2026-09-19
 **Branch:** `main`
@@ -387,44 +389,45 @@ No restaurant-reported nutrition figure was reused anywhere — every value abov
 estimated independently from the authored ingredient list, per this slice's explicit
 requirement.
 
-## J. Images Created — BLOCKER
+## J. Images Created
 
-**No images were created, and none of the four recipes were integrated into production.**
-This is the central finding of this batch, and it repeats Slice 30's own R3 precedent
-(`docs/recipe-expansion-r3-batch1.md`) exactly.
+**Update — blocker resolved, images created.** This section originally recorded a hard
+stop: this session's tool environment (checked via `ToolSearch` against the full
+deferred-tool list — image/photo generation, design-sync, remote-trigger, docs, cron,
+worktree, and messaging tools) has **no image-generation capability of any kind**, and per
+this slice's explicit instruction the four recipes were authored but deliberately not
+integrated, exactly mirroring Slice 30's own R3 precedent (`docs/recipe-expansion-r3-batch1.md`).
 
-This session's tool environment was checked via `ToolSearch` against the full
-deferred-tool list (image/photo generation, design-sync, remote-trigger, docs, cron,
-worktree, and messaging tools) — **no image-generation capability of any kind is
-available.** Existing recipe images (e.g. `public/recipes/thai-papaya-tofu-salad.webp`,
-confirmed 1024×1024 WebP photorealistic food photography) are not reproducible with local
-scripting, image libraries, or placeholder graphics in this environment.
+The user then supplied a single 2×2 grid photo containing all four finished dishes
+(Som Tam top-left, Gyudon top-right, curry rice bottom-left, garlic pepper pork
+bottom-right), pre-split and exported as four separate files, which they placed at
+`dist/recipes/*.webp`. Each was verified directly before use:
 
-Per this slice's explicit instruction ("If image generation is unavailable: DO NOT
-integrate incomplete recipes into production. Instead prepare the authored recipe data in
-the implementation ledger and report the tooling blocker, as done successfully in the
-earlier R3 workflow"), the correct action is exactly what was done: author the four
-recipes completely (Sections D–I), then stop before touching `src/recipes.ts`,
-`src/recipe-content.ts`, `src/recipe-image-manifest.ts`, `src/pantry.ts`, or
-`public/recipes/` — because partial integration would break the
-`recipe count == image-manifest count == WebP asset count` invariant that
-`recipe-assets.test.ts` enforces, without a genuine new image to back each new entry.
+| File | Format | Dimensions | Size |
+|---|---|---|---|
+| `thai-papaya-salad.webp` | WebP (VP8) | 1024×1024 | 162,236 bytes |
+| `japanese-beef-gyudon.webp` | WebP (VP8) | 1024×1024 | 156,618 bytes |
+| `japanese-vegetable-curry-rice.webp` | WebP (VP8) | 1024×1024 | 199,268 bytes |
+| `garlic-pepper-pork-fried-egg-rice.webp` | WebP (VP8) | 1024×1024 | 224,222 bytes |
 
-No placeholder, reused, stock, or restaurant-menu image was considered as a substitute —
-each of those is explicitly forbidden by this slice's brief regardless of the blocker.
+All four match the existing catalog's exact format/dimension convention and fall inside
+`recipe-assets.test.ts`'s enforced size bounds (10,000–500,000 bytes). They were copied
+from `dist/` (gitignored build output — not the correct source location) to
+`public/recipes/` (the tracked source directory), matching where every other production
+recipe image lives. No placeholder, reused, stock, or restaurant-menu image was used at
+any point — these are the genuine, user-supplied photographs for these four dishes.
+
+With real images in hand, the four recipes were integrated exactly as designed in
+Sections D–I: no recipe content, ingredient, instruction, or nutrition value was changed
+from its authored form to accommodate the images.
 
 ## K. Relations Added
 
-**One relation was added to production** — the Section M/K oyakodon correction (see
-Section M below), because it required no new asset and was explicitly authorized by this
-slice's Section K regardless of the recipe-batch blocker.
+**All seven designed relations are now in production**: the Section M oyakodon correction,
+plus the six new-recipe relations below, added in the same change as the four recipes once
+their images arrived (Section J).
 
-**No new-recipe relations were added to production**, because the four recipes they would
-point to are not yet in production (Section J). The relations that *would* ship once
-images are available are fully designed and HIGH-confidence-checked here, ready to add in
-the same change as the recipes:
-
-| Recipe (not yet in production) | Restaurant menu item | Why equivalent | Confidence |
+| Recipe | Restaurant menu item | Why equivalent | Confidence |
 |---|---|---|---|
 | `thai-papaya-salad` | `nittaya-som-tam-thai` ("Thai-Style Papaya Salad") | Same classic dish: papaya, long beans, tomato, peanuts, lime, fish sauce | HIGH |
 | `thai-papaya-salad` | `somtam-nua-papaya-salad-thai` ("Thai-Style Papaya Salad (Dried Shrimp & Peanut)") | Same classic dish; this is the closest single-item match in the whole catalog | HIGH |
@@ -442,13 +445,13 @@ recipe doesn't include).
 
 ## L. Som Tam Relation Decisions
 
-The proposed `thai-papaya-salad` recipe is written and visually specced (were it to be
-imaged) as a **generic classic Thai green papaya salad** — shredded papaya, long beans,
-tomato, garlic, chilli, lime, fish sauce, peanuts, no tofu, no salted egg, no crab/pla ra,
-no noodles. This matches exactly the 3 restaurant items proposed for relation in Section
-K, and deliberately excludes every variant restaurant item whose composition differs
-(salted egg, corn, fermented crab, mixed-noodle "tam muah"). Base recipe and relation
-mapping agree, per this slice's explicit requirement.
+The shipped `thai-papaya-salad` recipe reads — both in its authored content and in the
+supplied photo (papaya, long beans, tomatoes, peanuts; no tofu, no salted egg, no crab, no
+noodles) — as a **generic classic Thai green papaya salad**. This matches exactly the 3
+restaurant items related in Section K, and deliberately excludes every variant restaurant
+item whose composition differs (salted egg, corn, fermented crab, mixed-noodle "tam
+muah") — verified directly in `recipe-slice6-expansion.test.ts`'s selectivity test. Base
+recipe, supplied image, and relation mapping all agree.
 
 ## M. Oyakodon Correction — Implemented
 
@@ -466,122 +469,148 @@ asset required):
 { recipeId: 'chicken-oyakodon', restaurantMenuItemId: 'ootoya-oyakodon', relationKind: 'similar-dish' }
 ```
 
-`src/recipe-restaurant-relations.ts` now has 6 relations (was 5). No other relation
-correction was hunted for or added, per this slice's explicit instruction to treat this as
-a single named exception, not a general license to re-audit relations.
+`src/recipe-restaurant-relations.ts` ended at 12 relations (was 5 at entry: +1 oyakodon
+correction, +6 new-recipe relations). No relation correction beyond the named oyakodon
+exception was hunted for or added, per this slice's explicit instruction.
 
 `src/recipe-restaurant-relations.test.ts` was updated: the test that pinned the exact
-5-relation set to Slice 28's shipped pairs now expects 6 and includes the new pair.
+5-relation set to Slice 28's shipped pairs now expects 12 and includes every new pair.
 
 ## N. Files Changed
 
-Modified (integrated, production):
-- `src/recipe-restaurant-relations.ts` — added the oyakodon corrective relation (Section M).
-- `src/recipe-restaurant-relations.test.ts` — updated the pinned relation-set assertion to match.
+Modified (production):
+- `src/recipe-restaurant-relations.ts` — oyakodon correction + 6 new-recipe relations.
+- `src/recipes.ts` — wired in `recipeSlice6Seeds`.
+- `src/recipe-content.ts` — wired in `thaiRecipeContentSlice6`.
+- `src/recipe-image-manifest.ts` — wired in `recipeImagePresentationSlice6`.
+- `src/recipe-restaurant-relations.test.ts`, `src/recipe-restaurant-bridge-app.test.tsx`,
+  `src/recipes.test.ts`, `src/recipe-assets.test.ts`, `src/recipe-quality.test.ts`,
+  `src/recipe-slice5-expansion.test.ts` (rescoped its `.slice(200)` lookups to
+  `.slice(200, 204)` so appending slice6 after it doesn't break its own boundary),
+  `src/recipe-additions.test.ts`, `src/recipe-final-expansion.test.ts`,
+  `src/measurements.test.ts`, `src/hub-app.test.tsx`, `src/pantry.test.ts`,
+  `src/pantry-app.test.tsx` — all updated to the new 204→208 recipe count and its
+  downstream numbers (see Section O).
 
-New (documentation only):
+New (production):
+- `src/recipe-slice6-expansion.ts` — the 4 new recipe seeds + image presentation briefs.
+- `src/recipe-slice6-content.ts` — the 4 new recipes' Thai content.
+- `src/recipe-slice6-expansion.test.ts` — dedicated test coverage for the batch.
+- `public/recipes/thai-papaya-salad.webp`, `japanese-beef-gyudon.webp`,
+  `japanese-vegetable-curry-rice.webp`, `garlic-pepper-pork-fried-egg-rice.webp` —
+  the 4 production images (Section J).
+
+New (documentation):
 - `docs/restaurant-inspired-recipes-31.md` (this document).
 
-**Not** modified: `src/recipes.ts`, `src/recipe-content.ts`, `src/recipe-image-manifest.ts`,
-`src/pantry.ts`, any `recipe-*-expansion.ts`/`recipe-*-content.ts` file, `public/recipes/`,
-`src/restaurants.ts`, and every other test file. The four new recipes are documentation
-only (Sections D–I above) until a genuine image can be produced.
+**Not** modified: `src/pantry.ts` (zero new canonical ingredients needed — Section G),
+`src/restaurants.ts` or any restaurant data, and every test file not listed above.
 
 ## O. Tests Added / Updated
 
-Only `src/recipe-restaurant-relations.test.ts` was updated, to match the one production
-change (Section M). No test was added for the four unintegrated recipes, matching the R3
-precedent's own reasoning: manufacturing a test for data that isn't in production would
-be a test for nothing, and the brief's Section R list (final recipe count, manifest count,
-WebP count, search, relations, etc.) only makes sense once the recipes are actually
-integrated.
+- `src/recipe-slice6-expansion.test.ts` (new, 13 tests): recipe count/ID/manifest
+  integrity, `validateRecipes` + Atwater consistency, Pantry-mapping/zero-new-ingredient
+  verification, the cucumber-count shift, English/Thai search, unchanged prior recipes,
+  WebP asset presence/format/size, random/pick eligibility, Favorites round-trip, Shopping
+  List line generation, all 6 new relations resolving both directions, Som Tam variant
+  exclusion, and the gyudon bonito/okra-variant exclusion.
+- `src/recipe-restaurant-relations.test.ts` — pinned relation set updated to all 12 pairs.
+- Every file listed in Section N's "Modified" list under count assertions — updated from
+  204/1730/1503 to 208/1766/1532 (recipe, ingredient-entry, and mapped-ingredient counts
+  respectively), plus the one hardcoded `cucumberCount` assertion (45 → 46, since the
+  garlic pepper pork recipe adds one more cucumber-containing recipe).
 
 ## P. Search / Filter / Random QA
 
-Not applicable to the four new recipes — they are not in production, so there is nothing
-new for Browse, search, filters, Surprise Me, or Pick Focus to surface yet.
-
-The one production change (the oyakodon relation) does not affect search, filter, or
-random-selection logic at all — it only affects the Cook↔Buy relation lookups exercised in
-Section Q below.
+Verified via `recipe-slice6-expansion.test.ts`: all four recipes are findable by English
+and Thai search terms (dish name and a representative ingredient/Thai term each), and are
+eligible for `chooseRandom` selection like any other recipe — no special-casing was added
+anywhere in Browse, search, filter, Surprise Me, or Pick Focus logic.
 
 ## Q. Favorites / Shopping QA
 
-Not applicable — no new recipe content exists in production to favorite or shop for.
+Verified via `recipe-slice6-expansion.test.ts`: each new recipe round-trips through
+`toggleFavorite`/`saveFavorites`/`loadFavorites` normally, and each produces valid,
+scalable Shopping List lines via `aggregateShoppingIngredients`.
 
 ## R. Recipe ↔ Restaurant Bridge QA
 
-The oyakodon correction was verified through the existing relation-resolution functions
-rather than a fresh browser session (no other production content changed to justify a full
-QA pass):
-- `relatedRecipesForMenuItem('ootoya-oyakodon')` now includes `chicken-oyakodon`.
-- `relatedMenuItemsForRecipe('chicken-oyakodon')` now includes `ootoya-oyakodon`.
-- Both directions are covered by `recipe-restaurant-relations.test.ts`'s
-  "every curated relation resolves to a real, correctly-linked restaurant" test, which
-  iterates the full relation list including the new pair.
-
-The four new recipes' bridge behavior (Recipe Detail → "Rather buy it?", Restaurant Pick
-Focus → "Want to make it?") is fully designed (Section K) but not yet exercised in the
-running app, since the recipes are not integrated.
+Verified for all 7 relations (the oyakodon correction + 6 new-recipe relations) through
+the relation-resolution functions and their tests, both directions:
+- `relatedRecipesForMenuItem(menuItemId)` resolves to the correct recipe for every new pair.
+- `relatedMenuItemsForRecipe(recipeId)` resolves to the correct menu item(s) for every new recipe.
+- The Som Tam selectivity test confirms every excluded variant menu item
+  (`nittaya-som-tam-salted-egg`, `zaab-eli-som-tam-salted-egg`,
+  `zaab-eli-corn-salted-egg-som-tam`, `somtam-nua-papaya-salad-fermented-crab`,
+  `somtam-nua-tam-muah`) resolves to zero related recipes.
+- The gyudon selectivity test confirms `sukiya-gyudon-okra-regular` (the bonito/okra
+  variant) resolves to zero related recipes — only the plain `sukiya-gyudon-regular` is related.
+- `recipe-restaurant-relations.test.ts`'s "every curated relation resolves to a real,
+  correctly-linked restaurant" test iterates the full 12-relation list.
 
 ## S. Browser QA
 
-Not performed for the four new recipes — no production recipe content changed for them, so
-there is nothing new to view in the running app. The oyakodon relation change is a
-data-only addition to an existing, already-tested UI pathway (the same "similar-dish"
-relation card used for the other 5 relations); it does not introduce new UI states, so a
-dedicated multi-viewport browser pass was not run for this single data correction.
+Not performed in this session — this environment has no browser automation tool available
+to this agent, and the change is a data-layer integration (recipes + relations) using
+UI components (relation cards, search, Pick Focus, Favorites, Shopping List) that are
+already exercised by the existing component test suite (`restaurant-app.test.tsx`,
+`recipe-restaurant-bridge-app.test.tsx`, `pantry-app.test.tsx`, `shopping-app.test.tsx`,
+etc.) against the now-208-recipe/12-relation catalog. All of those component tests pass
+against the new data (Section W). A manual multi-viewport pass is recommended before
+this ships to real users, per the brief's own Section Q, but was not run here.
 
 ## T. Overflow Measurements
 
-Not applicable — no UI or layout changed in this slice.
+Not performed — no layout or CSS changed in this slice; only data (recipes, images,
+relations) was added through existing, unmodified UI components.
 
 ## U. Final Catalog Counts
 
-Unchanged from Slice 30's baseline, except the one relation:
-
 | Catalog | Count | Change |
 |---|---|---|
-| Recipes | 204 | unchanged |
-| Recipe image manifest entries | 204 | unchanged |
-| Recipe WebP assets | 204 | unchanged |
+| Recipes | 208 | **+4 (Som Tam, Gyudon, Curry Rice, Garlic Pepper Pork)** |
+| Recipe image manifest entries | 208 | **+4** |
+| Recipe WebP assets | 208 | **+4** |
 | Restaurants | 13 | unchanged |
 | Restaurant menu items | 84 | unchanged |
 | Restaurant menu images | 19 | unchanged |
 | Verified restaurant prices | 24 | unchanged |
-| Recipe ↔ Restaurant relations | 6 | **+1 (oyakodon correction)** |
+| Recipe ↔ Restaurant relations | 12 | **+7 (1 oyakodon correction + 6 new-recipe relations)** |
 
-Target of 208 recipes (204 + 4) was **not reached** in this session, pending
-image-generation capability — same blocker pattern as R3.
+Target of 208 recipes (204 + 4) was reached — the image blocker (Section J) was resolved
+mid-session by the user supplying the four finished photographs.
 
 ## V. Production Integrity
 
 - Restaurant count, menu-item count, menu nutrition, prices, meal context, menu images,
   and restaurant identity: all unchanged — no restaurant factual data was touched.
-- No unrelated existing recipe was modified.
-- `validateRecipes(recipes)` unaffected (recipes array untouched).
-- `validateRecipeRestaurantRelations(...)` passes against the updated 6-relation set.
+- No unrelated existing recipe was modified — verified explicitly in
+  `recipe-slice6-expansion.test.ts`'s "keeps every previously existing recipe present and
+  unchanged in count" test.
+- `validateRecipes(recipes)` passes against the full 208-recipe catalog.
+- `validateRecipeRestaurantRelations(...)` passes against the full 12-relation set.
 - Pantry (`src/pantry.ts`) untouched — zero new canonical ingredients were needed
-  (Section G), so none were added.
+  (Section G), verified ingredient-by-ingredient in the new test file.
 
 ## W. Verification
 
-- `npx vitest run --exclude '**/.kilo/**' --exclude '**/node_modules/**'` → **31 test
-  files, 468 tests, all passing** (identical file/test count to the Slice 30 baseline —
-  the relation test file's assertions changed values, not test count).
+- `npx vitest run --exclude '**/.kilo/**' --exclude '**/node_modules/**'` → **32 test
+  files, 481 tests, all passing** (31→32 files: the one new `recipe-slice6-expansion.test.ts`;
+  468→481 tests: 13 new tests in that file).
 - `npx tsc --noEmit` → clean, no errors.
 - `npx vite build` → succeeded (pre-existing chunk-size warning only, unrelated to this change).
 - `git diff --check` → clean (only benign CRLF-normalization warnings, no whitespace errors).
-- `git status --short` → only `src/recipe-restaurant-relations.ts`,
-  `src/recipe-restaurant-relations.test.ts` (modified), and this new ledger file
-  (untracked) — nothing else in the repository changed.
+- `git status --short` → 16 modified files (Section N), 7 new production files (4 images +
+  3 source files), 1 new test file, and this ledger — nothing else in the repository
+  changed; `src/restaurants.ts` and `data/foods.json` are untouched.
 
 ## X. Final Report
 
 ### A. Entry State
 Branch `main`, HEAD `35a47cf` (Slice 30's doc commit, unchanged throughout). Baseline
 204/204/204/204 recipes, 13/84/19/24 restaurant data, 5 relations, 468/468 tests — all
-confirmed before any work began.
+confirmed before any work began. (No commit was made during this session, so HEAD is
+still `35a47cf`; all changes described below are uncommitted working-tree changes.)
 
 ### B. Slice 30 Handoff
 Read in full, treated as authoritative starting scope, not rebuilt. Its proposed 5-recipe
@@ -594,9 +623,9 @@ distinct from the existing `thai-papaya-tofu-salad`). 1 dropped (Korean Bulgogi 
 flavor system already exists in `korean-beef-glass-noodles`). See Section C.
 
 ### D. Recipes Implemented
-4 fully authored (bilingual content, ingredients, instructions, nutrition): Thai Papaya
-Salad, Japanese Beef Gyudon, Japanese Vegetable Curry Rice, Garlic Pepper Pork with Fried
-Egg. **None integrated into `src/recipes.ts`** — see Section J.
+4 fully authored (bilingual content, ingredients, instructions, nutrition) and **fully
+integrated into production**: Thai Papaya Salad, Japanese Beef Gyudon, Japanese Vegetable
+Curry Rice, Garlic Pepper Pork with Fried Egg. Catalog is now 208 recipes.
 
 ### E. Recipes Dropped
 Korean Bulgogi only. See Section C.3/E.
@@ -622,17 +651,19 @@ internal consistency. All four land within 0.4%–1.0% deviation, well inside th
 12%/180 kcal precedent tolerance. No restaurant nutrition was reused.
 
 ### J. Images Created
-**None — this is the batch's blocking finding**, identical in kind to the Slice 30-era R3
-precedent. This session's environment has no image-generation capability (confirmed via
-`ToolSearch`). Per this slice's own explicit contingency, integration was stopped rather
-than faked with a placeholder, reused, or restaurant-sourced image.
+Initially blocked — this session's environment has no image-generation capability
+(confirmed via `ToolSearch`), so integration was stopped per this slice's explicit
+contingency rather than faked with a placeholder, reused, or restaurant-sourced image
+(same pattern as the Slice 30-era R3 precedent). **The user then supplied all four
+finished photographs** (a 2×2 grid, pre-split into four files), which were verified
+(1024×1024 WebP, correct byte-size range) and used as-is. All 4 images are now in
+production at `public/recipes/`.
 
 ### K. Relations Added
-One production relation added: the Slice 30-flagged `chicken-oyakodon` ↔
-`ootoya-oyakodon` correction (Section M) — independent of the image blocker, since it
-needed no new asset. Six relations for the four not-yet-integrated recipes are fully
-designed and HIGH-confidence-checked, ready to ship alongside the recipes once images
-exist.
+All 7 designed relations are now in production: the Slice 30-flagged `chicken-oyakodon` ↔
+`ootoya-oyakodon` correction (Section M), plus the 6 new-recipe relations (3 for Som Tam,
+1 each for Gyudon, Curry Rice, and Garlic Pepper Pork). `recipeRestaurantRelations` now
+has 12 entries (was 5 at entry).
 
 ### L. Som Tam Relation Decisions
 The authored recipe and its 3 proposed relations all represent the same generic classic
@@ -645,76 +676,81 @@ as a standalone, narrowly-scoped corrective relation. No other relation was hunt
 touched.
 
 ### N. Files Changed
-`src/recipe-restaurant-relations.ts`, `src/recipe-restaurant-relations.test.ts` (both
-modified, production), `docs/restaurant-inspired-recipes-31.md` (new, documentation only).
+16 modified files (relations, the 4 recipe-wiring files, and count assertions across 11
+test files), 7 new production files (4 WebP images, `recipe-slice6-expansion.ts`,
+`recipe-slice6-content.ts`, `recipe-slice6-expansion.test.ts`), and this ledger. Full list
+in Section N above. `src/restaurants.ts`, `src/pantry.ts`, and `data/foods.json` untouched.
 
 ### O. Tests Added/Updated
-One test file updated to match the one production relation change. No tests added for the
-four unintegrated recipes (nothing in production to test yet).
+One new dedicated test file (13 tests, Section O above) plus count-assertion updates
+across the relation test and every test file with a hardcoded 204/1730/1503/45 figure.
 
 ### P. Search/Filter/Random QA
-Not applicable to the four new recipes (not in production). Unaffected for existing
-content.
+Verified programmatically: all 4 new recipes are findable by English and Thai search
+terms and are eligible for random/pick selection, with no special-casing added.
 
 ### Q. Favorites/Shopping QA
-Not applicable — no new recipe content in production.
+Verified programmatically: all 4 new recipes round-trip through Favorites and produce
+valid, scalable Shopping List lines.
 
 ### R. Recipe ↔ Restaurant Bridge QA
-Oyakodon correction verified via the relation-resolution functions and their tests, both
-directions. The four new recipes' bridge relations are fully designed but not yet
-exercised in the running app.
+All 7 relations (oyakodon correction + 6 new-recipe relations) verified both directions
+via the relation-resolution functions and their tests, including explicit selectivity
+checks that excluded Som Tam and Gyudon variants correctly resolve to zero relations.
 
 ### S. Browser QA
-Not performed — no new production recipe content or UI change to view. The oyakodon
-change reuses an already-tested, unchanged UI pathway.
+Not performed — no browser automation tool is available to this agent in this session.
+The underlying UI components are exercised by the existing, passing component test suite
+against the new 208-recipe/12-relation data. A manual multi-viewport pass is recommended
+before this ships to real users.
 
 ### T. Overflow Measurements
-Not applicable — no UI or layout changed.
+Not performed — no layout or CSS changed; only data was added through existing components.
 
 ### U. Final Catalog Counts
-204 recipes / 204 manifest / 204 WebP / 13 restaurants / 84 menu items / 19 menu images /
-24 prices / **6 relations (+1)**. Target of 208 recipes not reached this session.
+208 recipes / 208 manifest / 208 WebP / 13 restaurants / 84 menu items / 19 menu images /
+24 prices / **12 relations (+7)**. Target of 208 recipes reached.
 
 ### V. Production Integrity
-Restaurant data, recipes, Pantry, images, and UI all unchanged except the one
-oyakodon relation. No unrelated recipe or restaurant record was modified.
+Restaurant data, Pantry, and all pre-existing recipes/relations unchanged. Only additive
+changes: 4 new recipes, their images, and 7 new/corrected relations. No unrelated recipe
+or restaurant record was modified — verified explicitly in the new test file.
 
 ### W. Remaining Risks
-1. **Image generation is the sole remaining blocker for the four new recipes.** All four
-   are fully authored, differentiation-checked, pantry-normalized, and nutrition-verified
-   — ready to integrate the moment a genuine image can be produced.
-2. The relation-confidence labels in Section K are editorial judgment, same as the
-   existing 6 relations — they should get the same human review pass before shipping that
-   the original 5 (and this slice's oyakodon addition) got.
-3. Korean Bulgogi remains a real, deferred opportunity (Section C.3) — a future slice
+1. The relation-confidence labels in Section K are editorial judgment, same as the
+   existing 5 — they should get the same human review pass before shipping that the
+   original 5 got.
+2. Korean Bulgogi remains a real, deferred opportunity (Section C.3) — a future slice
    could revisit it either as a genuinely distinct lettuce-wrap format, or as a decision to
    relate the existing `korean-beef-glass-noodles` to `seven-eleven-pork-bulgogi-rice`
    instead of authoring a new recipe. Neither was done here — both are out of this slice's
    scope.
-4. Slice 30's audit methodology missed two real near-duplicates (Som Tam vs. the existing
+3. Slice 30's audit methodology missed two real near-duplicates (Som Tam vs. the existing
    tofu version, Bulgogi vs. the existing glass-noodle dish) despite reading the full
    catalog — a useful signal that even a careful single-pass audit benefits from a second,
    focused re-check at implementation time, which is exactly what this slice's own Section
    B instruction ("reconfirm... do not force it in") was designed to catch.
+4. No manual browser QA was performed (Section S) — recommended before real users see
+   this, even though the automated component suite passes against the new data.
+5. The supplied images were not independently verified to depict exactly the authored
+   ingredient list (e.g. confirming no dried shrimp/tofu is visible in the Som Tam photo)
+   beyond a visual read consistent with the recipe's description — a final human eyeball
+   pass on the four images against Section M's Som Tam content-agreement requirement is
+   worthwhile before shipping to users.
 
 ### X. Product Evaluation
-The two integration-ready items this session actually shipped (the oyakodon relation
-correction, and the corrected, more-truthful scoping of Som Tam and the curry recipe) are
-small but real product-quality improvements. The four authored-but-unshipped recipes are
-differentiated, correctly normalized, and nutritionally self-consistent — they are
-content-ready, not production-ready, solely because of the image constraint.
+All four recipes are differentiated, correctly normalized, nutritionally self-consistent,
+and now fully live in the catalog with real images and truthful, selective restaurant
+relations. This slice also caught and corrected two real gaps in Slice 30's own audit
+(Section C) and shipped a small, independent relation-truthfulness fix (Section M).
 
-### Y. Recommendation — **ITERATE**
-Not STOP: real progress shipped (the oyakodon fix) and four recipes are fully
-authored and ready. Not SHIP: the core deliverable (four new recipes visible and
-cookable in the app) cannot go to production without images, which this environment
-cannot produce. **ITERATE** — hand this ledger to a follow-up session with
-image-generation capability (or independently supplied photography) to integrate the four
-recipes essentially as-is, using Sections D and K directly.
+### Y. Recommendation — **SHIP**
+All four recipes are integrated, tested, and verified end-to-end (481/481 tests, clean
+`tsc`, clean build, clean diff). The only remaining step before real users see this is the
+manual browser QA pass noted in Section W — worth doing, but not a blocker to committing
+this work.
 
 ### Z. Commit Readiness
-Not committed, not pushed, per instructions. Two production files
-(`src/recipe-restaurant-relations.ts`, `src/recipe-restaurant-relations.test.ts`) and one
-new documentation file are ready to commit as a single, small, fully-tested change
-(the oyakodon correction) whenever the user chooses to commit. The four authored recipes
-are documentation-only pending the image blocker and are not part of any production diff.
+Not committed, not pushed, per instructions. The full change (4 recipes, 4 images, 7
+relations, updated tests, and this ledger) is internally consistent and ready to commit as
+a single slice whenever the user chooses to commit.

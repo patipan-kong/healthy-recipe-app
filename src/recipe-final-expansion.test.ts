@@ -14,7 +14,7 @@ describe('final 50-recipe catalog expansion', () => {
   it('appends exactly 50 recipes after the frozen first 150', () => {
     expect(recipeFinalSeeds).toHaveLength(50)
     expect(new Set(finalIds).size).toBe(50)
-    expect(recipes).toHaveLength(204)
+    expect(recipes).toHaveLength(208)
     expect(finalRecipes.map(recipe => recipe.id)).toEqual(finalIds)
     expect(Object.keys(thaiRecipeContentFinal).sort()).toEqual([...finalIds].sort())
     expect(Object.keys(recipeImagePresentationFinal).sort()).toEqual([...finalIds].sort())

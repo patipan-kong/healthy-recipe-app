@@ -6,8 +6,8 @@ describe('pantry ingredient model', () => {
   it('audits every recipe ingredient against the canonical vocabulary', () => {
     const entries = recipes.flatMap(recipe => recipe.ingredients)
     const unmapped = [...new Set(entries.filter(ingredient => !ingredient.ingredientId).map(ingredient => ingredient.item.en))]
-    expect(entries).toHaveLength(1730)
-    expect(entries.filter(ingredient => ingredient.ingredientId)).toHaveLength(1503)
+    expect(entries).toHaveLength(1766)
+    expect(entries.filter(ingredient => ingredient.ingredientId)).toHaveLength(1532)
     expect(unmapped.every(item => isExcludedPantryIngredient(item) || isShoppingOnlyIngredient(item))).toBe(true)
     expect(canonicalIngredients.length).toBeGreaterThan(20)
     expect(new Set(canonicalIngredients.map(ingredient => ingredient.id)).size).toBe(canonicalIngredients.length)

@@ -39,15 +39,21 @@ describe('recipe-restaurant relation validation', () => {
     expect(recipeRestaurantRelations.length).toBeLessThanOrEqual(12)
   })
 
-  it('leaves the Slice 28 relation pairs intact and adds the Slice 31 oyakodon correction', () => {
-    expect(recipeRestaurantRelations).toHaveLength(6)
+  it('leaves the Slice 28 relation pairs intact and adds the Slice 31 oyakodon correction and new-recipe relations', () => {
+    expect(recipeRestaurantRelations).toHaveLength(12)
     expect(recipeRestaurantRelations.map(relation => `${relation.recipeId}::${relation.restaurantMenuItemId}`).sort()).toEqual([
       'chicken-oyakodon::ootoya-oyakodon',
       'chicken-teriyaki-rice-bowl::fuji-chicken-teriyaki',
+      'garlic-pepper-pork-fried-egg-rice::seven-eleven-garlic-pork-egg-rice',
       'glass-noodle-seafood-salad::steak-and-more-yum-woon-sen',
       'grilled-chicken-caesar-salad::jones-caesar-chicken-salad',
       'grilled-mackerel-bowl::ootoya-grilled-mackerel',
+      'japanese-beef-gyudon::sukiya-gyudon-regular',
       'japanese-shioyaki-salmon-sweet-potato::fuji-salmon-shioyaki',
+      'japanese-vegetable-curry-rice::sukiya-curry-rice-regular',
+      'thai-papaya-salad::nittaya-som-tam-thai',
+      'thai-papaya-salad::somtam-nua-papaya-salad-thai',
+      'thai-papaya-salad::steak-and-more-som-tam',
     ])
   })
 })

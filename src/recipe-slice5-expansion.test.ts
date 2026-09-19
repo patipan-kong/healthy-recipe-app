@@ -11,19 +11,19 @@ import { recipes, searchRecipes, validateRecipes } from './recipes'
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const slice5Ids = recipeSlice5Seeds.map(recipe => recipe.id)
-const slice5Recipes = recipes.slice(200)
+const slice5Recipes = recipes.slice(200, 204)
 
 describe('slice5 (R3 batch 1) recipe expansion: tofu waffle, sweet potato kimchi, konjac noodles, wakame soup', () => {
   it('appends exactly the 4 new recipes after the frozen first 200', () => {
     expect(recipeSlice5Seeds).toHaveLength(4)
     expect(slice5Ids).toEqual(['tofu-waffle', 'sweet-potato-kimchi', 'konjac-kimchi-egg-noodles', 'wakame-egg-soup'])
-    expect(recipes).toHaveLength(204)
-    expect(new Set(recipes.map(recipe => recipe.id)).size).toBe(204)
+    expect(recipes).toHaveLength(208)
+    expect(new Set(recipes.map(recipe => recipe.id)).size).toBe(208)
     expect(slice5Recipes.map(recipe => recipe.id)).toEqual(slice5Ids)
     expect(Object.keys(thaiRecipeContentSlice5).sort()).toEqual([...slice5Ids].sort())
     expect(Object.keys(recipeImagePresentationSlice5).sort()).toEqual([...slice5Ids].sort())
-    expect(recipeImageManifest).toHaveLength(204)
-    expect(recipeImageManifest.slice(200).map(entry => entry.id)).toEqual(slice5Ids)
+    expect(recipeImageManifest).toHaveLength(208)
+    expect(recipeImageManifest.slice(200, 204).map(entry => entry.id)).toEqual(slice5Ids)
   })
 
   it('validates cleanly and stays nutritionally consistent with the real Atwater check', () => {

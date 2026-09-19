@@ -116,7 +116,7 @@ describe('high-priority recipe quality corrections', () => {
     expect(highPriorityIds).toHaveLength(24)
     expect(new Set(highPriorityIds).size).toBe(24)
     expect(highPriorityIds.every(id => recipes.some(recipe => recipe.id === id))).toBe(true)
-    expect(recipes).toHaveLength(204)
+    expect(recipes).toHaveLength(208)
     expect(validateRecipes(recipes)).toEqual([])
   })
 

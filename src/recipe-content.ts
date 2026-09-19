@@ -2,6 +2,7 @@ import { thaiRecipeContentExpansion } from './recipe-expansion'
 import { thaiRecipeContentAdditions } from './recipe-additions'
 import { thaiRecipeContentFinal } from './recipe-final-content'
 import { thaiRecipeContentSlice5 } from './recipe-slice5-content'
+import { thaiRecipeContentSlice6 } from './recipe-slice6-content'
 
 export type ThaiRecipeContent = {
   name: string
@@ -64,4 +65,5 @@ export const thaiRecipeContent: Record<string, ThaiRecipeContent> = {
   ...thaiRecipeContentAdditions,
   ...thaiRecipeContentFinal,
   ...thaiRecipeContentSlice5,
+  ...thaiRecipeContentSlice6,
 }
