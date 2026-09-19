@@ -39,9 +39,10 @@ describe('recipe-restaurant relation validation', () => {
     expect(recipeRestaurantRelations.length).toBeLessThanOrEqual(12)
   })
 
-  it('leaves the relation count and pairs exactly as Slice 28 shipped them — Slice 29 is image-only', () => {
-    expect(recipeRestaurantRelations).toHaveLength(5)
+  it('leaves the Slice 28 relation pairs intact and adds the Slice 31 oyakodon correction', () => {
+    expect(recipeRestaurantRelations).toHaveLength(6)
     expect(recipeRestaurantRelations.map(relation => `${relation.recipeId}::${relation.restaurantMenuItemId}`).sort()).toEqual([
+      'chicken-oyakodon::ootoya-oyakodon',
       'chicken-teriyaki-rice-bowl::fuji-chicken-teriyaki',
       'glass-noodle-seafood-salad::steak-and-more-yum-woon-sen',
       'grilled-chicken-caesar-salad::jones-caesar-chicken-salad',

@@ -22,6 +22,9 @@ export const recipeRestaurantRelations: RecipeRestaurantRelation[] = [
   { recipeId: 'chicken-teriyaki-rice-bowl', restaurantMenuItemId: 'fuji-chicken-teriyaki', relationKind: 'similar-dish' },
   { recipeId: 'grilled-chicken-caesar-salad', restaurantMenuItemId: 'jones-caesar-chicken-salad', relationKind: 'similar-dish' },
   { recipeId: 'glass-noodle-seafood-salad', restaurantMenuItemId: 'steak-and-more-yum-woon-sen', relationKind: 'similar-dish' },
+  // Slice 31 correction: Slice 30's audit flagged this as an exact-identity match
+  // (same dish, same technique, same format) that Slice 28 missed.
+  { recipeId: 'chicken-oyakodon', restaurantMenuItemId: 'ootoya-oyakodon', relationKind: 'similar-dish' },
 ]
 
 export type RelatedMenuEntry = { item: RestaurantMenuItem; restaurant: Restaurant }
