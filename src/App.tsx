@@ -506,7 +506,7 @@ export function RestaurantMenuView({ locale, restaurantId, onBack, onOpenMenuIte
   }
   return <section className="content restaurant-menu-view">
     <div className="restaurant-menu-nav">
-      <button className="text-button restaurant-back" onClick={onBack}>{copy.restaurantsBack}</button>
+      <button type="button" className="restaurant-back" onClick={onBack}><ArrowLeft size={17} aria-hidden="true" /><span>{copy.restaurantsBack}</span></button>
       <button className="filter-button" onClick={() => setFiltersOpen(open => !open)} aria-pressed={filtersOpen} aria-label={copy.openFilters}><SlidersHorizontal size={17} />{activeFilterCount > 0 && <span>{activeFilterCount}</span>}</button>
     </div>
     <div className="section-heading restaurant-heading restaurant-brand-header">{restaurant && <RestaurantIdentity restaurant={restaurant} locale={locale} size="lg" showLogo />}<div><p className="eyebrow">{restaurant?.cuisine?.[locale] ?? copy.restaurants}</p><h2>{restaurant?.name[locale] ?? copy.restaurants}</h2></div></div>
