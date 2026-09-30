@@ -96,18 +96,18 @@ describe('MenuItemImage in Pick Focus', () => {
     assertNutritionHierarchy('.explore-view .menu-pick-card')
   })
 
-  it('does not render menu images on normal restaurant-local list rows, even for items that have one', () => {
+  it('renders compact official images on ordinary restaurant-local list rows only for items that have one (Slice 35D)', () => {
     act(() => root.render(<RestaurantMenuView locale="en" restaurantId="ootoya-thailand" onBack={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={restaurantMenuItems} />))
     const rows = container.querySelectorAll('.menu-list .menu-item-row')
     expect(rows.length).toBeGreaterThan(0)
-    expect(container.querySelectorAll('.menu-list .menu-item-image')).toHaveLength(0)
+    expect(container.querySelectorAll('.menu-list .menu-item-image').length).toBe(restaurantMenuItems.filter(item => item.restaurantId === 'ootoya-thailand' && item.menuImage).length)
   })
 
-  it('does not render menu images on normal Explore result cards, even for items that have one', () => {
+  it('renders compact official images on ordinary Explore result cards only for items that have one (Slice 35D)', () => {
     act(() => root.render(<ExploreView locale="en" onOpenRestaurant={() => undefined} favoriteIds={[]} onFavorite={() => undefined} storageAvailable menuItems={restaurantMenuItems} />))
     const rows = container.querySelectorAll('.explore-view .menu-list .menu-item-row')
     expect(rows.length).toBeGreaterThan(0)
-    expect(container.querySelectorAll('.explore-view .menu-list .menu-item-image')).toHaveLength(0)
+    expect(container.querySelectorAll('.explore-view .menu-list .menu-item-image')).toHaveLength(restaurantMenuItems.filter(item => item.menuImage).length)
   })
 
   it('keeps meal-context rendering intact alongside the image', () => {

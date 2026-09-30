@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { Locale, MenuImage } from './types'
 
-export function MenuItemImage({ image, locale }: { image: MenuImage | undefined; locale: Locale }) {
+export function MenuItemImage({ image, locale, compact = false }: { image: MenuImage | undefined; locale: Locale; compact?: boolean }) {
   const [failed, setFailed] = useState(false)
   useEffect(() => setFailed(false), [image?.src])
   if (!image || failed) return null
 
-  return <figure className="menu-item-image">
+  return <figure className={`menu-item-image${compact ? ' menu-item-image-compact' : ''}`}>
     <div className="menu-item-image-frame">
       <img src={image.src} alt={image.alt[locale]} loading="lazy" decoding="async" onError={() => setFailed(true)} />
     </div>

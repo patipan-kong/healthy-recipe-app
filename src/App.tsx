@@ -506,22 +506,47 @@ export function RestaurantMenuView({ locale, restaurantId, onBack, favoriteIds, 
       {pickedItem && <button type="button" className="menu-list-toggle" aria-expanded={showAllAfterPick} aria-controls="restaurant-menu-list" onClick={() => setShowAllAfterPick(open => !open)}>{showAllAfterPick ? copy.hideMenus : copy.viewAllMenus}</button>}
     </section>}
     {pickedItem && <AdSlot placement="restaurant-pick" />}
-    {items.length ? (!pickedItem || showAllAfterPick) && <div id="restaurant-menu-list" className="menu-list">{items.map(item => <article className="menu-item-row" key={item.id}>
-      <MenuFavoriteButton locale={locale} name={item.name[locale]} favorite={favoriteIds.includes(item.id)} onToggle={() => onFavorite(item.id)} />
-      <div className="menu-item-copy">
-        <p className="card-category">{menuCategoryLabel(locale, item.category)}</p>
-        <h3>{item.name[locale]}</h3>
-        {item.servingNote && <p className="menu-item-note">{item.servingNote[locale]}</p>}
-        {item.customizationNotes?.length ? <ul className="menu-item-customizations">{item.customizationNotes.map((note, index) => <li key={index}>{note[locale]}</li>)}</ul> : null}
-      </div>
-      <div className="menu-item-nutrition">
-        <span><b>{item.nutrition.kcal}</b> {copy.kcalEstimate}</span>
-        <span><b>{item.nutrition.protein}g</b> {copy.protein}</span>
-        <span className={`confidence-badge confidence-${item.nutritionSource.confidence}`}>{nutritionConfidenceLabel(locale, item.nutritionSource.confidence)}</span>
-      </div>
-    </article>)}</div>
+    {items.length ? (!pickedItem || showAllAfterPick) && <div id="restaurant-menu-list" className="menu-list">{items.map(item => <MenuListCard key={item.id} locale={locale} item={item} favorite={favoriteIds.includes(item.id)} onFavorite={() => onFavorite(item.id)} />)}</div>
       : <div className="empty restaurant-empty" role="status"><span aria-hidden="true">🍽️</span><h3>{activeFilterCount > 0 ? copy.emptyFilteredTitle : copy.menuEmptyTitle}</h3><p>{activeFilterCount > 0 ? copy.emptyFilteredText : copy.menuEmptyText}</p>{activeFilterCount > 0 && <button className="random-button" onClick={() => setFilters(emptyRestaurantMenuFilters)}>{copy.clearFilters}</button>}</div>}
   </section>
+}
+
+// Ordinary list card shared by Explore and restaurant-local menus. Image and text
+// cards are both first-class: the compact thumbnail only exists when an official
+// image loads, and price only when the item has one. Pick/result cards are separate.
+function MenuListCard({ locale, item, restaurant, onOpenRestaurant, favorite, onFavorite }: { locale: Locale; item: RestaurantMenuItem; restaurant?: Restaurant; onOpenRestaurant?(id: string): void; favorite: boolean; onFavorite(): void }) {
+  const copy = messages[locale]
+  const price = item.price
+  return <article className="menu-item-row menu-card" data-has-image={item.menuImage ? 'true' : 'false'}>
+    <MenuFavoriteButton locale={locale} name={item.name[locale]} favorite={favorite} onToggle={onFavorite} />
+    <div className="menu-card-main">
+      <MenuItemImage image={item.menuImage} locale={locale} compact />
+      <div className="menu-card-body">
+        <div className="menu-item-copy">
+          <p className="card-category">{menuCategoryLabel(locale, item.category)}</p>
+          <h3>{item.name[locale]}</h3>
+          {restaurant && <div className="menu-item-restaurant-line"><RestaurantIdentity restaurant={restaurant} locale={locale} size="xs" /><p className="menu-item-restaurant">{restaurant.name[locale]}</p></div>}
+        </div>
+        <div className="menu-item-nutrition menu-pick-nutrition menu-card-nutrition">
+          <div className="menu-item-nutrition-primary">
+            {price && <span className="menu-card-price"><b>฿{price.amount}</b></span>}
+            <span><b>{item.nutrition.kcal}</b> {copy.kcalEstimate}</span>
+            <span><b>{item.nutrition.protein}g</b> {copy.protein}</span>
+          </div>
+          <div className="menu-item-nutrition-secondary">
+            <span><b>{item.nutrition.carbs}g</b> {copy.carbs}</span>
+            <span><b>{item.nutrition.fat}g</b> {copy.fat}</span>
+            {item.nutrition.sodium !== undefined && <span><b>{item.nutrition.sodium}mg</b> {copy.sodium}</span>}
+            <span className={`confidence-badge confidence-${item.nutritionSource.confidence}`}>{nutritionConfidenceLabel(locale, item.nutritionSource.confidence)}</span>
+          </div>
+        </div>
+        {item.servingNote && <p className="menu-item-note">{item.servingNote[locale]}</p>}
+        {item.customizationNotes?.length ? <ul className="menu-item-customizations">{item.customizationNotes.map((note, index) => <li key={index}>{note[locale]}</li>)}</ul> : null}
+        {price?.note && <details className="menu-card-price-details"><summary>ⓘ {copy.price}</summary><p className="meal-context-note">{price.note[locale]}</p><p className="meal-context-note">{copy.priceChecked(price.asOf)}</p></details>}
+      </div>
+    </div>
+    {restaurant && onOpenRestaurant && <button className="text-button explore-view-restaurant" onClick={() => onOpenRestaurant(restaurant.id)}>{copy.viewRestaurant(restaurant.name[locale])}</button>}
+  </article>
 }
 
 function ExploreItemCard({ locale, item, restaurant, onOpenRestaurant, favorite, onFavorite, onOpenRecipe = () => undefined, focus = false }: { locale: Locale; item: RestaurantMenuItem; restaurant: Restaurant | undefined; onOpenRestaurant(id: string): void; favorite: boolean; onFavorite(): void; onOpenRecipe?(recipe: Recipe): void; focus?: boolean }) {
@@ -534,29 +559,18 @@ function ExploreItemCard({ locale, item, restaurant, onOpenRestaurant, favorite,
       <p className="card-category">{menuCategoryLabel(locale, item.category)}</p>
       <h3>{item.name[locale]}</h3>
       {restaurant && <div className="menu-item-restaurant-line"><RestaurantIdentity restaurant={restaurant} locale={locale} size="xs" /><p className="menu-item-restaurant">{restaurant.name[locale]}</p></div>}
-      {!focus && item.servingNote && <p className="menu-item-note">{item.servingNote[locale]}</p>}
-      {!focus && item.customizationNotes?.length ? <ul className="menu-item-customizations">{item.customizationNotes.map((note, index) => <li key={index}>{note[locale]}</li>)}</ul> : null}
     </div>
     <div className={`menu-item-nutrition ${focus ? 'menu-pick-nutrition' : ''}`}>
-      {focus ? <>
-        <div className="menu-item-nutrition-primary">
-          <span><b>{item.nutrition.kcal}</b> {copy.kcalEstimate}</span>
-          <span><b>{item.nutrition.protein}g</b> {copy.protein}</span>
-        </div>
-        <div className="menu-item-nutrition-secondary">
-          <span><b>{item.nutrition.carbs}g</b> {copy.carbs}</span>
-          <span><b>{item.nutrition.fat}g</b> {copy.fat}</span>
-          {item.nutrition.sodium !== undefined && <span><b>{item.nutrition.sodium}mg</b> {copy.sodium}</span>}
-          <span className={`confidence-badge confidence-${item.nutritionSource.confidence}`}>{nutritionConfidenceLabel(locale, item.nutritionSource.confidence)}</span>
-        </div>
-      </> : <>
+      <div className="menu-item-nutrition-primary">
         <span><b>{item.nutrition.kcal}</b> {copy.kcalEstimate}</span>
         <span><b>{item.nutrition.protein}g</b> {copy.protein}</span>
+      </div>
+      <div className="menu-item-nutrition-secondary">
         <span><b>{item.nutrition.carbs}g</b> {copy.carbs}</span>
         <span><b>{item.nutrition.fat}g</b> {copy.fat}</span>
         {item.nutrition.sodium !== undefined && <span><b>{item.nutrition.sodium}mg</b> {copy.sodium}</span>}
         <span className={`confidence-badge confidence-${item.nutritionSource.confidence}`}>{nutritionConfidenceLabel(locale, item.nutritionSource.confidence)}</span>
-      </>}
+      </div>
     </div>
     {focus && item.servingNote && <p className="menu-item-note">{item.servingNote[locale]}</p>}
     {focus && item.customizationNotes?.length ? <ul className="menu-item-customizations">{item.customizationNotes.map((note, index) => <li key={index}>{note[locale]}</li>)}</ul> : null}
@@ -625,7 +639,7 @@ export function ExploreView({ locale, onOpenRestaurant, favoriteIds, onFavorite,
       {pickedItem && <button type="button" className="menu-list-toggle" aria-expanded={showAllAfterPick} aria-controls="explore-menu-list" onClick={() => setShowAllAfterPick(open => !open)}>{showAllAfterPick ? copy.hideMenus : copy.viewAllMenus}</button>}
     </section>
     {pickedItem && <AdSlot placement="restaurant-pick" />}
-    {items.length ? (!pickedItem || showAllAfterPick) && <div id="explore-menu-list" className="menu-list"><AdFeed placement="menu-feed" enabled={!pickedItem}>{items.map(item => <article className="menu-item-row" key={item.id}><ExploreItemCard locale={locale} item={item} restaurant={restaurantFor(item)} onOpenRestaurant={onOpenRestaurant} favorite={favoriteIds.includes(item.id)} onFavorite={() => onFavorite(item.id)} /></article>)}</AdFeed></div>
+    {items.length ? (!pickedItem || showAllAfterPick) && <div id="explore-menu-list" className="menu-list"><AdFeed placement="menu-feed" enabled={!pickedItem}>{items.map(item => <MenuListCard key={item.id} locale={locale} item={item} restaurant={restaurantFor(item)} onOpenRestaurant={onOpenRestaurant} favorite={favoriteIds.includes(item.id)} onFavorite={() => onFavorite(item.id)} />)}</AdFeed></div>
       : <div className="empty restaurant-empty" role="status"><span aria-hidden="true">🍽️</span><h3>{copy.emptyFilteredTitle}</h3><p>{copy.emptyFilteredText}</p><button className="random-button" onClick={clearFilters}>{copy.clearFilters}</button></div>}
   </section>
 }
