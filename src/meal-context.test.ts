@@ -239,11 +239,10 @@ describe('optional menu image validation (Slice 18 pilot)', () => {
       'mk-special-vegetable-set',
     ]
     const slice29Ids = ['mk-special-kurobuta-plate', 'mk-pork-shabu', 'nittaya-grilled-chicken-quarter', 'nittaya-som-tam-salted-egg']
-    const slice19Items = withImage.filter(candidate => !slice18Ids.includes(candidate.id) && !slice24Ids.includes(candidate.id) && !slice29Ids.includes(candidate.id))
+    const slice35bIds = ['mk-health-vegetable-set-small', 'nittaya-grilled-pork-neck', 'nittaya-som-tam-thai', 'nittaya-larb-moo', 'nittaya-chiang-mai-fried-pork']
+    const slice19Items = withImage.filter(candidate => !slice18Ids.includes(candidate.id) && !slice24Ids.includes(candidate.id) && !slice29Ids.includes(candidate.id) && !slice35bIds.includes(candidate.id))
     expect(slice19Items.map(candidate => candidate.id).sort()).toEqual([
       'ootoya-grilled-moromi-chicken',
-      'salad-factory-grilled-chicken-sesame',
-      'salad-factory-kale-chicken-truffle',
       'seven-eleven-garlic-pork-egg-rice',
       'seven-eleven-green-curry-chicken',
     ])
@@ -284,9 +283,9 @@ describe('optional menu image validation (Slice 18 pilot)', () => {
     }
   })
 
-  it('total menu-image coverage as of Slice 29 (19 of 84 items)', () => {
+  it('total menu-image coverage as of Slice 35B (22 of 84 items)', () => {
     const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage)
-    expect(withImage.length).toBe(19)
+    expect(withImage.length).toBe(22)
   })
 
   it('does not let menu image metadata affect filters, search, or Quick Goals eligibility', () => {
@@ -473,20 +472,20 @@ describe('Slice 29 image expansion batch (relation-aware coverage)', () => {
     }
   })
 
-  it('does not add a menuImage to nittaya-larb-moo (source was consistently unreachable during research)', () => {
-    expect(restaurantMenuItems.find(candidate => candidate.id === 'nittaya-larb-moo')?.menuImage).toBeUndefined()
+  it('adds the nittaya-larb-moo menuImage in Slice 35B now that the official original loads (it was unreachable in Slice 29)', () => {
+    expect(restaurantMenuItems.find(candidate => candidate.id === 'nittaya-larb-moo')?.menuImage?.kind).toBe('official-remote')
   })
 
-  it('does not add any menuImage to a normal dense (non-Pick-Focus) restaurant row set beyond the 4 new items', () => {
+  it('does not add any menuImage to a normal dense (non-Pick-Focus) restaurant row set beyond the 4 Slice 29 items and the 5 Slice 35B items (22 total)', () => {
     const newIds = ['mk-special-kurobuta-plate', 'mk-pork-shabu', 'nittaya-grilled-chicken-quarter', 'nittaya-som-tam-salted-egg']
     const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage).map(candidate => candidate.id)
     for (const id of newIds) expect(withImage).toContain(id)
-    expect(withImage).toHaveLength(19)
+    expect(withImage).toHaveLength(22)
   })
 
-  it('leaves verified MenuPrice coverage unchanged (24) — this is an image-only slice', () => {
+  it('has 44 priced items as of Slice 35B (24 before + 20 new; the Nittaya correction does not change the count)', () => {
     const withPrice = restaurantMenuItems.filter(candidate => candidate.price)
-    expect(withPrice).toHaveLength(24)
+    expect(withPrice).toHaveLength(44)
   })
 
   it('leaves restaurant/menu counts unchanged (13 restaurants, 84 menu items)', () => {
@@ -575,27 +574,30 @@ describe('Slice 20 price coverage expansion', () => {
     expect(restaurantMenuItems.find(item => item.id === 'santa-fe-dory-fish-steak')?.price).toMatchObject({ amount: 209, currency: 'THB' })
   })
 
-  it('leaves menuImage coverage exactly as Slice 29 left it (19 items, same ids)', () => {
+  it('leaves menuImage coverage exactly as Slice 35B left it (22 items, same ids)', () => {
     const withImage = restaurantMenuItems.filter(item => item.menuImage)
-    expect(withImage).toHaveLength(19)
+    expect(withImage).toHaveLength(22)
     expect(withImage.map(item => item.id).sort()).toEqual([
       'fuji-chirashi-sushi-don-set',
       'fuji-kinoko-mushroom-salad',
       'fuji-salmon-shioyaki-brown-rice-set',
       'fuji-salmon-tataki',
+      'mk-health-vegetable-set-small',
       'mk-pork-shabu',
       'mk-premium-suki-set',
       'mk-seafood-suki-broth',
       'mk-special-kurobuta-plate',
       'mk-special-kurobuta-set',
       'mk-special-vegetable-set',
+      'nittaya-chiang-mai-fried-pork',
       'nittaya-grilled-chicken-quarter',
+      'nittaya-grilled-pork-neck',
+      'nittaya-larb-moo',
       'nittaya-som-tam-salted-egg',
+      'nittaya-som-tam-thai',
       'ootoya-grilled-mackerel',
       'ootoya-grilled-moromi-chicken',
       'ootoya-tonteki-pork-chop-set',
-      'salad-factory-grilled-chicken-sesame',
-      'salad-factory-kale-chicken-truffle',
       'seven-eleven-garlic-pork-egg-rice',
       'seven-eleven-green-curry-chicken',
     ])
@@ -668,8 +670,8 @@ describe('Slice 22 price coverage expansion batch 2', () => {
     expect(newlyPricedIds.length).toBeLessThanOrEqual(12)
   })
 
-  it('brings total priced coverage to 24 items (15 from before Slice 22 + 9 new)', () => {
-    expect(restaurantMenuItems.filter(item => item.price)).toHaveLength(24)
+  it('brings total priced coverage to 44 items as of Slice 35B (24 after Slice 22 + 20 new)', () => {
+    expect(restaurantMenuItems.filter(item => item.price)).toHaveLength(44)
   })
 
   it('produces zero validation errors for every priced item', () => {
@@ -700,15 +702,15 @@ describe('Slice 22 price coverage expansion batch 2', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  it('gives every new Slice 22 price a fresh 2026-09-15 asOf', () => {
+  it('gives every new Slice 22 price a 2026-09-15 asOf (nittaya-grilled-pork-neck was re-dated by the Slice 35B correction)', () => {
     for (const id of newlyPricedIds) {
-      expect(restaurantMenuItems.find(item => item.id === id)?.price?.asOf).toBe('2026-09-15')
+      expect(restaurantMenuItems.find(item => item.id === id)?.price?.asOf).toBe(id === 'nittaya-grilled-pork-neck' ? '2026-09-30' : '2026-09-15')
     }
   })
 
   it('sets the exact researched amount for each newly priced item', () => {
     const expectedAmounts: Record<string, number> = {
-      'nittaya-grilled-pork-neck': 130,
+      'nittaya-grilled-pork-neck': 140, // corrected from 130 in Slice 35B
       'nittaya-som-tam-thai': 75,
       'nittaya-som-tam-salted-egg': 85,
       'nittaya-larb-moo': 95,
@@ -743,27 +745,30 @@ describe('Slice 22 price coverage expansion batch 2', () => {
     expect(somtamNuaItems.every(item => !item.price)).toBe(true)
   })
 
-  it('leaves menuImage coverage exactly as Slice 29 left it (19 items, same ids)', () => {
+  it('leaves menuImage coverage exactly as Slice 35B left it (22 items, same ids)', () => {
     const withImage = restaurantMenuItems.filter(item => item.menuImage)
-    expect(withImage).toHaveLength(19)
+    expect(withImage).toHaveLength(22)
     expect(withImage.map(item => item.id).sort()).toEqual([
       'fuji-chirashi-sushi-don-set',
       'fuji-kinoko-mushroom-salad',
       'fuji-salmon-shioyaki-brown-rice-set',
       'fuji-salmon-tataki',
+      'mk-health-vegetable-set-small',
       'mk-pork-shabu',
       'mk-premium-suki-set',
       'mk-seafood-suki-broth',
       'mk-special-kurobuta-plate',
       'mk-special-kurobuta-set',
       'mk-special-vegetable-set',
+      'nittaya-chiang-mai-fried-pork',
       'nittaya-grilled-chicken-quarter',
+      'nittaya-grilled-pork-neck',
+      'nittaya-larb-moo',
       'nittaya-som-tam-salted-egg',
+      'nittaya-som-tam-thai',
       'ootoya-grilled-mackerel',
       'ootoya-grilled-moromi-chicken',
       'ootoya-tonteki-pork-chop-set',
-      'salad-factory-grilled-chicken-sesame',
-      'salad-factory-kale-chicken-truffle',
       'seven-eleven-garlic-pork-egg-rice',
       'seven-eleven-green-curry-chicken',
     ])

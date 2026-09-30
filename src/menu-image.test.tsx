@@ -279,17 +279,17 @@ describe('Slice 29 image-backed items render in Pick Focus', () => {
 })
 
 describe('production menu image dataset shape', () => {
-  it('keeps every menuImage-bearing item within the small researched Slice 18 + 19 + 24 + 29 batch', () => {
+  it('keeps every menuImage-bearing item within the small researched Slice 18 + 19 + 24 + 29 + 35B batch', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     expect(withImage.length).toBeGreaterThan(0)
-    expect(withImage.length).toBeLessThanOrEqual(19)
+    expect(withImage.length).toBeLessThanOrEqual(22)
     for (const item of withImage) expect(restaurants.some(restaurant => restaurant.id === item.restaurantId)).toBe(true)
   })
 
-  it('spreads image coverage across six restaurants as of Slice 29, without changing restaurant/item counts', () => {
+  it('spreads image coverage across five restaurants as of Slice 35B (the broken Salad Factory references were removed), without changing restaurant/item counts', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     const restaurantIds = new Set(withImage.map(item => item.restaurantId))
-    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'salad-factory-thailand', 'seven-eleven-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand', 'nittaya-kai-yang-thailand']))
+    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'seven-eleven-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand', 'nittaya-kai-yang-thailand']))
     expect(restaurants.length).toBe(13)
     expect(restaurantMenuItems.length).toBe(84)
   })

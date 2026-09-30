@@ -103,6 +103,17 @@ const mkImageSourceLabel = { th: 'ภาพจากเว็บไซต์ท�
 const asOf29 = '2026-09-16'
 const nittayaImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของนิตยาไก่ย่าง', en: 'Image from Nittaya Kai Yang official website' }
 
+// Slice 35B verified restaurant content enrichment (2026-09-30). Evidence,
+// qualifications, and withheld candidates are recorded in
+// docs/restaurant-content-enrichment-audit-35a.md and
+// docs/restaurant-content-enrichment-35b.md.
+const asOf35b = '2026-09-30'
+const alaCartePriceNote = { th: 'ราคาเมนูจานเดี่ยว (à la carte) ไม่ใช่ราคาเซ็ต ราคาที่ตรวจสอบจากเมนูปัจจุบัน อาจแตกต่างตามสาขาหรือข้อยกเว้นที่ร้านระบุ', en: 'À la carte price, not the set price. Current listed menu price; branch exceptions may apply.' }
+const jonesMushroomSoupPriceNote = { th: 'ราคาซุปเห็ดธรรมดา ไม่รวมทรัฟเฟิลหรือท็อปปิงทางเลือกอื่น ราคาที่ตรวจสอบจากเมนูปัจจุบัน', en: 'Price for the plain mushroom soup, excluding truffle or other topping alternatives. Current listed menu price.' }
+const sukiyaMPriceNote = { th: 'ราคาขนาด M ตามเมนูปัจจุบันของร้าน ขนาดอื่นมีราคาต่างกัน ไม่ใช่ราคาเดลิเวอรี', en: 'Size M price on the current official menu; other sizes are priced differently. Not a delivery price.' }
+const sukiyaAlaCartePriceNote = { th: 'ราคาตามเมนูปัจจุบันของร้าน (ขนาด M หากมีให้เลือกขนาด) ไม่ใช่ราคาเดลิเวอรี', en: 'Current official menu price (size M where sizes exist). Not a delivery price.' }
+const thongSmithPriceNote = { th: 'ราคาตามเมนูของร้าน ยังไม่รวมค่าบริการ 10% ตามที่ร้านระบุ', en: 'Listed menu price; the restaurant states a 10% service charge is added.' }
+
 export const restaurants: Restaurant[] = [
   {
     id: 'ootoya-thailand',
@@ -298,14 +309,6 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['chicken', 'salad', 'high-protein', 'grilled'],
     customizationNotes: [{ th: 'หากต้องการลดพลังงาน แนะนำให้ขอน้ำสลัดแยกต่างหาก', en: 'For a lighter option, consider asking for the dressing on the side' }],
     price: { amount: 155, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
-    menuImage: {
-      src: 'https://www.saladfactorythailand.com/65ed250caef8ed66454c2464/668f96e30990d230026c05bb_Main%20Salad-%E0%B8%AA%E0%B8%A5%E0%B8%B1%E0%B8%94%E0%B8%AD%E0%B8%81%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%87%E0%B8%B2%E0%B8%8D%E0%B8%B5%E0%B9%88%E0%B8%9B%E0%B8%B8%E0%B9%88%E0%B8%99.jpg',
-      alt: { th: 'สลัดอกไก่ย่างกับผักรวม ถั่วแระ สาหร่ายโนริ และซอสงาครีมมี่', en: 'Grilled chicken breast salad with mixed greens, edamame, nori, and creamy sesame dressing' },
-      kind: 'official-remote',
-      sourceUrl: 'https://www.saladfactorythailand.com/menu/order',
-      sourceLabel: saladFactoryImageSourceLabel,
-      asOf: asOf19,
-    },
   },
   {
     id: 'salad-factory-quinoa-chicken-basil',
@@ -326,14 +329,6 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: saladFactoryEstimateNote, asOf },
     tags: ['chicken', 'salad', 'high-protein'],
     price: { amount: 235, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
-    menuImage: {
-      src: 'https://www.saladfactorythailand.com/65ed250caef8ed66454c2464/6672a5a9ba3a36f4c933ca72_Kale%20Salad-%E0%B8%AA%E0%B8%A5%E0%B8%B1%E0%B8%94%E0%B9%80%E0%B8%84%E0%B8%A5%E0%B8%AD%E0%B8%81%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%97%E0%B8%A3%E0%B8%B1%E0%B8%9F%E0%B9%80%E0%B8%9F%E0%B8%B4%E0%B8%A5.jpg',
-      alt: { th: 'สลัดคะน้ากับอกไก่ย่าง แอปเปิล วอลนัท ถั่วชิกพี และแครนเบอร์รี่', en: 'Kale salad with sliced grilled chicken, apple, walnuts, chickpeas, and dried cranberries' },
-      kind: 'official-remote',
-      sourceUrl: 'https://www.saladfactorythailand.com/menu/order',
-      sourceLabel: saladFactoryImageSourceLabel,
-      asOf: asOf19,
-    },
   },
   {
     id: 'salad-factory-rocket-skirt-steak',
@@ -460,6 +455,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: jonesSaladEstimateNote, asOf: asOf11 },
     tags: ['fish', 'salad', 'high-protein'],
     customizationNotes: [{ th: 'สามารถขอน้ำสลัดแยกต่างหากเพื่อลดพลังงานได้ (ไม่ใส่น้ำสลัดประมาณ 317 กิโลแคลอรี ตามข้อมูลของร้าน)', en: "You can ask for the dressing on the side to reduce calories (without dressing is about 317 kcal per the brand's figure)." }],
+    price: { amount: 369, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
   },
   {
     id: 'jones-caesar-chicken-salad',
@@ -490,6 +486,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: jonesSaladEstimateNote, asOf: asOf11 },
     tags: ['chicken', 'grilled', 'high-protein'],
     customizationNotes: [{ th: 'สามารถขอซอสแยกต่างหากเพื่อลดพลังงานได้ (ไม่ใส่ซอสประมาณ 394 กิโลแคลอรี ตามข้อมูลของร้าน)', en: "You can ask for the sauce on the side to reduce calories (without sauce is about 394 kcal per the brand's figure)." }],
+    price: { amount: 199, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
   },
   {
     id: 'jones-honey-lemon-basa-steak',
@@ -509,6 +506,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 172, protein: 4, carbs: 14, fat: 10 },
     nutritionSource: { confidence: 'estimated', note: jonesSaladEstimateNote, asOf: asOf11 },
     tags: ['vegetarian', 'soup'],
+    price: { amount: 59, currency: 'THB', asOf: asOf35b, note: jonesMushroomSoupPriceNote },
   },
   {
     id: 'fuji-salmon-shioyaki-brown-rice-set',
@@ -519,6 +517,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['fish', 'grilled', 'high-protein'],
     servingNote: { th: 'เสิร์ฟเป็นเซ็ต พร้อมข้าวกล้องธัญพืช', en: 'Served as a set with brown rice.' },
+    price: { amount: 330, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
     menuImage: {
       src: 'https://www.fuji.co.th/wp-content/uploads/2026/06/SALMON-SHIOYAKI-WITH-BROWN-RICE-SET-1-768x768.png',
       alt: { th: 'แซลมอนย่างเกลือเสิร์ฟกับข้าวกล้องธัญพืช ซุปมิโสะ และเครื่องเคียงผักดอง', en: 'Grilled salmon with mixed-grain brown rice, miso soup, and pickled side dishes' },
@@ -537,6 +536,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['fish', 'grilled', 'high-protein', 'low-carb'],
     servingNote: { th: 'เสิร์ฟแบบเดี่ยว ไม่รวมข้าว', en: 'Served à la carte; rice is not included.' },
+    price: { amount: 290, currency: 'THB', asOf: asOf35b, note: alaCartePriceNote },
   },
   {
     id: 'fuji-salmon-tataki',
@@ -546,6 +546,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 270, protein: 20, carbs: 14, fat: 15 },
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['fish', 'salad', 'low-carb'],
+    price: { amount: 270, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
     menuImage: {
       src: 'https://www.fuji.co.th/wp-content/uploads/2026/06/SALMON-TATAKI.png-768x768.png',
       alt: { th: 'ยำปลาแซลมอนดิบสไตล์ทาทากิ ราดพริก กระเทียม และมะนาว บนผักสลัด', en: 'Salmon tataki slices with chili, garlic, and lime over mixed salad greens' },
@@ -563,6 +564,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 150, protein: 5, carbs: 16, fat: 8 },
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['vegetarian', 'salad', 'low-carb'],
+    price: { amount: 180, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
     menuImage: {
       src: 'https://www.fuji.co.th/wp-content/uploads/2026/06/KINOKO-SALAD-768x768.png',
       alt: { th: 'สลัดเห็ดรวมชิตาเกะและเห็ดเข็มทอง บนผักสลัด มะเขือเทศ และหัวไชเท้า', en: 'Mixed mushroom salad with shiitake and enoki over greens, tomato, and radish' },
@@ -580,6 +582,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 310, protein: 28, carbs: 18, fat: 14 },
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['chicken', 'grilled', 'high-protein'],
+    price: { amount: 170, currency: 'THB', asOf: asOf35b, note: alaCartePriceNote },
   },
   {
     id: 'fuji-chirashi-sushi-don-set',
@@ -590,6 +593,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['fish', 'rice'],
     servingNote: { th: 'หนึ่งชาม รวมข้าว', en: 'One rice bowl, includes rice.' },
+    price: { amount: 390, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
     menuImage: {
       src: 'https://www.fuji.co.th/wp-content/uploads/2026/06/CHIRASHI-SUSHI-DON-SET-768x768.png',
       alt: { th: 'ข้าวหน้าปลาดิบรวมแซลมอน ทูน่า กุ้ง และหอยเชลล์ เสิร์ฟพร้อมซุปมิโสะ', en: 'Mixed sashimi rice bowl with salmon, tuna, shrimp, and scallop, served with miso soup' },
@@ -608,6 +612,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: mkOfficialCalorieNote, asOf: asOf11 },
     tags: ['vegetarian', 'hotpot', 'low-carb'],
     servingNote: { th: 'เสิร์ฟดิบสำหรับต้มในหม้อสุกี้', en: 'Served raw for cooking in the shared hot-pot broth.' },
+    menuImage: {
+      src: 'https://www.mkrestaurant.com/public/uploads/mk_menu/images/9618d5c6fad45c5a7d6dd01524873ca7.jpg',
+      alt: { th: 'ชุดผักเพื่อสุขภาพขนาดเล็กสำหรับต้มสุกี้ จัดเสิร์ฟบนจาน', en: 'Small health vegetable set for hot-pot cooking, plated' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.mkrestaurant.com/th/mk-menu/suki?p=2',
+      sourceLabel: mkImageSourceLabel,
+      asOf: asOf35b,
+    },
   },
   {
     id: 'mk-special-vegetable-set',
@@ -618,6 +630,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: mkOfficialCalorieNote, asOf: asOf11 },
     tags: ['vegetarian', 'hotpot', 'low-carb'],
     servingNote: { th: 'เสิร์ฟดิบสำหรับต้มในหม้อสุกี้', en: 'Served raw for cooking in the shared hot-pot broth.' },
+    price: { amount: 72, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
     menuImage: {
       src: 'https://www.mkrestaurant.com/public/uploads/mk_menu/images/2d90e4421809ab3c838e94db744ce7df.JPG',
       alt: { th: 'ผักดิบสำหรับต้มสุกี้ ประกอบด้วยผักกาดหอม ฟักทอง เห็ดเข็มทอง และแครอท', en: 'Raw vegetables for hot-pot cooking, including lettuce, pumpkin, enoki mushroom, and carrot' },
@@ -693,6 +706,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: mkOfficialCalorieNote, asOf: asOf11 },
     tags: ['fish', 'seafood', 'hotpot', 'high-protein'],
     servingNote: { th: 'เสิร์ฟพร้อมทานในน้ำซุป 1 ชาม', en: 'Served ready-to-eat, one bowl in broth.' },
+    price: { amount: 142, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
     menuImage: {
       src: 'https://www.mkrestaurant.com/public/uploads/mk_menu/images/74e40820714e487e931bbf7f83d8eb65.jpg',
       alt: { th: 'สุกี้ทะเลน้ำ พร้อมกุ้ง ปลาหมึก และปลา เสิร์ฟพร้อมทาน', en: 'Seafood suki in broth with shrimp, squid, and fish, ready to eat' },
@@ -711,6 +725,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: mkOfficialCalorieNote, asOf: asOf11 },
     tags: ['pork', 'hotpot', 'high-protein', 'low-carb'],
     servingNote: { th: 'เสิร์ฟดิบ 1 จาน สำหรับลวกในหม้อสุกี้', en: 'Served raw, one plate, for cooking in the shared hot-pot broth.' },
+    price: { amount: 72, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
     menuImage: {
       src: 'https://www.mkrestaurant.com/public/uploads/mk_menu/images/dd1aba57e93fec743c1bbf2b1cbb3e1f.jpg',
       alt: { th: 'หมูสามชั้นหั่นบางจัดบนถาดจานเดี่ยว สำหรับลวกในหม้อสุกี้', en: 'Thinly sliced pork belly on a single-serving tray, for shabu-style hot-pot cooking' },
@@ -729,6 +744,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'curated', note: sukiyaCuratedNote, asOf: asOf11 },
     tags: ['beef', 'rice'],
     servingNote: { th: "ข้าวหน้าเนื้อไซส์ M ของไทย เทียบเคียงกับขนาด 'ปกติ' ของญี่ปุ่น (ยังไม่ยืนยันปริมาณเท่ากันทุกประการ)", en: "Thailand's M-size gyudon, mapped to Japan's 'regular' serving (exact portion match not confirmed)." },
+    price: { amount: 89, currency: 'THB', asOf: asOf35b, note: sukiyaMPriceNote },
   },
   {
     id: 'sukiya-gyudon-okra-regular',
@@ -739,6 +755,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'curated', note: sukiyaCuratedNote, asOf: asOf11 },
     tags: ['beef', 'rice', 'fiber'],
     servingNote: { th: "ข้าวหน้าเนื้อไซส์ M ของไทย เทียบเคียงกับขนาด 'ปกติ' ของญี่ปุ่น (ยังไม่ยืนยันปริมาณเท่ากันทุกประการ)", en: "Thailand's M-size gyudon, mapped to Japan's 'regular' serving (exact portion match not confirmed)." },
+    price: { amount: 119, currency: 'THB', asOf: asOf35b, note: sukiyaMPriceNote },
   },
   {
     id: 'sukiya-curry-rice-regular',
@@ -749,6 +766,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'curated', note: sukiyaCuratedNote, asOf: asOf11 },
     tags: ['vegetarian', 'rice'],
     servingNote: { th: "ข้าวแกงกะหรี่ไซส์ M (สูตรพื้นฐาน ไม่ใส่เนื้อสัตว์) เทียบเคียงกับขนาด 'ปกติ' ของญี่ปุ่น (ยังไม่ยืนยันปริมาณเท่ากันทุกประการ)", en: "Plain M-size curry rice (no added meat topping), mapped to Japan's 'regular' serving (exact portion match not confirmed)." },
+    price: { amount: 89, currency: 'THB', asOf: asOf35b, note: sukiyaMPriceNote },
   },
   {
     id: 'sukiya-beef-plate-no-rice',
@@ -759,6 +777,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'curated', note: sukiyaCuratedNote, asOf: asOf11 },
     tags: ['beef', 'hotpot', 'low-carb'],
     servingNote: { th: "เนื้อไซส์ M ไม่รวมข้าว เทียบเคียงกับขนาด 'ปกติ' ของญี่ปุ่น เสิร์ฟดิบสำหรับต้มในหม้อสุกี้", en: "M-size beef without rice, mapped to Japan's 'regular' serving; served raw for cooking in the hot pot." },
+    price: { amount: 75, currency: 'THB', asOf: asOf35b, note: sukiyaMPriceNote },
   },
   {
     id: 'sukiya-salad',
@@ -769,6 +788,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'curated', note: sukiyaCuratedNote, asOf: asOf11 },
     tags: ['vegetarian', 'salad', 'low-carb'],
     servingNote: { th: 'ค่าพลังงานนี้ไม่รวมน้ำสลัด ไม่ทราบแน่ชัดว่าสลัดที่เสิร์ฟจริงในไทยใส่น้ำสลัดมาด้วยหรือไม่ หากมีน้ำสลัด พลังงานจริงอาจสูงกว่านี้', en: "This figure excludes dressing. It is unclear whether the Thailand-served salad includes dressing by default — if so, actual calories may be meaningfully higher." },
+    price: { amount: 45, currency: 'THB', asOf: asOf35b, note: sukiyaAlaCartePriceNote },
   },
   {
     id: 'sukiya-miso-soup',
@@ -779,6 +799,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'curated', note: sukiyaCuratedNote, asOf: asOf11 },
     tags: ['soup', 'vegetarian'],
     servingNote: { th: 'โซเดียมค่อนข้างสูงเมื่อเทียบกับปริมาณแคลอรี ควรพิจารณาหากติดตามการบริโภคโซเดียม', en: 'Sodium is disproportionately high relative to the calorie count — worth noting if tracking sodium intake.' },
+    price: { amount: 30, currency: 'THB', asOf: asOf35b, note: sukiyaAlaCartePriceNote },
   },
   {
     id: 'santa-fe-grilled-chicken-pepper-steak',
@@ -874,7 +895,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 380, protein: 28, carbs: 2, fat: 29, sodium: 450 },
     nutritionSource: { confidence: 'estimated', note: nittayaEstimateNote, asOf: asOf14 },
     tags: ['pork', 'grilled', 'high-protein', 'isan'],
-    price: { amount: 130, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
+    price: { amount: 140, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.nittayakaiyang.com/wp-content/uploads/2023/04/%E0%B8%84%E0%B8%AD%E0%B8%AB%E0%B8%A1%E0%B8%B9%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87-07.jpg',
+      alt: { th: 'คอหมูย่างหั่นชิ้น เสิร์ฟพร้อมน้ำจิ้ม', en: 'Sliced grilled pork neck served with dipping sauce' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.nittayakaiyang.com/en/menus_categories/%E0%B8%9B%E0%B8%B4%E0%B9%89%E0%B8%87-%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87-%E0%B8%97%E0%B8%AD%E0%B8%94/',
+      sourceLabel: nittayaImageSourceLabel,
+      asOf: asOf35b,
+    },
   },
   {
     id: 'nittaya-som-tam-thai',
@@ -886,6 +915,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['salad', 'isan', 'spicy'],
     servingNote: { th: 'เสิร์ฟ 1 จานสำหรับแบ่งกันกิน ค่าพลังงานนี้คือทั้งจาน ไม่ใช่ต่อคน', en: 'Served as one shared plate; this figure is for the whole plate, not a per-person portion.' },
     price: { amount: 75, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.nittayakaiyang.com/wp-content/uploads/2023/03/%E0%B8%AA%E0%B9%89%E0%B8%A1%E0%B8%95%E0%B8%B3%E0%B9%84%E0%B8%97%E0%B8%A2-1.jpg',
+      alt: { th: 'ส้มตำไทย จัดเสิร์ฟในจาน', en: 'Thai-style papaya salad, plated' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.nittayakaiyang.com/en/menus_categories/%E0%B8%AA%E0%B9%89%E0%B8%A1%E0%B8%95%E0%B8%B3/',
+      sourceLabel: nittayaImageSourceLabel,
+      asOf: asOf35b,
+    },
   },
   {
     id: 'nittaya-som-tam-salted-egg',
@@ -915,6 +952,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: nittayaEstimateNote, asOf: asOf14 },
     tags: ['pork', 'salad', 'isan', 'high-protein'],
     price: { amount: 95, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.nittayakaiyang.com/wp-content/uploads/2023/04/%E0%B8%A5%E0%B8%B2%E0%B8%9A%E0%B8%AB%E0%B8%A1%E0%B8%B9-07.jpg',
+      alt: { th: 'ลาบหมู จัดเสิร์ฟในจาน', en: 'Pork larb, plated' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.nittayakaiyang.com/en/menus_categories/%E0%B8%A5%E0%B8%B2%E0%B8%9A-%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B8%95%E0%B8%81/',
+      sourceLabel: nittayaImageSourceLabel,
+      asOf: asOf35b,
+    },
   },
   {
     id: 'nittaya-tom-saep-grilled-chicken-soup',
@@ -935,6 +980,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: nittayaEstimateNote, asOf: asOf14 },
     tags: ['pork', 'fried', 'isan'],
     price: { amount: 105, currency: 'THB', asOf: asOf22, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.nittayakaiyang.com/wp-content/uploads/2023/04/%E0%B8%AB%E0%B8%A1%E0%B8%B9%E0%B8%97%E0%B8%AD%E0%B8%94%E0%B9%80%E0%B8%8A%E0%B8%B5%E0%B8%A2%E0%B8%87%E0%B9%83%E0%B8%AB%E0%B8%A1%E0%B9%88-07.jpg',
+      alt: { th: 'หมูทอดเชียงใหม่ จัดเสิร์ฟในจาน', en: 'Chiang Mai-style fried pork, plated' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.nittayakaiyang.com/en/menus_categories/%E0%B8%9B%E0%B8%B4%E0%B9%89%E0%B8%87-%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87-%E0%B8%97%E0%B8%AD%E0%B8%94/',
+      sourceLabel: nittayaImageSourceLabel,
+      asOf: asOf35b,
+    },
   },
   {
     id: 'zaab-eli-grilled-chicken',
@@ -1116,6 +1169,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: thongSmithEstimateNote, asOf: asOf14 },
     tags: ['pork', 'rice'],
     servingNote: { th: 'หนึ่งชาม เสิร์ฟแบบเดี่ยว', en: 'One bowl, individual serving.' },
+    price: { amount: 239, currency: 'THB', asOf: asOf35b, note: thongSmithPriceNote },
   },
   {
     id: 'thongsmith-spicy-shredded-chicken-dry',
@@ -1135,6 +1189,7 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: thongSmithEstimateNote, asOf: asOf14 },
     tags: ['pork', 'grilled'],
     servingNote: { th: 'หนึ่งจาน เสิร์ฟแบบเดี่ยว', en: 'One plate, individual serving.' },
+    price: { amount: 119, currency: 'THB', asOf: asOf35b, note: thongSmithPriceNote },
   },
   {
     id: 'steak-and-more-chicken-steak',
