@@ -26,6 +26,7 @@ body .number-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.number-grid .fi
 .restaurant-identity-xs{width:24px;height:24px;border-radius:7px;font-size:9px}
 .restaurant-identity-sm{width:34px;height:34px;border-radius:9px;font-size:10px}
 .restaurant-identity-md{width:46px;height:46px;border-radius:12px;font-size:12px}
+.restaurant-identity-logo{background:#fff;border-color:#e3e8df}.restaurant-identity-logo img{width:100%;height:100%;object-fit:contain;padding:3px;box-sizing:border-box;display:block}
 .restaurant-identity-fallback{background:#f4f5ef;border-color:#dfe7dc;color:#667868}
 .restaurant-row-copy{flex:1}
 .restaurant-row-copy b{overflow-wrap:anywhere}

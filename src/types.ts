@@ -51,6 +51,18 @@ export type Restaurant = {
     kind: 'initials'
     label?: LocalizedText
   }
+  /** Official brand logo. Separate from MenuImage (food identity); initials remain the fallback. */
+  logo?: RestaurantLogo
+}
+
+export type RestaurantLogo = {
+  src: string
+  alt: LocalizedText
+  /** Hotlinked first-party asset; logos are never bundled or modified. */
+  kind: 'official-remote'
+  sourceUrl: string
+  sourceLabel: LocalizedText
+  asOf: string
 }
 
 export type MenuCategory = 'Rice & noodles' | 'Salad' | 'Grilled/BBQ' | 'Soup' | 'Set meal'

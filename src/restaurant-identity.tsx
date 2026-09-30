@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { Locale, Restaurant } from './types'
 
 export type RestaurantIdentitySize = 'xs' | 'sm' | 'md'
@@ -29,7 +30,15 @@ export function restaurantIdentityMark(restaurant: Restaurant, locale: Locale): 
   return configuredLabel ? { mark: configuredLabel, source: 'pilot' } : { mark: fallbackRestaurantIdentityMark(restaurant), source: 'fallback' }
 }
 
-export function RestaurantIdentity({ restaurant, locale, size = 'sm' }: { restaurant: Restaurant; locale: Locale; size?: RestaurantIdentitySize }) {
+export function RestaurantIdentity({ restaurant, locale, size = 'sm', showLogo = false }: { restaurant: Restaurant; locale: Locale; size?: RestaurantIdentitySize; showLogo?: boolean }) {
   const identity = restaurantIdentityMark(restaurant, locale)
+  const logo = showLogo ? restaurant.logo : undefined
+  const [failedSrc, setFailedSrc] = useState<string | null>(null)
+  useEffect(() => setFailedSrc(null), [logo?.src])
+  if (logo && failedSrc !== logo.src) {
+    return <span className={`restaurant-identity restaurant-identity-${size} restaurant-identity-logo`} data-restaurant-identity={restaurant.id} data-identity-source="logo">
+      <img src={logo.src} alt={logo.alt[locale]} loading="lazy" decoding="async" onError={() => setFailedSrc(logo.src)} />
+    </span>
+  }
   return <span className={`restaurant-identity restaurant-identity-${size} restaurant-identity-${identity.source}`} data-restaurant-identity={restaurant.id} data-identity-source={identity.source} aria-hidden="true">{identity.mark}</span>
 }

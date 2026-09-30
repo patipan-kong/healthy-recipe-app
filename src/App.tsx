@@ -410,7 +410,7 @@ export function RestaurantListView({ locale, onOpen, favoriteIds = [], onFavorit
       </article>}
     </section>
     {pickedMeal && <AdSlot placement="restaurant-pick" />}
-    {restaurantList.length ? <div className="restaurant-list"><AdFeed placement="restaurant-feed">{restaurantList.map(restaurant => <button key={restaurant.id} className="restaurant-row" onClick={() => onOpen(restaurant.id)} aria-label={copy.openRestaurant(restaurant.name[locale])}><RestaurantIdentity restaurant={restaurant} locale={locale} size="sm" /><span className="restaurant-row-copy"><b>{restaurant.name[locale]}</b>{restaurant.cuisine && <em>{restaurant.cuisine[locale]}</em>}</span><ChevronRight size={17} aria-hidden="true" /></button>)}</AdFeed></div>
+    {restaurantList.length ? <div className="restaurant-list"><AdFeed placement="restaurant-feed">{restaurantList.map(restaurant => <button key={restaurant.id} className="restaurant-row" onClick={() => onOpen(restaurant.id)} aria-label={copy.openRestaurant(restaurant.name[locale])}><RestaurantIdentity restaurant={restaurant} locale={locale} size="sm" showLogo /><span className="restaurant-row-copy"><b>{restaurant.name[locale]}</b>{restaurant.cuisine && <em>{restaurant.cuisine[locale]}</em>}</span><ChevronRight size={17} aria-hidden="true" /></button>)}</AdFeed></div>
       : <div className="empty restaurant-empty" role="status"><span aria-hidden="true">🍽️</span><h3>{copy.restaurantsEmptyTitle}</h3><p>{copy.restaurantsEmptyText}</p></div>}
   </section>
 }

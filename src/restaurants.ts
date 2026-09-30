@@ -114,12 +114,17 @@ const sukiyaMPriceNote = { th: 'ราคาขนาด M ตามเมนู
 const sukiyaAlaCartePriceNote = { th: 'ราคาตามเมนูปัจจุบันของร้าน (ขนาด M หากมีให้เลือกขนาด) ไม่ใช่ราคาเดลิเวอรี', en: 'Current official menu price (size M where sizes exist). Not a delivery price.' }
 const thongSmithPriceNote = { th: 'ราคาตามเมนูของร้าน ยังไม่รวมค่าบริการ 10% ตามที่ร้านระบุ', en: 'Listed menu price; the restaurant states a 10% service charge is added.' }
 
+// Slice 35C restaurant logos: first-party official-remote brand assets only;
+// see docs/restaurant-logo-identity-35c.md. Restaurants without one keep initials.
+const asOf35c = '2026-09-30'
+
 export const restaurants: Restaurant[] = [
   {
     id: 'ootoya-thailand',
     name: { th: 'โอโตยะ', en: 'Ootoya' },
     cuisine: { th: 'อาหารญี่ปุ่นสไตล์บ้าน (เซ็ตทีโชกุ)', en: 'Japanese home cooking (teishoku)' },
     tags: ['japanese'],
+    logo: { src: 'https://www.ootoya.co.th/images/logo.gif', alt: { th: 'โลโก้โอโตยะ', en: 'Ootoya logo' }, kind: 'official-remote', sourceUrl: 'https://www.ootoya.co.th/', sourceLabel: { th: 'เว็บไซต์ทางการของโอโตยะ', en: 'Ootoya official website' }, asOf: asOf35c },
   },
   {
     id: 'salad-factory-thailand',
@@ -134,24 +139,28 @@ export const restaurants: Restaurant[] = [
     cuisine: { th: 'อาหารพร้อมทานบรรจุภัณฑ์', en: 'Packaged ready-to-eat meals' },
     tags: ['convenience', 'packaged'],
     visualIdentity: { kind: 'initials', label: { th: '7', en: '7' } },
+    logo: { src: 'https://www.7eleven.co.th/static/imgs/711-logo-2026.svg', alt: { th: 'โลโก้เซเว่น อีเลฟเว่น', en: '7-Eleven logo' }, kind: 'official-remote', sourceUrl: 'https://www.7eleven.co.th/', sourceLabel: { th: 'เว็บไซต์ทางการของเซเว่น อีเลฟเว่น', en: '7-Eleven Thailand official website' }, asOf: asOf35c },
   },
   {
     id: 'jones-salad-thailand',
     name: { th: 'โจนส์ สลัด', en: "Jones' Salad" },
     cuisine: { th: 'สลัดและอาหารเพื่อสุขภาพ', en: 'Healthy salads & fast real food' },
     tags: ['salad'],
+    logo: { src: 'https://www.jonessalad.com/wp-content/uploads/2024/02/cropped-Logo-WEB-1-192x192.png', alt: { th: 'โลโก้โจนส์ สลัด', en: "Jones' Salad logo" }, kind: 'official-remote', sourceUrl: 'https://www.jonessalad.com/', sourceLabel: { th: 'เว็บไซต์ทางการของโจนส์ สลัด', en: "Jones' Salad official website" }, asOf: asOf35c },
   },
   {
     id: 'fuji-japanese-restaurant-thailand',
     name: { th: 'ฟูจิ', en: 'Fuji Japanese Restaurant' },
     cuisine: { th: 'อาหารญี่ปุ่น (ย่าง ซาซิมิ ข้าวหน้า)', en: 'Japanese cuisine (grilled dishes, sashimi-style salads, rice bowls)' },
     tags: ['japanese'],
+    logo: { src: 'https://www.fuji.co.th/wp-content/themes/fuji-2021/images/logo_fuji-whitebg.png', alt: { th: 'โลโก้ฟูจิ', en: 'Fuji Japanese Restaurant logo' }, kind: 'official-remote', sourceUrl: 'https://www.fuji.co.th/', sourceLabel: { th: 'เว็บไซต์ทางการของฟูจิ', en: 'Fuji official website' }, asOf: asOf35c },
   },
   {
     id: 'mk-restaurants-thailand',
     name: { th: 'เอ็มเคสุกี้', en: 'MK Restaurants' },
     cuisine: { th: 'สุกี้ยากี้และหม้อร้อน', en: 'Thai-style sukiyaki & hot pot' },
     tags: ['suki', 'hotpot'],
+    logo: { src: 'https://www.mkrestaurant.com/public/assets/img/icon/logo__mk.png', alt: { th: 'โลโก้เอ็มเคสุกี้', en: 'MK Restaurants logo' }, kind: 'official-remote', sourceUrl: 'https://www.mkrestaurant.com/th', sourceLabel: { th: 'เว็บไซต์ทางการของเอ็มเค', en: 'MK official website' }, asOf: asOf35c },
   },
   {
     id: 'sukiya-thailand',
@@ -159,6 +168,7 @@ export const restaurants: Restaurant[] = [
     cuisine: { th: 'อาหารญี่ปุ่น (ข้าวหน้าเนื้อ)', en: 'Japanese cuisine (gyudon beef rice bowls)' },
     tags: ['japanese'],
     visualIdentity: { kind: 'initials', label: { th: 'SK', en: 'SK' } },
+    logo: { src: 'https://www.sukiya.co.th/common/img/template/head_logo_sk@2x.png', alt: { th: 'โลโก้สุคิยะ', en: 'Sukiya logo' }, kind: 'official-remote', sourceUrl: 'https://www.sukiya.co.th/th/', sourceLabel: { th: 'เว็บไซต์ทางการของสุคิยะ ประเทศไทย', en: 'Thai Sukiya official website' }, asOf: asOf35c },
   },
   {
     id: 'santa-fe-steak-thailand',
@@ -172,6 +182,7 @@ export const restaurants: Restaurant[] = [
     cuisine: { th: 'อาหารอีสาน (ไก่ย่าง ส้มตำ ลาบ)', en: 'Isan cuisine (grilled chicken, papaya salad, larb)' },
     tags: ['isan', 'grilled'],
     visualIdentity: { kind: 'initials', label: { th: 'นก', en: 'NKY' } },
+    logo: { src: 'https://www.nittayakaiyang.com/wp-content/uploads/2023/03/cropped-logo-192x192.png', alt: { th: 'โลโก้นิตยาไก่ย่าง', en: 'Nittaya Kai Yang logo' }, kind: 'official-remote', sourceUrl: 'https://www.nittayakaiyang.com/th/', sourceLabel: { th: 'เว็บไซต์ทางการของนิตยาไก่ย่าง', en: 'Nittaya Kai Yang official website' }, asOf: asOf35c },
   },
   {
     id: 'zaab-eli-thailand',
@@ -196,6 +207,7 @@ export const restaurants: Restaurant[] = [
     name: { th: 'เดอะสเต๊กแอนด์มอร์', en: 'The Steak & More' },
     cuisine: { th: 'สเต็กราคาย่อมเยาและอาหารไทยฟิวชัน', en: 'Value steaks & Thai-fusion sides' },
     tags: ['steak'],
+    logo: { src: 'https://cdn.minorfood.com/uploaded/franchise/logo/175791264368c79e4357937.png', alt: { th: 'โลโก้เดอะสเต๊กแอนด์มอร์', en: 'The Steak & More logo' }, kind: 'official-remote', sourceUrl: 'https://www.minorfood.com/en/franchise/thailand/the-steak-and-more', sourceLabel: { th: 'เว็บไซต์ทางการของไมเนอร์ ฟู้ด (ผู้ดำเนินการแบรนด์)', en: 'Minor Food official website (brand operator)' }, asOf: asOf35c },
   },
 ]
 
