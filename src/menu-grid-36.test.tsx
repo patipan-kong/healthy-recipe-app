@@ -59,13 +59,19 @@ function LocalMenu({ restaurantId, items }: { restaurantId: string; items?: Rest
 }
 
 describe('Slice 36 Restaurant Grid', () => {
-  it('renders all 13 restaurants as grid cards with logos and initials', () => {
+  it('renders all 13 restaurants as grid cards, every one with a logo and no initials-only card', () => {
     openRestaurantsGrid()
-    expect(qa('.restaurant-grid .restaurant-card')).toHaveLength(13)
-    expect(restaurantCard('ootoya-thailand').querySelector('img')).not.toBeNull()
-    const fallback = restaurants.find(restaurant => !restaurant.logo)!
-    expect(restaurantCard(fallback.id).querySelector('img')).toBeNull()
-    expect(restaurantCard(fallback.id).querySelector('[data-restaurant-identity]')!.textContent).not.toBe('')
+    const cards = qa('.restaurant-grid .restaurant-card')
+    expect(cards).toHaveLength(13)
+    for (const card of cards) {
+      expect(card.querySelector('img')).not.toBeNull()
+      expect(card.querySelector('[data-identity-source="logo"]')).not.toBeNull()
+    }
+    // a failing logo falls back to initials without changing the card
+    act(() => { restaurantCard('zaab-eli-thailand').querySelector('img')!.dispatchEvent(new Event('error')) })
+    const card = restaurantCard('zaab-eli-thailand')
+    expect(card.querySelector('img')).toBeNull()
+    expect(card.querySelector('[data-restaurant-identity]')!.textContent).not.toBe('')
   })
 
   it('presents logo-bearing restaurants first, in catalog order inside each group', () => {
@@ -292,8 +298,8 @@ describe('Slice 36 unchanged boundaries', () => {
     expect(restaurantMenuItems).toHaveLength(84)
     expect(restaurantMenuItems.filter(item => item.price)).toHaveLength(44)
     expect(restaurantMenuItems.filter(item => item.menuImage)).toHaveLength(22)
-    expect(restaurants.filter(restaurant => restaurant.logo)).toHaveLength(8)
-    expect(restaurants.filter(restaurant => !restaurant.logo)).toHaveLength(5)
+    expect(restaurants.filter(restaurant => restaurant.logo)).toHaveLength(13)
+    expect(restaurants.filter(restaurant => !restaurant.logo)).toHaveLength(0)
     expect(recipeRestaurantRelations).toHaveLength(23)
   })
 })
@@ -320,11 +326,14 @@ describe('Slice 36 polish', () => {
     expect(identity.querySelector('img')?.getAttribute('src')).toBe(fuji.logo!.src)
   })
 
-  it('Random Restaurant falls back to initials when no logo exists', () => {
-    const plain = restaurants.find(restaurant => !restaurant.logo)!
-    const identity = pickIdentity(plain.id)
-    expect(identity.querySelector('img')).toBeNull()
-    expect(identity.textContent).not.toBe('')
+  it('Random Restaurant shows the new logo for a restaurant that previously had initials (Slice 37B)', () => {
+    for (const id of ['salad-factory-thailand', 'santa-fe-steak-thailand', 'zaab-eli-thailand', 'somtam-nua-thailand', 'thongsmith-boat-noodle-thailand']) {
+      const restaurant = restaurants.find(r => r.id === id)!
+      act(() => root.render(null))
+      const identity = pickIdentity(id)
+      expect(identity.getAttribute('data-identity-source'), id).toBe('logo')
+      expect(identity.querySelector('img')?.getAttribute('src'), id).toBe(restaurant.logo!.src)
+    }
   })
 
   it('menu grid cards stretch to equal row height through layout structure, not fixed pixels', () => {

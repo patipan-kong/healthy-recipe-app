@@ -509,7 +509,7 @@ export function RestaurantMenuView({ locale, restaurantId, onBack, onOpenMenuIte
       <button className="text-button restaurant-back" onClick={onBack}>{copy.restaurantsBack}</button>
       <button className="filter-button" onClick={() => setFiltersOpen(open => !open)} aria-pressed={filtersOpen} aria-label={copy.openFilters}><SlidersHorizontal size={17} />{activeFilterCount > 0 && <span>{activeFilterCount}</span>}</button>
     </div>
-    <div className="section-heading restaurant-heading"><div><p className="eyebrow">{restaurant?.cuisine?.[locale] ?? copy.restaurants}</p><h2>{restaurant?.name[locale] ?? copy.restaurants}</h2></div></div>
+    <div className="section-heading restaurant-heading restaurant-brand-header">{restaurant && <RestaurantIdentity restaurant={restaurant} locale={locale} size="lg" showLogo />}<div><p className="eyebrow">{restaurant?.cuisine?.[locale] ?? copy.restaurants}</p><h2>{restaurant?.name[locale] ?? copy.restaurants}</h2></div></div>
     {!storageAvailable && <p className="storage-note" role="status">{copy.restaurantFavoritesStorageNote}</p>}
     {filtersOpen && <div className="menu-filter-panel">
       <div className="number-grid">{Object.entries(filterLabels).map(([field, label]) => <label key={field} className="field-label">{label}<input type="number" min="0" value={filters[field as keyof RestaurantMenuFilters] ?? ''} onChange={event => updateNumber(field as keyof RestaurantMenuFilters, event.target.value)} /></label>)}</div>

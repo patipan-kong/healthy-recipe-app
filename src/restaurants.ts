@@ -117,6 +117,8 @@ const thongSmithPriceNote = { th: 'ราคาตามเมนูของร
 // Slice 35C restaurant logos: first-party official-remote brand assets only;
 // see docs/restaurant-logo-identity-35c.md. Restaurants without one keep initials.
 const asOf35c = '2026-09-30'
+// Slice 37B: remaining five logos (LINE Official Account / operator / brand link hub), see docs/restaurant-asset-coverage-audit-37a.md.
+const asOf37b = '2026-09-30'
 
 export const restaurants: Restaurant[] = [
   {
@@ -132,6 +134,7 @@ export const restaurants: Restaurant[] = [
     cuisine: { th: 'สลัดและอาหารเพื่อสุขภาพ', en: 'Salads & healthy bowls' },
     tags: ['salad'],
     visualIdentity: { kind: 'initials', label: { th: 'SF', en: 'SF' } },
+    logo: { src: 'https://profile.line-scdn.net/0hz4jveXzBJRtXDzk5qrpaTGtKK3YgISNTLzw4fycIcywqOmMYO2pqKXBdLCoqaDVFbWFsKSFYfC8p/preview', alt: { th: 'โลโก้สลัดแฟคทอรี่', en: 'Salad Factory logo' }, kind: 'official-remote', sourceUrl: 'https://page.line.me/pac6513g', sourceLabel: { th: 'LINE Official Account ของสลัดแฟคทอรี่', en: 'Salad Factory LINE Official Account' }, asOf: asOf37b },
   },
   {
     id: 'seven-eleven-thailand',
@@ -175,6 +178,7 @@ export const restaurants: Restaurant[] = [
     name: { th: 'ซานตาเฟ่', en: "Santa Fe' Steak" },
     cuisine: { th: 'สเต็กและอาหารย่าง', en: 'Steaks & grilled dishes' },
     tags: ['steak'],
+    logo: { src: 'https://profile.line-scdn.net/0hsv5twe1dLFkIDTBwDf5TDjRIIjR_IyoRcDlkayhadmwtaTwJMDxmNi5eemBwaG4OMWpraisLdjwk/preview', alt: { th: 'โลโก้ซานตาเฟ่ แฮปปี้ สเต็ก', en: 'Santa Fe Happy Steak logo' }, kind: 'official-remote', sourceUrl: 'https://page.line.me/santafesteak', sourceLabel: { th: 'LINE Official Account ของซานตาเฟ่ แฮปปี้ สเต็ก', en: 'Santa Fe Happy Steak LINE Official Account' }, asOf: asOf37b },
   },
   {
     id: 'nittaya-kai-yang-thailand',
@@ -189,18 +193,21 @@ export const restaurants: Restaurant[] = [
     name: { th: 'แซ่บอีลี่', en: 'Zaab Eli' },
     cuisine: { th: 'อาหารอีสานสมัยใหม่ (ส้มตำ ยำ ไก่ย่าง)', en: 'Modern Isan cuisine (papaya salad, spicy salads, grilled chicken)' },
     tags: ['isan', 'grilled'],
+    logo: { src: 'https://profile.line-scdn.net/0hLoXsNM-aE0BlCg8MHNdsF1lPHS0SJBUIHTkIIUUIRHBMalNFWDlUcRUPT3QaaVAQDD8IJRcOSiQb/preview', alt: { th: 'โลโก้แซ่บอีลี่', en: 'Zaab Eli logo' }, kind: 'official-remote', sourceUrl: 'https://page.line.me/ntw0665w', sourceLabel: { th: 'LINE Official Account ของแซ่บอีลี่', en: 'Zaab Eli LINE Official Account' }, asOf: asOf37b },
   },
   {
     id: 'somtam-nua-thailand',
     name: { th: 'ส้มตำนัว', en: 'Somtam Nua' },
     cuisine: { th: 'อาหารอีสาน (ส้มตำ ลาบ)', en: 'Isan cuisine (papaya salad, larb)' },
     tags: ['isan', 'salad'],
+    logo: { src: 'https://crg.co.th/catalogue-assets/images/brand/brand-19-1-logo-1687057873.png', alt: { th: 'โลโก้ส้มตำนัว', en: 'Somtam Nua logo' }, kind: 'official-remote', sourceUrl: 'https://crg.co.th/brand-details/19/SomtamNua', sourceLabel: { th: 'เว็บไซต์ทางการของเซ็นทรัล เรสตัวรองต์ กรุ๊ป (ผู้ดำเนินการแบรนด์)', en: 'Central Restaurants Group official website (brand operator)' }, asOf: asOf37b },
   },
   {
     id: 'thongsmith-boat-noodle-thailand',
     name: { th: 'ทองสมิทธ์', en: 'ThongSmith' },
     cuisine: { th: 'ก๋วยเตี๋ยวเรือพรีเมียมและข้าวต้ม', en: 'Premium boat noodles & Thai rice dishes' },
     tags: ['noodles'],
+    logo: { src: 'https://ugc.production.linktr.ee/xUhS40tTQxmfd8LZ6Lff_c2ASFv2sCRhR666E', alt: { th: 'โลโก้ทองสมิทธ์', en: 'ThongSmith logo' }, kind: 'official-remote', sourceUrl: 'https://linktr.ee/thongsmith', sourceLabel: { th: 'ลิงก์รวมช่องทางทางการของทองสมิทธ์ (Linktree)', en: 'ThongSmith official link hub (Linktree)' }, asOf: asOf37b },
   },
   {
     id: 'steak-and-more-thailand',
