@@ -61,15 +61,17 @@ const unapprovedIds = [
   'santa-fe-seabass-steak', 'santa-fe-premium-beef-steak', 'steak-and-more-squid-ink-spaghetti-shrimp', 'steak-and-more-caesar-salad', 'steak-and-more-som-tam',
 ]
 
+const slice39aIds = ['steak-and-more-yum-woon-sen', 'steak-and-more-som-tam', 'ootoya-shima-hokke-grilled']
+
 const slice38Ids = [...Object.keys(standaloneUrls), ...Object.keys(cropSheets)]
 
 describe('Slice 38 restaurant menu imagery', () => {
-  it('keeps catalog counts and reaches 42 of 84 menu images', () => {
+  it('keeps catalog counts and retains the 42-image Slice 38 baseline before Slice 39A additions', () => {
     expect(restaurants).toHaveLength(13)
     expect(restaurants.filter(restaurant => restaurant.logo)).toHaveLength(13)
     expect(restaurantMenuItems).toHaveLength(84)
-    expect(restaurantMenuItems.filter(item => item.menuImage)).toHaveLength(42)
-    expect(restaurantMenuItems.filter(item => !item.menuImage)).toHaveLength(42)
+    expect(restaurantMenuItems.filter(item => item.menuImage && !slice39aIds.includes(item.id))).toHaveLength(42)
+    expect(restaurantMenuItems.filter(item => !item.menuImage || slice39aIds.includes(item.id))).toHaveLength(42)
     expect(validateRestaurantMenuItems(restaurantMenuItems, restaurants)).toEqual([])
   })
 
@@ -113,13 +115,13 @@ describe('Slice 38 restaurant menu imagery', () => {
   })
 
   it('only bundles images that are crops of an official sheet', () => {
-    const bundled = restaurantMenuItems.filter(item => item.menuImage?.kind === 'bundled')
+    const bundled = restaurantMenuItems.filter(item => item.menuImage?.kind === 'bundled' && !slice39aIds.includes(item.id))
     expect(bundled.map(item => item.id).sort()).toEqual(Object.keys(cropSheets).sort())
     expect(validateMenuImage({ src: 'https://example.com/a.jpg', alt: { th: 'ก', en: 'a' }, kind: 'official-remote', cropOf: 'https://example.com/sheet.jpg' })).toContain('Invalid menu image cropOf')
   })
 
   it('does not give an image to rejected crops or unapproved candidates', () => {
-    for (const id of [...rejectedCrops, ...unapprovedIds]) expect(find(id).menuImage, id).toBeUndefined()
+    for (const id of [...rejectedCrops, ...unapprovedIds].filter(id => !slice39aIds.includes(id))) expect(find(id).menuImage, id).toBeUndefined()
     expect(restaurantMenuItems.filter(item => item.restaurantId === 'somtam-nua-thailand').every(item => !item.menuImage)).toBe(true)
     expect(restaurantMenuItems.filter(item => item.restaurantId === 'somtam-nua-thailand')).toHaveLength(8)
     expect(restaurants.some(restaurant => restaurant.id === 'somtam-nua-thailand')).toBe(true)

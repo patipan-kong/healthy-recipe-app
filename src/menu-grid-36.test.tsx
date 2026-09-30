@@ -297,7 +297,7 @@ describe('Slice 36 unchanged boundaries', () => {
     expect(restaurants).toHaveLength(13)
     expect(restaurantMenuItems).toHaveLength(84)
     expect(restaurantMenuItems.filter(item => item.price)).toHaveLength(44)
-    expect(restaurantMenuItems.filter(item => item.menuImage)).toHaveLength(42) // 22 before Slice 38
+    expect(restaurantMenuItems.filter(item => item.menuImage)).toHaveLength(45) // 22 before Slice 38; 45 after Slice 39A
     expect(restaurants.filter(restaurant => restaurant.logo)).toHaveLength(13)
     expect(restaurants.filter(restaurant => !restaurant.logo)).toHaveLength(0)
     expect(recipeRestaurantRelations).toHaveLength(23)
@@ -365,9 +365,9 @@ describe('Slice 36 polish', () => {
     expect(ids).toEqual(imageFirstMenuItems(restaurantMenuItems).map(item => item.id))
     expect(ids).toHaveLength(84)
     const flags = qa('.menu-grid-card').map(card => card.dataset.hasImage === 'true')
-    expect(flags.filter(Boolean)).toHaveLength(42)
-    expect(flags.indexOf(false)).toBe(42)
-    expect(flags.lastIndexOf(true)).toBe(41)
+    expect(flags.filter(Boolean)).toHaveLength(45)
+    expect(flags.indexOf(false)).toBe(45)
+    expect(flags.lastIndexOf(true)).toBe(44)
     expect(ids.filter(id => restaurantMenuItems.find(item => item.id === id)!.menuImage)).toEqual(restaurantMenuItems.filter(item => item.menuImage).map(item => item.id))
     expect(qa('.menu-grid-divider')).toHaveLength(0)
   })

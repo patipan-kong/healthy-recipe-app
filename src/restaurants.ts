@@ -272,6 +272,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
       note: ootoyaSetMealContextNote,
     },
     price: { amount: 399, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: '/menu/ootoya-shima-hokke-grilled.webp',
+      alt: { th: 'ปลาชิมาฮอกเกะย่างถ่านพร้อมหัวไชเท้าขูดบนจานปลา', en: 'Charcoal-grilled Shima Hokke with grated daikon on the fish plate' },
+      kind: 'bundled',
+      sourceUrl: 'https://www.ootoya.co.th/menu-details.php?id=1',
+      sourceLabel: { th: 'ภาพครอปจากเมนูทางการของโอโตยะ', en: 'Cropped from Ootoya official menu publication' },
+      asOf: '2026-09-30',
+      cropOf: 'https://www.ootoya.co.th/upload_file/menu/Fish-Menu/%E0%B8%9B%E0%B8%A5%E0%B8%B2%E0%B8%8A%E0%B8%B4%E0%B8%A1%E0%B8%B2%E0%B8%AE%E0%B8%AD%E0%B8%81%E0%B9%80%E0%B8%81%E0%B8%B0%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%96%E0%B9%88%E0%B8%B2%E0%B8%99-big.png',
+    },
   },
   {
     id: 'ootoya-grilled-moromi-chicken',
@@ -1442,6 +1451,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 170, protein: 5, carbs: 25, fat: 6, sodium: 850 },
     nutritionSource: { confidence: 'estimated', note: steakAndMoreEstimateNote, asOf: asOf14 },
     tags: ['salad', 'spicy'],
+    menuImage: {
+      src: '/menu/steak-and-more-som-tam.webp',
+      alt: { th: 'ส้มตำมะละกอพร้อมมะเขือเทศ ถั่วฝักยาว และถั่วลิสง', en: 'Papaya salad with tomato, long beans and peanuts' },
+      kind: 'bundled',
+      sourceUrl: 'https://www.minorfood.com/th/news/minor-food-launches-the-steak-and-more',
+      sourceLabel: { th: 'ภาพครอปจากบทความทางการของไมเนอร์ฟู้ด เดอะสเต๊กแอนด์มอร์', en: 'Cropped from Minor Food official The Steak & More publication' },
+      asOf: '2026-09-30',
+      cropOf: 'https://cdn.minorfood.com/uploaded/editor/20250122/body-3.jpg',
+    },
   },
   {
     id: 'steak-and-more-yum-woon-sen',
@@ -1451,6 +1469,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 280, protein: 14, carbs: 32, fat: 10, sodium: 900 },
     nutritionSource: { confidence: 'estimated', note: steakAndMoreEstimateNote, asOf: asOf14 },
     tags: ['seafood', 'salad', 'spicy'],
+    menuImage: {
+      src: 'https://cdn.minorfood.com/uploaded/brand/tile/175757423068c2745661fb5.jpg',
+      alt: { th: 'ยำวุ้นเส้นพร้อมผักและเนื้อสับ', en: 'Glass noodle salad with vegetables and minced meat' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.minorfood.com/th/our-business/the-steak-and-more',
+      sourceLabel: { th: 'ภาพจากเว็บไซต์ทางการของไมเนอร์ฟู้ด เดอะสเต๊กแอนด์มอร์', en: 'Image from Minor Food official The Steak & More brand page' },
+      asOf: '2026-09-30',
+    },
   },
 ]
 

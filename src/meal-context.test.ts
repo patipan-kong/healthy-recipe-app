@@ -3,7 +3,7 @@ import { calculateMealNutrition, validateMenuImage, validateMenuPrice } from './
 import { explorePresetFilters, filterRestaurantMenuItems, restaurantMenuItems, restaurants, searchRestaurantMenuItems, validateRestaurantMenuItems } from './restaurants'
 import type { RestaurantMenuItem } from './types'
 
-// Slice 38 added these menu images; the historical assertions below describe the catalog before it.
+// Slice 38 and 39A added menu images; historical assertions below describe the pre-Slice38 catalog.
 const slice38MenuImageIds = [
   'ootoya-oyakodon', 'salad-factory-grilled-chicken-sesame', 'salad-factory-quinoa-chicken-basil', 'salad-factory-kale-chicken-truffle',
   'salad-factory-rocket-skirt-steak', 'jones-chicken-sesame-salad', 'jones-grilled-salmon-salad', 'jones-caesar-chicken-salad',
@@ -12,7 +12,8 @@ const slice38MenuImageIds = [
   'santa-fe-kurobuta-pork-chop', 'thongsmith-wagyu-ribeye-boat-noodle', 'thongsmith-kurobuta-pork-boat-noodle',
   'thongsmith-dry-rice-kurobuta-braised-pork', 'thongsmith-grilled-pork-meatballs',
 ]
-const withPreSlice38Image = (candidate: RestaurantMenuItem) => Boolean(candidate.menuImage) && !slice38MenuImageIds.includes(candidate.id)
+const slice39aMenuImageIds = ['steak-and-more-yum-woon-sen', 'steak-and-more-som-tam', 'ootoya-shima-hokke-grilled']
+const withPreSlice38Image = (candidate: RestaurantMenuItem) => Boolean(candidate.menuImage) && ![...slice38MenuImageIds, ...slice39aMenuImageIds].includes(candidate.id)
 
 const base = { kcal: 282, protein: 39.5, carbs: 7.9, fat: 12, fiber: 2, sodium: 180 }
 const addition = { kcal: 220, protein: 4.5, carbs: 45, fat: 1.5, fiber: 1, sodium: 360 }
@@ -475,10 +476,11 @@ describe('Slice 29 image expansion batch (relation-aware coverage)', () => {
     expect(somTamSaltedEgg!.menuImage!.sourceUrl).toMatch(/^https:\/\/www\.nittayakaiyang\.com\//)
   })
 
-  it('leaves the Priority-1 relation-linked items without a menuImage unless Slice 38 verified one', () => {
+  it('leaves the Priority-1 relation-linked items without a menuImage unless Slice 38 or 39A verified one', () => {
     expect(restaurantMenuItems.find(candidate => candidate.id === 'fuji-chicken-teriyaki')?.menuImage?.kind).toBe('official-remote')
     expect(restaurantMenuItems.find(candidate => candidate.id === 'jones-caesar-chicken-salad')?.menuImage?.kind).toBe('official-remote')
-    const relationLinkedIds = ['fuji-salmon-shioyaki', 'steak-and-more-yum-woon-sen']
+    expect(restaurantMenuItems.find(candidate => candidate.id === 'steak-and-more-yum-woon-sen')?.menuImage?.kind).toBe('official-remote')
+    const relationLinkedIds = ['fuji-salmon-shioyaki']
     for (const id of relationLinkedIds) {
       expect(restaurantMenuItems.find(candidate => candidate.id === id)?.menuImage).toBeUndefined()
     }

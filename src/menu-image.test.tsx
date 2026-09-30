@@ -279,17 +279,17 @@ describe('Slice 29 image-backed items render in Pick Focus', () => {
 })
 
 describe('production menu image dataset shape', () => {
-  it('keeps every menuImage-bearing item within the researched Slice 18 + 19 + 24 + 29 + 35B + 38 batches', () => {
+  it('keeps every menuImage-bearing item within the researched Slice 18 + 19 + 24 + 29 + 35B + 38 + 39A batches', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     expect(withImage.length).toBeGreaterThan(0)
-    expect(withImage.length).toBeLessThanOrEqual(42)
+    expect(withImage.length).toBeLessThanOrEqual(45)
     for (const item of withImage) expect(restaurants.some(restaurant => restaurant.id === item.restaurantId)).toBe(true)
   })
 
-  it('spreads image coverage across ten restaurants as of Slice 38 (Zaab Eli, Somtam Nua and The Steak & More remain image-less), without changing restaurant/item counts', () => {
+  it('spreads image coverage across eleven restaurants as of Slice 39A (Zaab Eli and Somtam Nua remain image-less), without changing restaurant/item counts', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     const restaurantIds = new Set(withImage.map(item => item.restaurantId))
-    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'seven-eleven-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand', 'nittaya-kai-yang-thailand', 'salad-factory-thailand', 'jones-salad-thailand', 'sukiya-thailand', 'santa-fe-steak-thailand', 'thongsmith-boat-noodle-thailand']))
+    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'seven-eleven-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand', 'nittaya-kai-yang-thailand', 'salad-factory-thailand', 'jones-salad-thailand', 'sukiya-thailand', 'santa-fe-steak-thailand', 'thongsmith-boat-noodle-thailand', 'steak-and-more-thailand']))
     expect(restaurants.length).toBe(13)
     expect(restaurantMenuItems.length).toBe(84)
   })
