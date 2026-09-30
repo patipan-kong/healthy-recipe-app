@@ -8,6 +8,16 @@ import type { RestaurantMenuItem } from './types'
 
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
+// Ordinary menu cards are concise browse cards: the restaurant link lives on Menu Detail.
+function openRestaurantFromCard(row: HTMLElement) {
+  const title = row.querySelector<HTMLButtonElement>('.menu-grid-open')
+  if (!title) throw new Error('Missing menu card title button')
+  act(() => title.click())
+  const link = document.querySelector<HTMLButtonElement>('.menu-detail-restaurant')
+  if (!link) throw new Error('Missing Menu Detail restaurant link')
+  act(() => link.click())
+}
+
 describe('Restaurant browsing flow', () => {
   let container: HTMLDivElement
   let root: Root
@@ -143,11 +153,17 @@ describe('Restaurant browsing flow', () => {
     clickRestaurantsNav()
     act(() => restaurantRow(restaurants[0].name.th).click())
     const expectedItems = restaurantMenuItems.filter(item => item.restaurantId === restaurants[0].id)
-    const badges = container.querySelectorAll('.confidence-badge')
-    expect(badges.length).toBeGreaterThan(0)
-    expect(badges).toHaveLength(expectedItems.length)
-    expect([...badges].every(badge => [...badge.classList].some(className => className.startsWith('confidence-')))).toBe(true)
-    for (const item of expectedItems) expect(container.querySelector(`.confidence-${item.nutritionSource.confidence}`)).not.toBeNull()
+    // Browse cards stay concise; each item's confidence badge is on its Menu Detail.
+    expect(container.querySelectorAll('.menu-grid-card .confidence-badge')).toHaveLength(0)
+    expect(expectedItems.length).toBeGreaterThan(0)
+    for (const item of expectedItems) {
+      const row = [...container.querySelectorAll<HTMLElement>('.menu-item-row')].find(r => r.querySelector('h3')?.textContent === item.name.th)!
+      act(() => row.querySelector<HTMLButtonElement>('.menu-grid-open')!.click())
+      const badge = container.querySelector('.menu-detail .confidence-badge')
+      expect(badge).not.toBeNull()
+      expect(badge!.classList.contains(`confidence-${item.nutritionSource.confidence}`)).toBe(true)
+      act(() => container.querySelector<HTMLButtonElement>('.menu-detail .detail-nav .round-button')!.click())
+    }
   })
 
   function openMenuFilters() {
@@ -506,7 +522,13 @@ describe('Cross-restaurant explore flow', () => {
     clickExploreNav()
     const rows = exploreRows()
     expect(rows.length).toBeGreaterThan(0)
-    expect([...rows].every(row => row.querySelector('.confidence-badge'))).toBe(true)
+    expect([...rows].every(row => row.querySelector('.menu-grid-open'))).toBe(true)
+    expect(container.querySelectorAll('.explore-view .menu-list .confidence-badge')).toHaveLength(0)
+    for (const item of restaurantMenuItems.slice(0, 6)) {
+      act(() => [...container.querySelectorAll<HTMLElement>('.menu-item-row')].find(r => r.querySelector('h3')?.textContent === item.name.th)!.querySelector<HTMLButtonElement>('.menu-grid-open')!.click())
+      expect(container.querySelector('.menu-detail .confidence-badge')?.classList.contains(`confidence-${item.nutritionSource.confidence}`)).toBe(true)
+      act(() => container.querySelector<HTMLButtonElement>('.menu-detail .detail-nav .round-button')!.click())
+    }
 
     clickExplorePick()
     expect(container.querySelector('.explore-view .menu-pick-card .confidence-badge')).not.toBeNull()
@@ -518,10 +540,8 @@ describe('Cross-restaurant explore flow', () => {
     const targetRestaurant = restaurants.find(candidate => candidate.id === targetItem.restaurantId)
     if (!targetRestaurant) throw new Error('Fixture item needs a matching restaurant')
     const row = [...exploreRows()].find(candidate => candidate.querySelector('h3')?.textContent === targetItem.name.th)
-    const viewButton = row?.querySelector<HTMLButtonElement>('.explore-view-restaurant')
-    if (!viewButton) throw new Error('Missing View restaurant button')
-
-    act(() => viewButton.click())
+    if (!row) throw new Error('Missing Explore row')
+    openRestaurantFromCard(row)
     expect(container.querySelector('.restaurant-menu-view')).not.toBeNull()
     expect(container.querySelector('.explore-view')).toBeNull()
     expect(container.querySelector('.restaurant-heading h2')?.textContent).toBe(targetRestaurant.name.th)
@@ -758,10 +778,8 @@ describe('Explore quick nutrition goals', () => {
     const targetRestaurant = restaurants.find(candidate => candidate.id === targetItem.restaurantId)
     if (!targetRestaurant) throw new Error('Fixture item needs a matching restaurant')
     const row = [...exploreRows()].find(candidate => candidate.querySelector('h3')?.textContent === targetItem.name.th)
-    const viewButton = row?.querySelector<HTMLButtonElement>('.explore-view-restaurant')
-    if (!viewButton) throw new Error('Missing View restaurant button')
-
-    act(() => viewButton.click())
+    if (!row) throw new Error('Missing Explore row')
+    openRestaurantFromCard(row)
     expect(container.querySelector('.restaurant-menu-view')).not.toBeNull()
     expect(container.querySelector('.restaurant-heading h2')?.textContent).toBe(targetRestaurant.name.th)
   })
@@ -884,9 +902,7 @@ describe('Restaurant menu favorites', () => {
     act(() => favoriteToggleIn(exploreRow).click())
     expect(favoriteToggleIn(exploreRow).getAttribute('aria-pressed')).toBe('true')
 
-    const viewButton = exploreRow.querySelector<HTMLButtonElement>('.explore-view-restaurant')
-    if (!viewButton) throw new Error('Missing View restaurant button')
-    act(() => viewButton.click())
+    openRestaurantFromCard(exploreRow)
     expect(container.querySelector('.restaurant-menu-view')).not.toBeNull()
 
     const localRow = menuRowByName(targetItem.name.th)
@@ -1218,10 +1234,7 @@ describe('Explore search', () => {
     if (!item) throw new Error('Fixture needs a mackerel item')
     const targetRestaurant = restaurants.find(candidate => candidate.id === item.restaurantId)
     if (!targetRestaurant) throw new Error('Fixture item needs a matching restaurant')
-    const viewButton = menuRowByName(item.name.th).querySelector<HTMLButtonElement>('.explore-view-restaurant')
-    if (!viewButton) throw new Error('Missing View restaurant button')
-
-    act(() => viewButton.click())
+    openRestaurantFromCard(menuRowByName(item.name.th))
     expect(container.querySelector('.restaurant-menu-view')).not.toBeNull()
     expect(container.querySelector('.restaurant-heading h2')?.textContent).toBe(targetRestaurant.name.th)
   })

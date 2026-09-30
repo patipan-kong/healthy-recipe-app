@@ -102,8 +102,10 @@ describe('Slice 35C restaurant logos: rendering', () => {
     const rows = [...container.querySelectorAll<HTMLElement>('.restaurant-row')]
     expect(rows).toHaveLength(13)
     expect(container.querySelectorAll('.restaurant-row img')).toHaveLength(8)
-    for (const [index, restaurant] of restaurants.entries()) {
-      const row = rows[index]
+    for (const restaurant of restaurants) {
+      // Slice 36 presents logo-bearing restaurants first, so match rows by identity, not position.
+      const row = rows.find(candidate => candidate.querySelector(`[data-restaurant-identity="${restaurant.id}"]`))!
+      expect(row).toBeDefined()
       expect(row.textContent).toContain(restaurant.name.th)
       const hasLogo = LOGO_IDS.includes(restaurant.id)
       expect(!!row.querySelector('img')).toBe(hasLogo)

@@ -91,12 +91,12 @@ describe('Meal Decision Hub', () => {
     expect(container.querySelector('.meal-hub')).toBeNull()
     expect(container.querySelectorAll('.restaurant-row')).toHaveLength(restaurants.length)
     expect(container.querySelector('.restaurant-nav')?.getAttribute('aria-pressed')).toBe('true')
-    const destination = container.querySelector('.restaurant-list')?.outerHTML
+    const destination = container.querySelector('.restaurant-grid')?.outerHTML
     expect(destination).toBeTruthy()
     click('.restaurant-nav')
     expect(container.querySelector<HTMLInputElement>('.search input')?.value).toBe('wakame')
     click('.restaurant-nav')
-    expect(container.querySelector('.restaurant-list')?.outerHTML).toBe(destination)
+    expect(container.querySelector('.restaurant-grid')?.outerHTML).toBe(destination)
     click('.logo')
     expect(container.querySelector('.meal-hub')).not.toBeNull()
     expect(container.querySelector<HTMLInputElement>('.search input')?.value).toBe('wakame')

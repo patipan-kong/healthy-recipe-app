@@ -154,6 +154,11 @@ type MessageSet = {
   recipeBridgeSubtitle: string
   menuBridgeHeading: string
   menuBridgeSubtitle: string
+  viewDetails: string
+  moreMenuItems: string
+  menuNutritionHeading: string
+  menuInfoHeading: string
+  menuSourceHeading: string
 }
 
 export const messages: Record<Locale, MessageSet> = {
@@ -308,6 +313,11 @@ export const messages: Record<Locale, MessageSet> = {
     recipeBridgeSubtitle: 'มีเมนูใกล้เคียงที่ร้าน',
     menuBridgeHeading: 'อยากทำเอง?',
     menuBridgeSubtitle: 'ลองทำเมนูใกล้เคียง',
+    viewDetails: 'ดูรายละเอียด',
+    moreMenuItems: 'เมนูเพิ่มเติม',
+    menuNutritionHeading: 'โภชนาการต่อหนึ่งที่',
+    menuInfoHeading: 'ข้อมูลเมนู',
+    menuSourceHeading: 'แหล่งข้อมูล',
   },
   en: {
     language: 'Language',
@@ -460,6 +470,11 @@ export const messages: Record<Locale, MessageSet> = {
     recipeBridgeSubtitle: 'Similar dishes at restaurants',
     menuBridgeHeading: 'Want to make it?',
     menuBridgeSubtitle: 'Try a similar recipe',
+    viewDetails: 'View details',
+    moreMenuItems: 'More menu items',
+    menuNutritionHeading: 'Nutrition per serving',
+    menuInfoHeading: 'Menu information',
+    menuSourceHeading: 'Sources',
   },
 }
 

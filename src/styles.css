@@ -74,22 +74,69 @@ body .number-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.number-grid .fi
 .ad-slot strong { font-size: 14px; font-weight: 600; }
 .ad-slot p { margin: 8px 0 0; font-size: 13px; line-height: 1.6; }
 .recipe-grid > .ad-slot { grid-column: 1 / -1; }
-/* Slice 35D: ordinary menu list cards (image card / text card) */
-.menu-card{padding-right:14px}
-.menu-card-main{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;row-gap:8px}
-.menu-card-body{display:contents}
-.menu-card-main > *{min-width:0}
-.menu-card-body > *{grid-column:1 / -1}
-.menu-card-body > .menu-item-copy{grid-column:2;grid-row:1}
-.menu-card .menu-item-copy .card-category,.menu-card .menu-item-copy h3{padding-right:38px}
-.menu-card .menu-item-nutrition{border-top:0;padding-top:0;gap:4px}
-.menu-card-nutrition .menu-item-nutrition-primary{gap:4px 14px}
-.menu-card-price b{color:#b8481f;font-size:17px}
-.menu-item-image-compact{display:contents}
-.menu-item-image-compact .menu-item-image-frame{grid-column:1;grid-row:1;width:108px;max-height:none;aspect-ratio:4/3;margin-right:12px;border-radius:12px}
-.menu-item-image-compact .menu-item-image-caption{grid-column:1 / -1;order:10;font-size:10px;line-height:1.3}
-.menu-card-body > *{order:1}
-.menu-card-price-details{font-size:11px;color:#71856e}
-.menu-card-price-details summary{cursor:pointer;min-height:24px;display:inline-flex;align-items:center;font-weight:700;color:#71856e}
-.menu-card-price-details p{margin:2px 0 0}
-.menu-card .explore-view-restaurant{font-size:13px;min-height:32px;margin-top:2px}
+/* Slice 36: unified Cook & Buy discovery (Restaurant Grid, Menu Grid, Menu Detail) */
+.restaurant-identity-tile{display:flex;align-items:center;justify-content:center;width:100%;height:84px;border-radius:14px;font-size:24px;letter-spacing:.06em}
+.restaurant-identity-tile.restaurant-identity-pilot,.restaurant-identity-tile.restaurant-identity-fallback{background:#f4f5ef;border-color:#dfe7dc;color:#667868}
+.restaurant-identity-tile.restaurant-identity-logo img{padding:12px}
+.restaurant-grid,.menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px;align-items:start}
+.menu-grid{align-items:stretch}
+.restaurant-grid{align-items:stretch}
+.restaurant-grid > .ad-slot,.menu-grid > .ad-slot,.menu-grid > .menu-grid-divider{grid-column:1 / -1}
+@media(min-width:560px){.restaurant-grid,.menu-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}}
+.restaurant-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;align-content:start;gap:10px 4px;padding:10px 10px 12px;border:1px solid #edf0e9;border-radius:18px;background:#fff;box-shadow:0 4px 16px #40503a0a;text-align:left;color:#294132;min-width:0}
+.restaurant-card .restaurant-identity{grid-column:1 / -1}
+.restaurant-card-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
+.restaurant-card-copy b{font-size:15px;line-height:1.25;overflow-wrap:anywhere}
+.restaurant-card-copy em{font-style:normal;font-size:12px;line-height:1.3;color:#809080;overflow-wrap:anywhere}
+.restaurant-card-chevron{color:#71856e;align-self:end;margin-bottom:2px}
+.menu-grid-card{height:100%;padding:0;gap:0;position:relative;display:flex;flex-direction:column;min-width:0;background:#fff;border:1px solid #edf0e9;border-radius:18px;overflow:hidden;box-shadow:0 4px 16px #40503a0a}
+.menu-grid-card .menu-item-image-frame{max-height:none;aspect-ratio:4/3;border-radius:0}
+.menu-grid-card .menu-item-image-frame img{object-fit:cover}
+.menu-grid-body{flex:1 1 auto;display:flex;flex-direction:column;gap:3px;padding:11px 12px 13px;min-width:0}
+.menu-grid-card:not(:has(.menu-item-image)) .menu-grid-body{padding-right:44px}
+.menu-grid-body .card-category{font-size:9px;color:#849782}
+.menu-grid-body h3{margin:1px 0 0;font-size:15px;line-height:1.25}
+.menu-grid-open{all:unset;cursor:pointer;display:block;color:#243629;overflow-wrap:anywhere}
+.menu-grid-open:focus-visible{outline:2px solid #294132;outline-offset:2px;border-radius:4px}
+.menu-grid-open::after{content:'';position:absolute;inset:0}
+.menu-grid-body > .menu-grid-price,.menu-grid-body > .menu-grid-facts:first-child,.menu-grid-body > :not(.menu-grid-price) + .menu-grid-facts{margin-top:auto}
+.menu-grid-price{margin:2px 0 0;font-size:17px;font-weight:800;color:#b8481f;line-height:1.2}
+.menu-grid-facts{margin:0;display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;color:#768477}
+.menu-grid-facts b{color:#294132;font-size:13px}
+.menu-grid-card .menu-favorite-toggle{z-index:2;top:8px;right:8px;background:#ffffffeb;border-radius:50%;box-shadow:0 1px 6px #2436292e}
+.menu-grid-card:not(:has(.menu-item-image)) .menu-favorite-toggle{background:transparent;box-shadow:none}
+.menu-grid-card .menu-item-restaurant-line{margin-top:1px}
+.menu-grid-card .menu-item-restaurant{font-size:11px}
+.menu-grid-divider{margin:8px 0 0;padding-top:14px;border-top:1px solid #e5ebe1;font-size:13px;font-weight:700;color:#71856e}
+.menu-view-details{align-self:flex-start;padding:0;min-height:36px}
+/* Menu Detail */
+.menu-detail .menu-item-image{gap:0}
+.menu-detail .menu-item-image-frame{max-height:320px;aspect-ratio:4/3;border-radius:0}
+.menu-detail .menu-item-image-caption{padding:8px 22px 0;font-size:11px}
+.menu-detail-restaurant{display:flex;align-items:center;gap:10px;width:100%;margin:0 0 14px;padding:8px 10px;border:1px solid #e5ebe1;border-radius:14px;background:#fff;text-align:left;color:#294132;min-height:52px}
+.menu-detail-restaurant > span:not(.restaurant-identity){display:flex;flex-direction:column;flex:1;min-width:0}
+.menu-detail-restaurant b{font-size:14px;overflow-wrap:anywhere}
+.menu-detail-restaurant em{font-style:normal;font-size:12px;color:#809080}
+.menu-detail .eyebrow{margin-top:4px}
+.menu-detail h1{font-size:30px;overflow-wrap:anywhere}
+.menu-detail-price{margin-top:16px;padding:14px 16px;border-radius:16px;background:#fdf1ea;border:1px solid #f2d9cb}
+.menu-detail-price-line{display:flex;align-items:baseline;justify-content:space-between;gap:12px;color:#7a5a4a;font-size:13px;font-weight:700}
+.menu-detail-price-line strong{font-size:28px;color:#b8481f;letter-spacing:-.5px}
+.menu-detail-price .meal-context-note{margin:4px 0 0}
+.menu-detail .menu-detail-nutrition{margin-top:24px}
+.menu-detail .detail-section h2{font-size:19px}
+.menu-detail .nutrition-card{margin-top:12px}
+.menu-detail-confidence{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:12px 0 0;font-size:12px;color:#768477}
+.menu-detail .meal-context-details{margin-top:24px}
+.menu-detail .menu-recipe-bridge{margin-top:28px}
+.menu-detail .menu-item-note{line-height:1.5;font-size:13px}
+/* Responsive food-image presentation: browse cards crop in a controlled ratio, detail heroes keep the source composition. */
+@media(max-width:559px){.recipe-card .food-art{height:auto;aspect-ratio:4/3}}
+.detail-art{display:block;height:auto;aspect-ratio:1/1;max-height:520px}
+.detail-art .recipe-image.detail img{object-fit:contain}
+.menu-detail .menu-item-image-frame{display:flex;justify-content:center;aspect-ratio:auto;max-height:none}
+.menu-detail .menu-item-image-frame img{width:100%;height:auto;max-height:520px;object-fit:contain}
+/* The image wrapper carries the class "detail", which would otherwise inherit the page-level .detail box rules. */
+.recipe-image.detail{min-height:0;max-width:none;margin:0;padding:0;box-shadow:none;background:inherit}
+/* Recipe Browse category chips wrap onto extra rows instead of scrolling off-screen. */
+.chips{flex-wrap:wrap;overflow:visible}

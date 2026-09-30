@@ -6,14 +6,16 @@ function nutritionNumber(value: number) {
   return String(value)
 }
 
-export function MealContextDetails({ item, locale }: { item: RestaurantMenuItem; locale: Locale }) {
+export function MealContextDetails({ item, locale, showPrice = true }: { item: RestaurantMenuItem; locale: Locale; showPrice?: boolean }) {
   const copy = messages[locale]
   const context = item.mealContext
   const total = context?.kind === 'add-on' && context.additionNutrition
     ? calculateMealNutrition(item.nutrition, context.additionNutrition)
     : undefined
 
-  if (!context && !item.price) return null
+  const price = showPrice ? item.price : undefined
+
+  if (!context && !price) return null
 
   return <div className="meal-context-details">
     {context?.kind === 'add-on' && <section className="meal-context-section meal-context-addition" aria-label={copy.commonMeal}>
@@ -50,10 +52,10 @@ export function MealContextDetails({ item, locale }: { item: RestaurantMenuItem;
       <p className="meal-context-name">{context.label[locale]}</p>
       <p className="meal-context-note">{context.note?.[locale] ?? copy.mealIncludesSet}</p>
     </section>}
-    {item.price && <section className="meal-context-section meal-context-price" aria-label={copy.price}>
-      <div className="meal-context-price-line"><span className="meal-context-heading">{copy.price}</span><strong>฿{nutritionNumber(item.price.amount)}</strong></div>
-      <p className="meal-context-note">{copy.priceChecked(item.price.asOf)}</p>
-      {item.price.note && <p className="meal-context-note">{item.price.note[locale]}</p>}
+    {price && <section className="meal-context-section meal-context-price" aria-label={copy.price}>
+      <div className="meal-context-price-line"><span className="meal-context-heading">{copy.price}</span><strong>฿{nutritionNumber(price.amount)}</strong></div>
+      <p className="meal-context-note">{copy.priceChecked(price.asOf)}</p>
+      {price.note && <p className="meal-context-note">{price.note[locale]}</p>}
     </section>}
   </div>
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Locale, Restaurant } from './types'
 
-export type RestaurantIdentitySize = 'xs' | 'sm' | 'md'
+export type RestaurantIdentitySize = 'xs' | 'sm' | 'md' | 'tile'
 
 function sourceName(restaurant: Pick<Restaurant, 'name'>): string {
   const englishName = typeof restaurant.name?.en === 'string' ? restaurant.name.en.trim() : ''

@@ -39,9 +39,16 @@ function useRecipeColumns(): 1 | 3 {
   return columns
 }
 
+// Restaurant directory: complete rows before the full-width separator. Desktop grid has 3
+// columns (9 cards = 3 rows), the mobile grid 2 columns (10 cards = 5 rows).
+export function restaurantFeedAdAfter(cardCount: number, total: number, columns: 1 | 3) {
+  const after = columns === 3 ? 9 : 10
+  return total > after && cardCount === after
+}
+
 // Slots are presentation siblings; catalog arrays and candidate pools stay intact.
 export function AdFeed({ children, placement, enabled = true }: { children: ReactNode; placement: AdPlacement; enabled?: boolean }) {
   const cards = Children.toArray(children)
   const columns = useRecipeColumns()
-  return <>{cards.map((card, index) => <Fragment key={index}>{card}{enabled && ((placement === 'recipe-feed' || placement === 'menu-feed') ? recipeFeedAdAfter(index + 1, cards.length, columns) : cards.length > 10 && index === 9) && <AdSlot placement={placement} />}</Fragment>)}</>
+  return <>{cards.map((card, index) => <Fragment key={index}>{card}{enabled && ((placement === 'recipe-feed' || placement === 'menu-feed') ? recipeFeedAdAfter(index + 1, cards.length, columns) : placement === 'restaurant-feed' ? restaurantFeedAdAfter(index + 1, cards.length, columns) : cards.length > 10 && index === 9) && <AdSlot placement={placement} />}</Fragment>)}</>
 }

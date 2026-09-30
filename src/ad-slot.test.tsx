@@ -89,7 +89,7 @@ it('search removes the feed ad for short results without changing matching cards
 it('restaurant feed and each independent result have one sibling ad, shared cards have none', () => {
   render(); click('.meal-hub button:last-child')
   expect(container.querySelectorAll('.restaurant-row')).toHaveLength(13)
-  expect(container.querySelector('.restaurant-list')?.children[10]).toBe(ads('restaurant-feed')[0])
+  expect(container.querySelector('.restaurant-grid')?.children[10]).toBe(ads('restaurant-feed')[0])
   click('.restaurant-pick-trigger'); expect(ads('restaurant-pick')).toHaveLength(1)
   after('.restaurant-pick', 'restaurant-pick')
   click('.restaurant-meal-pick-trigger'); expect(ads('restaurant-pick')).toHaveLength(2)
@@ -167,4 +167,28 @@ it('global menu search repeats shared feed cadence, filters naturally and keeps 
   expect(ads('restaurant-pick')).toHaveLength(1)
   expect(ads('menu-feed')).toHaveLength(0)
   expect(expected.map(item => item.name.th)).toContain(container.querySelector('.menu-pick-card h3')?.textContent)
+})
+
+it('restaurant directory ad completes rows: after 9 cards on 3 columns, after 10 on 2 columns', () => {
+  for (const [desktop, cardsBefore] of [[true, 9], [false, 10]] as const) {
+    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: desktop, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+    act(() => root.unmount()); root = createRoot(container)
+    render(); click('.meal-hub button:last-child')
+    const grid = container.querySelector('.restaurant-grid')!
+    expect(ads('restaurant-feed')).toHaveLength(1)
+    expect(grid.children[cardsBefore]).toBe(ads('restaurant-feed')[0])
+    expect(grid.querySelectorAll('.restaurant-card')).toHaveLength(13)
+    expect(ads('restaurant-feed')[0].previousElementSibling?.classList.contains('restaurant-card')).toBe(true)
+    expect(ads('restaurant-feed')[0].nextElementSibling?.classList.contains('restaurant-card')).toBe(true)
+    vi.unstubAllGlobals()
+  }
+})
+it('restaurant directory ad is absent when there are not enough cards to complete rows', () => {
+  for (const [columns, count] of [[3, 9], [1, 10]] as const) {
+    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: columns === 3, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+    act(() => root.unmount()); root = createRoot(container)
+    render(<AdFeed placement="restaurant-feed">{Array.from({ length: count }, (_, i) => <article key={i}>{i}</article>)}</AdFeed>)
+    expect(ads('restaurant-feed')).toHaveLength(0)
+    vi.unstubAllGlobals()
+  }
 })
