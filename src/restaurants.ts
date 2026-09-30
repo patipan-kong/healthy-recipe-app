@@ -119,6 +119,22 @@ const thongSmithPriceNote = { th: 'ราคาตามเมนูของร
 const asOf35c = '2026-09-30'
 // Slice 37B: remaining five logos (LINE Official Account / operator / brand link hub), see docs/restaurant-asset-coverage-audit-37a.md.
 const asOf37b = '2026-09-30'
+// Slice 38 menu imagery from docs/restaurant-image-independent-research-opus.md: official-remote
+// standalone images plus local crops of official menu sheets under public/menu/ (crop, resize and
+// WebP conversion only; `cropOf` records the original sheet).
+const asOf38 = '2026-09-30'
+const saladFactoryStorefrontUrl = 'https://saladfactory.foodie24x7.co/'
+const saladFactoryStorefrontImageSourceLabel = { th: 'ภาพจากหน้าร้านสั่งอาหารออนไลน์ทางการของสลัดแฟคทอรี่', en: 'Image from Salad Factory official online ordering storefront' }
+const jonesHealthyMealUrl = 'https://www.jonessalad.com/catering/healthy-meal/'
+const jonesImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของโจนส์สลัด', en: "Image from Jones' Salad official website" }
+const jonesCropSourceLabel = { th: 'ภาพครอปจากเมนูทางการของโจนส์สลัด', en: "Cropped from Jones' Salad official menu sheet" }
+const sukiyaGrandMenuUrl = 'https://www.sukiya.co.th/th/menu/grandmenu.html'
+const sukiyaImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของสุกิยะ', en: 'Image from Sukiya official website' }
+const sukiyaCropSourceLabel = { th: 'ภาพครอปจากเมนูทางการของสุกิยะ', en: 'Cropped from Sukiya official menu sheet' }
+const santaFeMenuUrl = 'https://santafesteak.com/'
+const santaFeCropSourceLabel = { th: 'ภาพครอปจากเมนูทางการของซานตาเฟ่', en: "Cropped from Santa Fe' official menu sheet" }
+const thongSmithMenuUrl = 'https://online.anyflip.com/iugnb/rchh/'
+const thongSmithCropSourceLabel = { th: 'ภาพครอปจากเมนูออนไลน์ทางการของทองสมิทธ์ (ลิงก์จาก Linktree ของร้าน)', en: "Cropped from ThongSmith's official online menu (linked from its official Linktree)" }
 
 export const restaurants: Restaurant[] = [
   {
@@ -287,6 +303,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['chicken', 'rice'],
     servingNote: { th: 'หนึ่งชาม รวมข้าว', en: 'One rice bowl, includes rice.' },
     price: { amount: 199, currency: 'THB', asOf: asOf20, note: oyakodonIndividualPriceNote },
+    menuImage: {
+      src: 'https://www.ootoya.co.th/upload_file/menu/Donburi-Menu/%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B9%84%E0%B8%81%E0%B9%88%E0%B9%82%E0%B8%AD%E0%B8%A2%E0%B8%B2%E0%B9%82%E0%B8%81%E0%B8%B0-big.png',
+      alt: { th: 'ข้าวหน้าไก่ย่างถ่านและไข่แบบโอยาโกะในกล่องเสิร์ฟ พร้อมสาหร่ายโนริ', en: 'Charcoal-grilled chicken and egg over rice in a lacquer box, with nori' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.ootoya.co.th/menu-details.php?id=72',
+      sourceLabel: ootoyaImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'ootoya-tonteki-pork-chop-set',
@@ -328,6 +352,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['chicken', 'salad', 'high-protein', 'grilled'],
     customizationNotes: [{ th: 'หากต้องการลดพลังงาน แนะนำให้ขอน้ำสลัดแยกต่างหาก', en: 'For a lighter option, consider asking for the dressing on the side' }],
     price: { amount: 155, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://img.imageboss.me/foodie24x7/width/500/format:webp/723305ef-3a77-4d9d-a603-e295dd72087d.jpg',
+      alt: { th: 'สลัดอกไก่ย่างหั่นชิ้น ราดน้ำสลัดงา โรยสาหร่าย', en: 'Sliced grilled chicken breast salad with sesame dressing and nori' },
+      kind: 'official-remote',
+      sourceUrl: saladFactoryStorefrontUrl,
+      sourceLabel: saladFactoryStorefrontImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'salad-factory-quinoa-chicken-basil',
@@ -338,6 +370,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: saladFactoryEstimateNote, asOf },
     tags: ['chicken', 'salad', 'high-protein'],
     price: { amount: 195, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://img.imageboss.me/foodie24x7/width/500/format:webp/9f9aab2a-d4c5-4932-ab02-c89245cea8d6.jpg',
+      alt: { th: 'สลัดควินัวผัดกะเพรากรอบกับอกไก่ย่างและผักย่าง', en: 'Quinoa stir-fried with crispy holy basil, grilled chicken breast and grilled vegetables on greens' },
+      kind: 'official-remote',
+      sourceUrl: saladFactoryStorefrontUrl,
+      sourceLabel: saladFactoryStorefrontImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'salad-factory-kale-chicken-truffle',
@@ -348,6 +388,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: saladFactoryEstimateNote, asOf },
     tags: ['chicken', 'salad', 'high-protein'],
     price: { amount: 235, currency: 'THB', asOf: asOf20, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://img.imageboss.me/foodie24x7/width/500/format:webp/6a1fa2fc-cef0-4df9-b57f-e52b5cf40aa4.jpg',
+      alt: { th: 'สลัดผักเคลกับอกไก่ย่างหั่นชิ้น และถ้วยน้ำสลัดทรัฟเฟิล', en: 'Curly kale salad with sliced grilled chicken breast and a cup of truffle dressing' },
+      kind: 'official-remote',
+      sourceUrl: saladFactoryStorefrontUrl,
+      sourceLabel: saladFactoryStorefrontImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'salad-factory-rocket-skirt-steak',
@@ -357,6 +405,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutrition: { kcal: 400, protein: 30, carbs: 12, fat: 25 },
     nutritionSource: { confidence: 'estimated', note: saladFactoryEstimateNote, asOf },
     tags: ['beef', 'salad', 'high-protein', 'low-carb'],
+    menuImage: {
+      src: 'https://img.imageboss.me/foodie24x7/width/500/format:webp/27100880-a2c7-4731-9bdb-f7cfbcfce517.jpg',
+      alt: { th: 'สลัดร็อกเก็ตกับเนื้อสเต็กย่างหั่นชิ้น และซอสบัลซามิก', en: 'Rocket salad with sliced grilled skirt steak and balsamic dressing' },
+      kind: 'official-remote',
+      sourceUrl: saladFactoryStorefrontUrl,
+      sourceLabel: saladFactoryStorefrontImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'salad-factory-spicy-pork-tenderloin',
@@ -464,6 +520,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: jonesSaladEstimateNote, asOf: asOf11 },
     tags: ['chicken', 'salad', 'high-protein'],
     customizationNotes: [{ th: 'หากต้องการลดพลังงาน สามารถขอน้ำสลัดแยกต่างหากได้ (ค่าพลังงานแบบไม่ใส่น้ำสลัดคือประมาณ 262 กิโลแคลอรี ตามข้อมูลของร้าน)', en: "For fewer calories, you can ask for the dressing on the side (the brand's own without-dressing figure is about 262 kcal)." }],
+    menuImage: {
+      src: 'https://www.jonessalad.com/wp-content/uploads/2026/07/%E0%B8%AA%E0%B8%A5%E0%B8%B1%E0%B8%94%E0%B8%AD%E0%B8%81%E0%B9%84%E0%B8%81%E0%B9%88%E0%B8%87%E0%B8%B2%E0%B8%82%E0%B8%B2%E0%B8%A7%E0%B8%84%E0%B8%B1%E0%B9%88%E0%B8%A7.png',
+      alt: { th: 'สลัดอกไก่หั่นชิ้นกับถ้วยน้ำสลัดงาขาวคั่ว', en: 'Sliced chicken breast salad with a cup of roasted sesame dressing' },
+      kind: 'official-remote',
+      sourceUrl: jonesHealthyMealUrl,
+      sourceLabel: jonesImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'jones-grilled-salmon-salad',
@@ -475,6 +539,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['fish', 'salad', 'high-protein'],
     customizationNotes: [{ th: 'สามารถขอน้ำสลัดแยกต่างหากเพื่อลดพลังงานได้ (ไม่ใส่น้ำสลัดประมาณ 317 กิโลแคลอรี ตามข้อมูลของร้าน)', en: "You can ask for the dressing on the side to reduce calories (without dressing is about 317 kcal per the brand's figure)." }],
     price: { amount: 369, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
+    menuImage: {
+      src: 'https://www.jonessalad.com/wp-content/uploads/2026/07/%E0%B8%AA%E0%B8%A5%E0%B8%B1%E0%B8%94%E0%B9%81%E0%B8%8B%E0%B8%A5%E0%B8%A1%E0%B8%AD%E0%B8%99%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87.png',
+      alt: { th: 'สลัดผักกับแซลมอนย่าง', en: 'Mixed salad topped with grilled salmon' },
+      kind: 'official-remote',
+      sourceUrl: jonesHealthyMealUrl,
+      sourceLabel: jonesImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'jones-caesar-chicken-salad',
@@ -485,6 +557,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: jonesSaladEstimateNote, asOf: asOf11 },
     tags: ['chicken', 'salad'],
     customizationNotes: [{ th: 'สามารถขอน้ำสลัดแยกต่างหากเพื่อลดพลังงานได้ (ไม่ใส่น้ำสลัดประมาณ 213 กิโลแคลอรี ตามข้อมูลของร้าน)', en: "You can ask for the dressing on the side to reduce calories (without dressing is about 213 kcal per the brand's figure)." }],
+    menuImage: {
+      src: 'https://www.jonessalad.com/wp-content/uploads/2026/07/%E0%B8%AA%E0%B8%A5%E0%B8%B1%E0%B8%94%E0%B8%8B%E0%B8%B5%E0%B8%8B%E0%B8%B2%E0%B8%A3%E0%B9%8C%E0%B9%84%E0%B8%81%E0%B9%88.png',
+      alt: { th: 'สลัดซีซาร์ไก่ พร้อมขนมปังกรอบ ชีสพาร์เมซาน และน้ำสลัดซีซาร์', en: 'Chicken Caesar salad with croutons, parmesan and Caesar dressing' },
+      kind: 'official-remote',
+      sourceUrl: jonesHealthyMealUrl,
+      sourceLabel: jonesImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'jones-chicken-larb-crispy-rice-salad',
@@ -495,6 +575,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: jonesSaladEstimateNote, asOf: asOf11 },
     tags: ['chicken', 'salad'],
     customizationNotes: [{ th: 'สามารถขอน้ำยำแยกต่างหากเพื่อลดพลังงานได้ (ไม่ใส่น้ำยำประมาณ 228 กิโลแคลอรี ตามข้อมูลของร้าน)', en: "You can ask for the dressing on the side to reduce calories (without dressing is about 228 kcal per the brand's figure)." }],
+    menuImage: {
+      src: 'https://www.jonessalad.com/wp-content/uploads/2026/07/%E0%B8%AA%E0%B8%A5%E0%B8%B1%E0%B8%94%E0%B8%A5%E0%B8%B2%E0%B8%9A%E0%B8%AD%E0%B8%81%E0%B9%84%E0%B8%81%E0%B9%88%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B8%A7%E0%B8%9E%E0%B8%AD%E0%B8%87.png',
+      alt: { th: 'สลัดลาบอกไก่ โรยข้าวพอง พร้อมน้ำสลัดลาบ', en: 'Chicken breast larb salad topped with crispy rice, with larb dressing' },
+      kind: 'official-remote',
+      sourceUrl: jonesHealthyMealUrl,
+      sourceLabel: jonesImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'jones-caribbean-chicken-steak',
@@ -506,6 +594,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['chicken', 'grilled', 'high-protein'],
     customizationNotes: [{ th: 'สามารถขอซอสแยกต่างหากเพื่อลดพลังงานได้ (ไม่ใส่ซอสประมาณ 394 กิโลแคลอรี ตามข้อมูลของร้าน)', en: "You can ask for the sauce on the side to reduce calories (without sauce is about 394 kcal per the brand's figure)." }],
     price: { amount: 199, currency: 'THB', asOf: asOf35b, note: currentListedPriceNote },
+    menuImage: {
+      src: '/menu/jones-caribbean-chicken-steak.webp',
+      alt: { th: 'สเต็กอกไก่แคริบเบียนกับซอสสีน้ำตาล มันม่วงบด ผักโขม และสลัด', en: 'Caribbean chicken breast steak with brown sauce, mashed purple sweet potato, spinach and salad' },
+      kind: 'bundled',
+      sourceUrl: 'https://www.jonessalad.com/menu/steak/',
+      sourceLabel: jonesCropSourceLabel,
+      asOf: asOf38,
+      cropOf: 'https://www.jonessalad.com/wp-content/uploads/2026/08/Aug-18_Steak_Chicken-Breast.jpg',
+    },
   },
   {
     id: 'jones-honey-lemon-basa-steak',
@@ -602,6 +699,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: fujiEstimateNote, asOf: asOf11 },
     tags: ['chicken', 'grilled', 'high-protein'],
     price: { amount: 170, currency: 'THB', asOf: asOf35b, note: alaCartePriceNote },
+    menuImage: {
+      src: 'https://www.fuji.co.th/wp-content/uploads/2026/06/CHICKEN-TERIYAKI-768x768.png',
+      alt: { th: 'ไก่ย่างซีอิ๊วหั่นชิ้น เสิร์ฟกับผักกาดและฟักทอง (จานเดี่ยว)', en: 'Sliced chicken teriyaki with lettuce and pumpkin (à la carte plate)' },
+      kind: 'official-remote',
+      sourceUrl: 'https://www.fuji.co.th/menu/',
+      sourceLabel: fujiImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'fuji-chirashi-sushi-don-set',
@@ -764,6 +869,14 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['beef', 'rice'],
     servingNote: { th: "ข้าวหน้าเนื้อไซส์ M ของไทย เทียบเคียงกับขนาด 'ปกติ' ของญี่ปุ่น (ยังไม่ยืนยันปริมาณเท่ากันทุกประการ)", en: "Thailand's M-size gyudon, mapped to Japan's 'regular' serving (exact portion match not confirmed)." },
     price: { amount: 89, currency: 'THB', asOf: asOf35b, note: sukiyaMPriceNote },
+    menuImage: {
+      src: 'https://www.sukiya.co.th/th/upload/top/img_gyudon.jpg',
+      alt: { th: 'ข้าวหน้าเนื้อในชาม', en: 'Gyudon beef rice bowl' },
+      kind: 'official-remote',
+      sourceUrl: sukiyaGrandMenuUrl,
+      sourceLabel: sukiyaImageSourceLabel,
+      asOf: asOf38,
+    },
   },
   {
     id: 'sukiya-gyudon-okra-regular',
@@ -797,6 +910,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['beef', 'hotpot', 'low-carb'],
     servingNote: { th: "เนื้อไซส์ M ไม่รวมข้าว เทียบเคียงกับขนาด 'ปกติ' ของญี่ปุ่น เสิร์ฟดิบสำหรับต้มในหม้อสุกี้", en: "M-size beef without rice, mapped to Japan's 'regular' serving; served raw for cooking in the hot pot." },
     price: { amount: 75, currency: 'THB', asOf: asOf35b, note: sukiyaMPriceNote },
+    menuImage: {
+      src: '/menu/sukiya-beef-plate-no-rice.webp',
+      alt: { th: 'เนื้อสุคิยะในจาน ไม่มีข้าว', en: 'Sukiya beef plate, served without rice' },
+      kind: 'bundled',
+      sourceUrl: sukiyaGrandMenuUrl,
+      sourceLabel: sukiyaCropSourceLabel,
+      asOf: asOf38,
+      cropOf: 'https://www.sukiya.co.th/th/menu/img/menu/menu_alacarte.jpg',
+    },
   },
   {
     id: 'sukiya-salad',
@@ -839,6 +961,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['fish', 'grilled', 'high-protein', 'low-carb'],
     mealContext: santaFeConfigurableMealContext,
     price: { amount: 329, currency: 'THB', asOf: asOf17b, note: currentListedPriceNote },
+    menuImage: {
+      src: '/menu/santa-fe-salmon-steak.webp',
+      alt: { th: 'สเต๊กแซลมอนกับสลัด ขนมปังกระเทียม เฟรนช์ฟรายส์ และซอส', en: 'Salmon steak with salad, garlic bread, fries and sauce' },
+      kind: 'bundled',
+      sourceUrl: santaFeMenuUrl,
+      sourceLabel: santaFeCropSourceLabel,
+      asOf: asOf38,
+      cropOf: 'https://santafesteak.com/img/menuslide/AW%20Santa%20Fe_NewMenu_09Fish_Normal_1753171936.jpg',
+    },
   },
   {
     id: 'santa-fe-dory-fish-steak',
@@ -850,6 +981,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['fish', 'grilled'],
     mealContext: santaFeConfigurableMealContext,
     price: { amount: 209, currency: 'THB', asOf: asOf17b, note: currentListedPriceNote },
+    menuImage: {
+      src: '/menu/santa-fe-dory-fish-steak.webp',
+      alt: { th: 'สเต๊กปลาดอรี่ย่างกับผักโขม มันบด เฟรนช์ฟรายส์ และซอส', en: 'Grilled dory fish steak with spinach, mashed potato, fries and sauce' },
+      kind: 'bundled',
+      sourceUrl: santaFeMenuUrl,
+      sourceLabel: santaFeCropSourceLabel,
+      asOf: asOf38,
+      cropOf: 'https://santafesteak.com/img/menuslide/AW%20Santa%20Fe_NewMenu_09Fish_Normal_1753171936.jpg',
+    },
   },
   {
     id: 'santa-fe-seabass-steak',
@@ -869,6 +1009,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: santaFeEstimateNote, asOf: asOf11 },
     tags: ['pork', 'grilled', 'high-protein'],
     mealContext: santaFeConfigurableMealContext,
+    menuImage: {
+      src: '/menu/santa-fe-kurobuta-pork-chop.webp',
+      alt: { th: 'สเต๊กคูโรบูตะพอร์คชอปกับผักโขม มันบด เฟรนช์ฟรายส์ และซอส', en: 'Kurobuta pork chop steak with spinach, mashed potato, fries and sauce' },
+      kind: 'bundled',
+      sourceUrl: santaFeMenuUrl,
+      sourceLabel: santaFeCropSourceLabel,
+      asOf: asOf38,
+      cropOf: 'https://santafesteak.com/img/menuslide/AW%20Santa%20Fe_NewMenu_07Pork_Normal_1753171850.jpg',
+    },
   },
   {
     id: 'santa-fe-chicken-steak-jaew',
@@ -1168,6 +1317,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: thongSmithEstimateNote, asOf: asOf14 },
     tags: ['beef', 'noodles'],
     servingNote: { th: 'หนึ่งชาม เสิร์ฟแบบเดี่ยว', en: 'One noodle bowl, individual serving.' },
+    menuImage: {
+      src: '/menu/thongsmith-wagyu-ribeye-boat-noodle.webp',
+      alt: { th: 'ก๋วยเตี๋ยวเรือน้ำตกวากิวริบอาย ลูกชิ้น เนื้อตุ๋น และเอ็น', en: 'Wagyu ribeye boat noodle with beef balls, braised shank and tendon' },
+      kind: 'bundled',
+      sourceUrl: thongSmithMenuUrl,
+      sourceLabel: thongSmithCropSourceLabel,
+      asOf: asOf38,
+      cropOf: 'https://online.anyflip.com/iugnb/rchh/files/large/b79e70f66715b55e7b194b73ec6009f9.webp',
+    },
   },
   {
     id: 'thongsmith-kurobuta-pork-boat-noodle',
@@ -1178,6 +1336,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: thongSmithEstimateNote, asOf: asOf14 },
     tags: ['pork', 'noodles'],
     servingNote: { th: 'หนึ่งชาม เสิร์ฟแบบเดี่ยว', en: 'One noodle bowl, individual serving.' },
+    menuImage: {
+      src: '/menu/thongsmith-kurobuta-pork-boat-noodle.webp',
+      alt: { th: 'ก๋วยเตี๋ยวเรือน้ำตกหมูคุโรบุตะสไลซ์', en: 'Boat noodle with sliced Kurobuta pork' },
+      kind: 'bundled',
+      sourceUrl: thongSmithMenuUrl,
+      sourceLabel: thongSmithCropSourceLabel,
+      asOf: asOf38,
+      cropOf: 'https://online.anyflip.com/iugnb/rchh/files/large/73bd9be8ec7c33215a3f1d3b0cb60127.webp',
+    },
   },
   {
     id: 'thongsmith-dry-rice-kurobuta-braised-pork',
@@ -1189,6 +1356,16 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['pork', 'rice'],
     servingNote: { th: 'หนึ่งชาม เสิร์ฟแบบเดี่ยว', en: 'One bowl, individual serving.' },
     price: { amount: 239, currency: 'THB', asOf: asOf35b, note: thongSmithPriceNote },
+    // Price left as-is: the official menu lists G8 at THB 259; the catalog keeps THB 239 pending an owner decision.
+    menuImage: {
+      src: '/menu/thongsmith-dry-rice-kurobuta-braised-pork.webp',
+      alt: { th: 'ข้าวต้มแห้งราดหมูคุโรบูตะสไลซ์และหมูตุ๋น', en: 'Rice topped with sliced Kurobuta pork and braised pork' },
+      kind: 'bundled',
+      sourceUrl: thongSmithMenuUrl,
+      sourceLabel: thongSmithCropSourceLabel,
+      asOf: asOf38,
+      cropOf: 'https://online.anyflip.com/iugnb/rchh/files/large/51b13b11230d8a9320db2447984fdeb9.webp',
+    },
   },
   {
     id: 'thongsmith-spicy-shredded-chicken-dry',
@@ -1209,6 +1386,15 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     tags: ['pork', 'grilled'],
     servingNote: { th: 'หนึ่งจาน เสิร์ฟแบบเดี่ยว', en: 'One plate, individual serving.' },
     price: { amount: 119, currency: 'THB', asOf: asOf35b, note: thongSmithPriceNote },
+    menuImage: {
+      src: '/menu/thongsmith-grilled-pork-meatballs.webp',
+      alt: { th: 'ลูกชิ้นหมูปิ้งเสียบไม้ พร้อมน้ำจิ้มพริกหวาน', en: 'Grilled pork ball skewers with sweet chilli dip' },
+      kind: 'bundled',
+      sourceUrl: thongSmithMenuUrl,
+      sourceLabel: thongSmithCropSourceLabel,
+      asOf: asOf38,
+      cropOf: 'https://online.anyflip.com/iugnb/rchh/files/large/9adb672aa0e3015bafcb205c9abbb688.webp',
+    },
   },
   {
     id: 'steak-and-more-chicken-steak',

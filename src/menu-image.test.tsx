@@ -17,7 +17,7 @@ function FavoritableRestaurantMenu({ locale, menuItems }: { locale: Locale; menu
 
 const mackerel = restaurantMenuItems.find(item => item.id === 'ootoya-grilled-mackerel')!
 const tonteki = restaurantMenuItems.find(item => item.id === 'ootoya-tonteki-pork-chop-set')!
-const noImageItem = restaurantMenuItems.find(item => item.id === 'ootoya-oyakodon')!
+const noImageItem = restaurantMenuItems.find(item => item.id === 'ootoya-grilled-salmon-rice-bowl')!
 
 if (!mackerel.menuImage || !tonteki.menuImage) throw new Error('Fixture expects the Slice 18 pilot items to carry a menu image')
 if (noImageItem.menuImage) throw new Error('Fixture expects an Ootoya item without a menu image for contrast')
@@ -279,17 +279,17 @@ describe('Slice 29 image-backed items render in Pick Focus', () => {
 })
 
 describe('production menu image dataset shape', () => {
-  it('keeps every menuImage-bearing item within the small researched Slice 18 + 19 + 24 + 29 + 35B batch', () => {
+  it('keeps every menuImage-bearing item within the researched Slice 18 + 19 + 24 + 29 + 35B + 38 batches', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     expect(withImage.length).toBeGreaterThan(0)
-    expect(withImage.length).toBeLessThanOrEqual(22)
+    expect(withImage.length).toBeLessThanOrEqual(42)
     for (const item of withImage) expect(restaurants.some(restaurant => restaurant.id === item.restaurantId)).toBe(true)
   })
 
-  it('spreads image coverage across five restaurants as of Slice 35B (the broken Salad Factory references were removed), without changing restaurant/item counts', () => {
+  it('spreads image coverage across ten restaurants as of Slice 38 (Zaab Eli, Somtam Nua and The Steak & More remain image-less), without changing restaurant/item counts', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     const restaurantIds = new Set(withImage.map(item => item.restaurantId))
-    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'seven-eleven-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand', 'nittaya-kai-yang-thailand']))
+    expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'seven-eleven-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand', 'nittaya-kai-yang-thailand', 'salad-factory-thailand', 'jones-salad-thailand', 'sukiya-thailand', 'santa-fe-steak-thailand', 'thongsmith-boat-noodle-thailand']))
     expect(restaurants.length).toBe(13)
     expect(restaurantMenuItems.length).toBe(84)
   })

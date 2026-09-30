@@ -90,10 +90,13 @@ describe('Slice 35B verified restaurant content enrichment', () => {
     }
   })
 
-  it('removes the two broken Salad Factory image references without a substitute', () => {
-    expect(find('salad-factory-grilled-chicken-sesame').menuImage).toBeUndefined()
-    expect(find('salad-factory-kale-chicken-truffle').menuImage).toBeUndefined()
-    expect(restaurantMenuItems.filter(item => item.restaurantId === 'salad-factory-thailand').some(item => item.menuImage)).toBe(false)
+  it('keeps the two removed Salad Factory legacy-domain references gone (Slice 38 re-sourced them from the official storefront)', () => {
+    for (const item of restaurantMenuItems.filter(candidate => candidate.restaurantId === 'salad-factory-thailand')) {
+      expect(item.menuImage?.src ?? '', item.id).not.toMatch(/saladfactorythailand\.com/)
+      expect(item.menuImage?.sourceUrl ?? '', item.id).not.toMatch(/saladfactorythailand\.com/)
+    }
+    expect(find('salad-factory-grilled-chicken-sesame').menuImage?.src).toMatch(/^https:\/\/img\.imageboss\.me\/foodie24x7\//)
+    expect(find('salad-factory-kale-chicken-truffle').menuImage?.src).toMatch(/^https:\/\/img\.imageboss\.me\/foodie24x7\//)
   })
 
   it('leaves the questionable Nittaya whole-chicken image unchanged', () => {
@@ -102,13 +105,14 @@ describe('Slice 35B verified restaurant content enrichment', () => {
     expect(image?.asOf).toBe('2026-09-16')
   })
 
-  it('reaches the expected raw coverage with no bundled menu images', () => {
+  it('reaches the expected raw coverage; after Slice 38 the only bundled menu images are official-sheet crops', () => {
     expect(restaurants).toHaveLength(13)
     expect(restaurantMenuItems).toHaveLength(84)
     expect(restaurantMenuItems.filter(item => item.price)).toHaveLength(44)
+    // Slice 38 raised this from 22 to 42; its only bundled images are local crops of official menu sheets.
     const images = restaurantMenuItems.filter(item => item.menuImage)
-    expect(images).toHaveLength(22)
-    expect(images.every(item => item.menuImage?.kind === 'official-remote')).toBe(true)
-    expect(images.some(item => item.menuImage?.kind === 'bundled')).toBe(false)
+    expect(images).toHaveLength(42)
+    expect(images.filter(item => item.menuImage?.kind === 'official-remote')).toHaveLength(33)
+    expect(images.filter(item => item.menuImage?.kind === 'bundled').every(item => item.menuImage?.cropOf && item.menuImage.src.startsWith('/menu/'))).toBe(true)
   })
 })

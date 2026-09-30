@@ -111,6 +111,8 @@ export type MenuImage = {
   sourceUrl?: string
   sourceLabel?: LocalizedText
   asOf?: string
+  /** Bundled only: URL of the official menu sheet this image was cropped from (crop/resize only, no generative edits). */
+  cropOf?: string
 }
 
 export type RestaurantMenuItem = {

@@ -70,7 +70,7 @@ describe('Recipe Detail -> Restaurant bridge (App)', () => {
     const bridge = container.querySelector('.recipe-restaurant-bridge')
     expect(bridge).not.toBeNull()
     expect(bridge?.textContent).not.toContain('฿')
-    expect(bridge?.querySelector('img')).toBeNull()
+    expect(bridge?.querySelector('img')?.getAttribute('src')).toMatch(/^https:\/\/www\.jonessalad\.com\//)
   })
 
   it('renders no bridge section at all for a recipe with no curated relation', () => {

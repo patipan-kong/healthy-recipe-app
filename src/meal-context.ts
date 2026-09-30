@@ -71,6 +71,7 @@ export function validateMenuImage(value: unknown): string[] {
   if (image.sourceUrl !== undefined && !hasText(image.sourceUrl)) errors.push('Invalid menu image sourceUrl')
   if (image.sourceLabel !== undefined && !hasLocalizedText(image.sourceLabel)) errors.push('Invalid menu image sourceLabel')
   if (image.asOf !== undefined && !isValidIsoDate(image.asOf)) errors.push('Invalid menu image asOf')
+  if (image.cropOf !== undefined && (!hasText(image.cropOf) || image.kind !== 'bundled')) errors.push('Invalid menu image cropOf')
   return errors
 }
 

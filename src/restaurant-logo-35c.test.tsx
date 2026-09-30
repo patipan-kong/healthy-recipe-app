@@ -77,8 +77,8 @@ describe('Slice 35C restaurant logos: data', () => {
     expect(restaurantMenuItems).toHaveLength(84)
     expect(restaurantMenuItems.filter(item => item.price).length).toBe(44)
     const images = restaurantMenuItems.filter(item => item.menuImage)
-    expect(images).toHaveLength(22)
-    expect(images.every(item => item.menuImage!.kind === 'official-remote')).toBe(true)
+    expect(images).toHaveLength(42) // 22 before Slice 38
+    expect(images.every(item => item.menuImage!.kind === 'official-remote' || (item.menuImage!.kind === 'bundled' && item.menuImage!.cropOf))).toBe(true)
   })
 })
 

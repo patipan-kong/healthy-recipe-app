@@ -3,6 +3,17 @@ import { calculateMealNutrition, validateMenuImage, validateMenuPrice } from './
 import { explorePresetFilters, filterRestaurantMenuItems, restaurantMenuItems, restaurants, searchRestaurantMenuItems, validateRestaurantMenuItems } from './restaurants'
 import type { RestaurantMenuItem } from './types'
 
+// Slice 38 added these menu images; the historical assertions below describe the catalog before it.
+const slice38MenuImageIds = [
+  'ootoya-oyakodon', 'salad-factory-grilled-chicken-sesame', 'salad-factory-quinoa-chicken-basil', 'salad-factory-kale-chicken-truffle',
+  'salad-factory-rocket-skirt-steak', 'jones-chicken-sesame-salad', 'jones-grilled-salmon-salad', 'jones-caesar-chicken-salad',
+  'jones-chicken-larb-crispy-rice-salad', 'fuji-chicken-teriyaki', 'sukiya-gyudon-regular',
+  'jones-caribbean-chicken-steak', 'sukiya-beef-plate-no-rice', 'santa-fe-salmon-steak', 'santa-fe-dory-fish-steak',
+  'santa-fe-kurobuta-pork-chop', 'thongsmith-wagyu-ribeye-boat-noodle', 'thongsmith-kurobuta-pork-boat-noodle',
+  'thongsmith-dry-rice-kurobuta-braised-pork', 'thongsmith-grilled-pork-meatballs',
+]
+const withPreSlice38Image = (candidate: RestaurantMenuItem) => Boolean(candidate.menuImage) && !slice38MenuImageIds.includes(candidate.id)
+
 const base = { kcal: 282, protein: 39.5, carbs: 7.9, fat: 12, fiber: 2, sodium: 180 }
 const addition = { kcal: 220, protein: 4.5, carbs: 45, fat: 1.5, fiber: 1, sodium: 360 }
 
@@ -226,7 +237,7 @@ describe('optional menu image validation (Slice 18 pilot)', () => {
   })
 
   it('has exactly the Slice 19 expansion batch of new image-backed items, each official-remote and each from its own restaurant\'s domain', () => {
-    const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage)
+    const withImage = restaurantMenuItems.filter(withPreSlice38Image)
     const slice18Ids = ['ootoya-grilled-mackerel', 'ootoya-tonteki-pork-chop-set']
     const slice24Ids = [
       'fuji-chirashi-sushi-don-set',
@@ -248,7 +259,6 @@ describe('optional menu image validation (Slice 18 pilot)', () => {
     ])
     const sourceDomainByRestaurant: Record<string, RegExp> = {
       'ootoya-thailand': /^https:\/\/www\.ootoya\.co\.th\//,
-      'salad-factory-thailand': /^https:\/\/www\.saladfactorythailand\.com\//,
       'seven-eleven-thailand': /^https:\/\/(www\.allonline\.7eleven\.co\.th|media\.allonline\.7eleven\.co\.th)\//,
     }
     for (const candidate of slice19Items) {
@@ -283,8 +293,8 @@ describe('optional menu image validation (Slice 18 pilot)', () => {
     }
   })
 
-  it('total menu-image coverage as of Slice 35B (22 of 84 items)', () => {
-    const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage)
+  it('total menu-image coverage as of Slice 35B (22 of 84 items), before the Slice 38 additions', () => {
+    const withImage = restaurantMenuItems.filter(withPreSlice38Image)
     expect(withImage.length).toBe(22)
   })
 
@@ -435,12 +445,12 @@ describe('Slice 24 image expansion batch', () => {
     }
   })
 
-  it('leaves the rejected Fuji and Sukiya candidates without a menuImage', () => {
+  it('leaves the rejected Fuji and Sukiya candidates without a menuImage (only the Slice 38 verified items gained one)', () => {
     expect(restaurantMenuItems.find(candidate => candidate.id === 'fuji-salmon-shioyaki')?.menuImage).toBeUndefined()
-    expect(restaurantMenuItems.find(candidate => candidate.id === 'fuji-chicken-teriyaki')?.menuImage).toBeUndefined()
     const sukiyaItems = restaurantMenuItems.filter(candidate => candidate.restaurantId === 'sukiya-thailand')
     expect(sukiyaItems).toHaveLength(6)
-    expect(sukiyaItems.every(candidate => !candidate.menuImage)).toBe(true)
+    expect(sukiyaItems.filter(withPreSlice38Image)).toHaveLength(0)
+    expect(sukiyaItems.filter(candidate => candidate.menuImage).map(candidate => candidate.id).sort()).toEqual(['sukiya-beef-plate-no-rice', 'sukiya-gyudon-regular'])
   })
 })
 
@@ -465,8 +475,10 @@ describe('Slice 29 image expansion batch (relation-aware coverage)', () => {
     expect(somTamSaltedEgg!.menuImage!.sourceUrl).toMatch(/^https:\/\/www\.nittayakaiyang\.com\//)
   })
 
-  it('leaves every Priority-1 relation-linked item without a menuImage (no acceptable official source was found)', () => {
-    const relationLinkedIds = ['fuji-salmon-shioyaki', 'fuji-chicken-teriyaki', 'jones-caesar-chicken-salad', 'steak-and-more-yum-woon-sen']
+  it('leaves the Priority-1 relation-linked items without a menuImage unless Slice 38 verified one', () => {
+    expect(restaurantMenuItems.find(candidate => candidate.id === 'fuji-chicken-teriyaki')?.menuImage?.kind).toBe('official-remote')
+    expect(restaurantMenuItems.find(candidate => candidate.id === 'jones-caesar-chicken-salad')?.menuImage?.kind).toBe('official-remote')
+    const relationLinkedIds = ['fuji-salmon-shioyaki', 'steak-and-more-yum-woon-sen']
     for (const id of relationLinkedIds) {
       expect(restaurantMenuItems.find(candidate => candidate.id === id)?.menuImage).toBeUndefined()
     }
@@ -478,7 +490,7 @@ describe('Slice 29 image expansion batch (relation-aware coverage)', () => {
 
   it('does not add any menuImage to a normal dense (non-Pick-Focus) restaurant row set beyond the 4 Slice 29 items and the 5 Slice 35B items (22 total)', () => {
     const newIds = ['mk-special-kurobuta-plate', 'mk-pork-shabu', 'nittaya-grilled-chicken-quarter', 'nittaya-som-tam-salted-egg']
-    const withImage = restaurantMenuItems.filter(candidate => candidate.menuImage).map(candidate => candidate.id)
+    const withImage = restaurantMenuItems.filter(withPreSlice38Image).map(candidate => candidate.id)
     for (const id of newIds) expect(withImage).toContain(id)
     expect(withImage).toHaveLength(22)
   })
@@ -574,8 +586,8 @@ describe('Slice 20 price coverage expansion', () => {
     expect(restaurantMenuItems.find(item => item.id === 'santa-fe-dory-fish-steak')?.price).toMatchObject({ amount: 209, currency: 'THB' })
   })
 
-  it('leaves menuImage coverage exactly as Slice 35B left it (22 items, same ids)', () => {
-    const withImage = restaurantMenuItems.filter(item => item.menuImage)
+  it('leaves menuImage coverage exactly as Slice 35B left it (22 items, same ids) apart from the Slice 38 additions', () => {
+    const withImage = restaurantMenuItems.filter(withPreSlice38Image)
     expect(withImage).toHaveLength(22)
     expect(withImage.map(item => item.id).sort()).toEqual([
       'fuji-chirashi-sushi-don-set',
@@ -745,8 +757,8 @@ describe('Slice 22 price coverage expansion batch 2', () => {
     expect(somtamNuaItems.every(item => !item.price)).toBe(true)
   })
 
-  it('leaves menuImage coverage exactly as Slice 35B left it (22 items, same ids)', () => {
-    const withImage = restaurantMenuItems.filter(item => item.menuImage)
+  it('leaves menuImage coverage exactly as Slice 35B left it (22 items, same ids) apart from the Slice 38 additions', () => {
+    const withImage = restaurantMenuItems.filter(withPreSlice38Image)
     expect(withImage).toHaveLength(22)
     expect(withImage.map(item => item.id).sort()).toEqual([
       'fuji-chirashi-sushi-don-set',
