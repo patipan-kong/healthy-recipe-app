@@ -54,3 +54,22 @@ body .number-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.number-grid .fi
 .recipe-bridge-subtitle{margin:4px 0 16px;color:#55705c;font-size:14px;line-height:1.45}.recipe-bridge-list{display:flex;flex-direction:column;gap:14px}.recipe-bridge-card .menu-item-restaurant-line{margin-bottom:2px}
 .menu-recipe-bridge-subtitle{margin:0;color:#71856e;font-size:11px;line-height:1.45}.menu-recipe-bridge-card{display:flex;align-items:center;gap:10px;margin-top:8px}.menu-recipe-bridge-image{width:56px;height:56px;flex:none;border-radius:12px;overflow:hidden;position:relative;background:#e6ecdf}.menu-recipe-bridge-copy{min-width:0;flex:1}.menu-recipe-bridge-view{flex:none;padding:6px}
 @media(max-width:390px){.recipe-bridge-card{padding-right:14px}}
+
+/* Inline prototype: quiet, labeled, and entirely in normal document flow. */
+.ad-slot {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 720px;
+  min-width: 0;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px dashed #a8b1ab;
+  border-radius: 12px;
+  background: #f4f5f3;
+  color: #505a53;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.ad-slot strong { font-size: 14px; font-weight: 600; }
+.ad-slot p { margin: 8px 0 0; font-size: 13px; line-height: 1.6; }
+.recipe-grid > .ad-slot { grid-column: 1 / -1; }
