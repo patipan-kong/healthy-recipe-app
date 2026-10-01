@@ -29,7 +29,7 @@ describe('Everyday Meals catalog', () => {
       }
       expect(item.nutrition.kcal).toEqual(range(kcalPairs[index]))
       expect(item.nutrition.proteinG).toEqual(range(proteinPairs[index]))
-      expect(item.image).toBeUndefined()
+      if (item.image) expect(item.image).toMatch(/^\/everyday-meals\/[a-z-]+\.webp$/)
     })
   })
 

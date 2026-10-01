@@ -44,7 +44,8 @@ describe('Slice 42B Browse', () => {
       expect(card.tagName).toBe('BUTTON')
       expect(card.getAttribute('type')).toBe('button')
       expect(card.getAttribute('aria-label')).toBe(card.querySelector('h3')?.textContent)
-      expect(card.querySelector('button, input, select, a, img')).toBeNull()
+      expect(card.querySelector('button, input, select, a')).toBeNull()
+      expect(card.querySelector('img')?.getAttribute('alt') ?? '').toBe('')
       expect(card.textContent).not.toMatch(/proteinG|กรัม|ฟอง|confidence|1 จาน|1 ชาม/)
       expect(card.querySelector('.everyday-meal-fallback')?.getAttribute('aria-hidden')).toBe('true')
     }

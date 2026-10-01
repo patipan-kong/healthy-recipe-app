@@ -79,9 +79,10 @@ describe('Slice 42C navigation and base detail', () => {
     expect(detail().querySelector('.everyday-meal-serving')?.textContent).toBe(meal('fish-rice-soup').nutrition.servingAssumption)
     expect(detail().textContent).toContain('ค่าพลังงานและสารอาหารเป็นค่าประมาณ')
     expect(detail().textContent).not.toMatch(/Sources|แหล่งข้อมูล|คาร์บ|ไขมัน|carbs|fat|sourceIds|confidence/)
-    expect(detail().querySelector('fieldset, img, .everyday-meal-notes')).toBeNull()
+    expect(detail().querySelector('fieldset, .everyday-meal-notes')).toBeNull()
+    expect(detail().querySelector('img')?.getAttribute('alt')).toBe(meal('fish-rice-soup').nameTh)
     expect(detail().querySelector('.everyday-meal-option-estimate')).toBeNull()
-    expect(detail().querySelector('.everyday-meal-detail-fallback')?.getAttribute('aria-hidden')).toBe('true')
+    expect(detail().querySelector('.everyday-meal-detail-fallback')?.hasAttribute('aria-hidden')).toBe(false)
   })
 })
 

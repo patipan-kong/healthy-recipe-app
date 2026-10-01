@@ -37,7 +37,7 @@ export function EverydayMealsView({ locale, onBack, detailReturnsHome = false }:
     setMealId(null)
   }
   return <>
-    <div ref={browseRef} hidden={Boolean(mealId)}><EverydayMealsBrowse locale={locale} onBack={onBack} onOpen={open} /></div>
+    <div ref={browseRef} hidden={Boolean(mealId)}><EverydayMealsBrowse locale={locale} onBack={onBack} onOpen={open} adsEnabled={!mealId} /></div>
     {mealId && (meal ? <EverydayMealDetail key={meal.id} meal={meal} locale={locale} onBack={close} />
       : <section className="content empty"><h1>{locale === 'th' ? 'ไม่พบเมนูนี้' : 'Meal not found'}</h1><button type="button" className="text-button restaurant-back" onClick={close}>{locale === 'th' ? 'กลับไป Everyday Meals' : 'Back to Everyday Meals'}</button></section>)}
   </>

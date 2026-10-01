@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, Utensils } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
+import { AdSlot } from './ad-slot'
+import { EverydayMealImage } from './everyday-meal-image'
 import { calculateEverydayMealNutrition, mealAddOns } from './everyday-meals'
 import { tagLabels } from './everyday-meals-browse'
 import type { EverydayMeal, NutritionRange } from './everyday-meals'
@@ -29,7 +31,7 @@ export function EverydayMealDetail({ meal, locale, onBack }: { meal: EverydayMea
   const hasSemanticEffects = nonNumericGroups.some(group => group.choices.some(choice => choice.nutritionEffect))
   return <main className="detail everyday-meal-detail" data-everyday-meal-detail={meal.id}>
     <header className="detail-nav"><button type="button" className="round-button" onClick={onBack} aria-label={locale === 'th' ? 'กลับไป Everyday Meals' : 'Back to Everyday Meals'}><ArrowLeft aria-hidden="true" /></button></header>
-    <div className="everyday-meal-fallback everyday-meal-detail-fallback" aria-hidden="true"><Utensils size={56} strokeWidth={1.5} /></div>
+    <EverydayMealImage meal={meal} locale={locale} variant="detail" />
     <section className="detail-content">
       <h1 ref={titleRef} tabIndex={-1}>{meal.nameTh}</h1>
       <p className="detail-english">{meal.nameEn}</p>
@@ -63,6 +65,7 @@ export function EverydayMealDetail({ meal, locale, onBack }: { meal: EverydayMea
       {Boolean(meal.nutritionNotes?.length) && <section className="detail-section everyday-meal-notes"><h2>{locale === 'th' ? 'เกี่ยวกับโภชนาการ' : 'Nutrition notes'}</h2><ul>{meal.nutritionNotes!.map((note, index) => <li key={index}>{note}</li>)}</ul></section>}
       <p className="estimate-note everyday-meal-serving">{nutrition.servingAssumption}</p>
       <p className="estimate-note">{locale === 'th' ? 'ค่าพลังงานและสารอาหารเป็นค่าประมาณ อาจแตกต่างตามปริมาณ วัตถุดิบ และวิธีปรุงของแต่ละร้าน' : 'Energy and nutrient values are estimates and vary with portions, ingredients, and preparation at each restaurant.'}</p>
+      <AdSlot placement="recipe-detail" />
     </section>
   </main>
 }

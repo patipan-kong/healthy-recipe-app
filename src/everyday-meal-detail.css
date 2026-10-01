@@ -1,5 +1,5 @@
 .detail.everyday-meal-detail { min-height: 0; }
-.everyday-meal-detail-fallback { height: 160px; }
+.everyday-meal-detail-fallback { aspect-ratio: 16 / 9; max-height: 360px; }
 .everyday-meal-detail .detail-content h1 { font-size: 30px; line-height: 1.3; overflow-wrap: anywhere; }
 .everyday-meal-detail h1:focus { outline: none; }
 .everyday-meal-detail .everyday-meal-nutrition { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px 0; }

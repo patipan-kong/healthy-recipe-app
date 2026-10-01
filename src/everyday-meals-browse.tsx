@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { ArrowLeft, Search, Utensils, X } from 'lucide-react'
+import { ArrowLeft, Search, X } from 'lucide-react'
+import { AdFeed } from './ad-slot'
+import { EverydayMealImage } from './everyday-meal-image'
 import { filterEverydayMeals, hasEverydayMealDiscoveryTag, searchEverydayMeals } from './everyday-meals'
 import type { EverydayMeal, EverydayMealCategory, EverydayMealTag } from './everyday-meals'
 import type { Locale } from './types'
@@ -23,7 +25,7 @@ function EverydayMealCard({ meal, locale, onOpen }: { meal: EverydayMeal; locale
   const preparations = meal.optionGroups?.find(group => group.id === 'preparation')?.choices.filter(choice => choice.nutrition?.kcal)
   const optionLight = !meal.tags.includes('light') && hasEverydayMealDiscoveryTag(meal, 'light')
   return <button type="button" className="menu-grid-card everyday-meal-card" data-everyday-meal-id={meal.id} aria-label={meal.nameTh} onClick={() => onOpen(meal.id)}>
-    <div className="everyday-meal-fallback" aria-hidden="true"><Utensils size={32} strokeWidth={1.5} /></div>
+    <EverydayMealImage meal={meal} locale={locale} variant="card" />
     <div className="menu-grid-body">
       <h3>{meal.nameTh}</h3>
       <p className="everyday-meal-kcal">{preparations?.length
@@ -37,7 +39,7 @@ function EverydayMealCard({ meal, locale, onOpen }: { meal: EverydayMeal; locale
   </button>
 }
 
-export function EverydayMealsBrowse({ locale, onBack, onOpen }: { locale: Locale; onBack: () => void; onOpen: (id: string) => void }) {
+export function EverydayMealsBrowse({ locale, onBack, onOpen, adsEnabled = true }: { locale: Locale; onBack: () => void; onOpen: (id: string) => void; adsEnabled?: boolean }) {
   const [query, setQuery] = useState('')
   const [selectedChip, setSelectedChip] = useState('all')
   const chip = chips.find(item => item.id === selectedChip)!
@@ -56,7 +58,7 @@ export function EverydayMealsBrowse({ locale, onBack, onOpen }: { locale: Locale
       {chips.map(item => <button key={item.id} type="button" aria-pressed={selectedChip === item.id} className={selectedChip === item.id ? 'active' : ''} onClick={() => setSelectedChip(item.id)}>{item[locale]}</button>)}
     </div>
     <p className="explore-result-count" role="status">{results.length} {locale === 'th' ? 'เมนู' : 'meals'}</p>
-    {results.length > 0 ? <div className="menu-grid everyday-meals-grid">{results.map(meal => <EverydayMealCard key={meal.id} meal={meal} locale={locale} onOpen={onOpen} />)}</div>
+    {results.length > 0 ? <div className="menu-grid everyday-meals-grid"><AdFeed placement="menu-feed" enabled={adsEnabled}>{results.map(meal => <EverydayMealCard key={meal.id} meal={meal} locale={locale} onOpen={onOpen} />)}</AdFeed></div>
       : <div className="empty"><h3>{locale === 'th' ? 'ไม่พบเมนูที่ตรงกับการค้นหา' : 'No matching meals'}</h3><p>{locale === 'th' ? 'ลองเปลี่ยนคำค้นหาหรือตัวกรอง' : 'Try another search or filter.'}</p><button type="button" className="text-button" onClick={reset}>{locale === 'th' ? 'ล้างคำค้นหาและตัวกรอง' : 'Reset search and filter'}</button></div>}
   </section>
 }
