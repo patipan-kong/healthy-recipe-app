@@ -24,7 +24,7 @@ export const tagLabels = {
 function EverydayMealCard({ meal, locale, onOpen }: { meal: EverydayMeal; locale: Locale; onOpen: (id: string) => void }) {
   const preparations = meal.optionGroups?.find(group => group.id === 'preparation')?.choices.filter(choice => choice.nutrition?.kcal)
   const optionLight = !meal.tags.includes('light') && hasEverydayMealDiscoveryTag(meal, 'light')
-  return <button type="button" className="menu-grid-card everyday-meal-card" data-everyday-meal-id={meal.id} aria-label={meal.nameTh} onClick={() => onOpen(meal.id)}>
+  return <button type="button" className="menu-grid-card everyday-meal-card" data-everyday-meal-id={meal.id} onClick={() => onOpen(meal.id)}>
     <EverydayMealImage meal={meal} locale={locale} variant="card" />
     <div className="menu-grid-body">
       <h3>{meal.nameTh}</h3>

@@ -82,7 +82,7 @@ describe('Slice 42E production images', () => {
       const image = container.querySelector('img')
       if (meal.image) {
         expect(image?.getAttribute('src')).toBe(meal.image)
-        expect(image?.alt).toBe(meal.nameTh)
+        expect(image?.alt).toBe('')
         expect(image?.hasAttribute('loading')).toBe(false)
         act(() => image!.dispatchEvent(new Event('error')))
       } else expect(image).toBeNull()

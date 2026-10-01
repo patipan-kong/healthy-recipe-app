@@ -30,23 +30,33 @@ function select(label: string) {
   act(() => input.click())
   return input
 }
-function back() { act(() => detail().querySelector<HTMLButtonElement>('.detail-nav button')!.click()) }
+async function back() {
+  await act(async () => {
+    const previousUrl = location.href
+    let complete!: () => void
+    const traversed = new Promise<void>(resolve => { complete = resolve })
+    window.addEventListener('popstate', complete, { once: true })
+    detail().querySelector<HTMLButtonElement>('.detail-nav button')!.click()
+    if (location.href === previousUrl) await traversed
+    window.removeEventListener('popstate', complete)
+  })
+}
 function open(id: string) { act(() => container.querySelector<HTMLButtonElement>(`[data-everyday-meal-id="${id}"]`)!.click()) }
 const tags = () => detail().querySelector('.everyday-meal-detail-tags')?.textContent
 
 describe('Slice 42C navigation and base detail', () => {
-  it('opens a semantic Browse card, addresses the meal, focuses identity and restores Browse filters and focus on Back', () => {
+  it('opens a semantic Browse card, addresses the meal, focuses identity and restores Browse filters and focus on Back', async () => {
     act(() => root.render(<App />))
     const input = container.querySelector<HTMLInputElement>('.search input')!
     act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, 'ข้าวต้ม'); input.dispatchEvent(new Event('input', { bubbles: true })) })
     act(() => [...container.querySelectorAll<HTMLButtonElement>('.everyday-meals-chips button')].find(item => item.textContent === 'เบาๆ')!.click())
     const card = container.querySelector<HTMLButtonElement>('[data-everyday-meal-id="fish-rice-soup"]')!
-    expect(card.type).toBe('button'); expect(card.tabIndex).toBe(0); expect(card.getAttribute('aria-label')).toBe('ข้าวต้มปลา')
+    expect(card.type).toBe('button'); expect(card.tabIndex).toBe(0); expect(card.hasAttribute('aria-label')).toBe(false); expect(card.textContent).toContain('220–350 kcal')
     open('fish-rice-soup')
     expect(detail().querySelector('h1')?.textContent).toBe('ข้าวต้มปลา')
     expect(document.activeElement).toBe(detail().querySelector('h1'))
     expect(new URLSearchParams(location.search).get('everyday-meal')).toBe('fish-rice-soup')
-    back()
+    await back()
     expect(detail()).toBeNull(); expect(input.value).toBe('ข้าวต้ม')
     expect(container.querySelector('.everyday-meals-chips .active')?.textContent).toBe('เบาๆ')
     expect(container.querySelector('.explore-result-count')?.textContent).toBe('3 เมนู')
@@ -80,7 +90,7 @@ describe('Slice 42C navigation and base detail', () => {
     expect(detail().textContent).toContain('ค่าพลังงานและสารอาหารเป็นค่าประมาณ')
     expect(detail().textContent).not.toMatch(/Sources|แหล่งข้อมูล|คาร์บ|ไขมัน|carbs|fat|sourceIds|confidence/)
     expect(detail().querySelector('fieldset, .everyday-meal-notes')).toBeNull()
-    expect(detail().querySelector('img')?.getAttribute('alt')).toBe(meal('fish-rice-soup').nameTh)
+    expect(detail().querySelector('img')?.getAttribute('alt')).toBe('')
     expect(detail().querySelector('.everyday-meal-option-estimate')).toBeNull()
     expect(detail().querySelector('.everyday-meal-detail-fallback')?.hasAttribute('aria-hidden')).toBe(false)
   })
@@ -163,21 +173,21 @@ describe('Slice 42C add-ons and supporting data', () => {
     render(id)
     expect([...detail().querySelectorAll('.everyday-meal-addons label')].map(label => label.textContent?.split('~')[0])).toEqual(mealAddOns.filter(addOn => meal(id).addOnIds?.includes(addOn.id)).map(addOn => addOn.nameTh))
   })
-  it('uses real tips and conditional notes and omits empty sections', () => {
+  it('uses real tips and conditional notes and omits empty sections', async () => {
     render('fish-rice-soup')
     expect([...detail().querySelectorAll('.everyday-meal-tips li')].map(item => item.textContent)).toEqual(meal('fish-rice-soup').orderingTips!.map(tip => tip.textTh))
-    back(); open('minced-pork-omelet-rice')
+    await back(); open('minced-pork-omelet-rice')
     expect([...detail().querySelectorAll('.everyday-meal-notes li')].map(item => item.textContent)).toEqual(meal('minced-pork-omelet-rice').nutritionNotes)
-    back(); open('chicken-kua-noodles')
+    await back(); open('chicken-kua-noodles')
     expect(detail().querySelector('.everyday-meal-tips, .everyday-meal-notes, .everyday-meal-addons')).toBeNull()
   })
-  it('resets eggs and preparation on reentry and remounts independently selected meals', () => {
-    render('minced-pork-basil-rice'); select('ไข่ดาว'); back()
-    open('pork-suki'); select('แห้ง'); back()
+  it('resets eggs and preparation on reentry and remounts independently selected meals', async () => {
+    render('minced-pork-basil-rice'); select('ไข่ดาว'); await back()
+    open('pork-suki'); select('แห้ง'); await back()
     open('minced-pork-basil-rice'); expect(kcal()).toBe('450–650 kcal')
-    expect(detail().querySelector('input:checked')).toBeNull(); back()
-    open('pork-suki'); expect(kcal()).toBe('220–350 kcal'); back()
-    open('hainanese-chicken-rice'); select('ลอกหนัง'); back()
+    expect(detail().querySelector('input:checked')).toBeNull(); await back()
+    open('pork-suki'); expect(kcal()).toBe('220–350 kcal'); await back()
+    open('hainanese-chicken-rice'); select('ลอกหนัง'); await back()
     open('roast-duck-rice'); expect(detail().querySelector('input:checked')?.closest('label')?.textContent).toBe('ติดหนัง')
   })
   it('resets options when an addressed meal changes without returning through Browse', () => {

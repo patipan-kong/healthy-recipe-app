@@ -11,6 +11,7 @@ export function EverydayMealsView({ locale, onBack, detailReturnsHome = false }:
   const [mealId, setMealId] = useState<string | null>(addressedMeal)
   const browseRef = useRef<HTMLDivElement>(null)
   const returnMealId = useRef<string | null>(null)
+  const detailEntries = useRef(new Set<string>())
   const meal = mealId ? getEverydayMealById(mealId) : undefined
   useEffect(() => {
     const onPopState = () => setMealId(addressedMeal())
@@ -25,12 +26,16 @@ export function EverydayMealsView({ locale, onBack, detailReturnsHome = false }:
     }
   }, [mealId])
   function open(id: string) {
-    addressEverydayMeals(id)
+    detailEntries.current.add(addressEverydayMeals(id).everydayMealsEntry)
     returnMealId.current = id
     setMealId(id)
   }
   function close() {
     if (detailReturnsHome) { onBack(); return }
+    if (detailEntries.current.has(window.history.state?.everydayMealsEntry)) {
+      window.history.back()
+      return
+    }
     const url = new URL(window.location.href)
     url.searchParams.delete('everyday-meal')
     window.history.replaceState({}, '', url)

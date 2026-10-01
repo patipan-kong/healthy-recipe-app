@@ -4,7 +4,17 @@ export function addressEverydayMeals(mealId?: string) {
   url.searchParams.set('everyday-meals', '')
   if (mealId) url.searchParams.set('everyday-meal', mealId)
   else url.searchParams.delete('everyday-meal')
-  window.history.pushState({}, '', url)
+  const previous = window.history.state
+  // Track only entries created here; direct URLs keep their local fallback.
+  const origin = new URL(window.location.href).searchParams.has('everyday-meals')
+    ? previous?.everydayMealsOrigin : undefined
+  const state = {
+    everydayMealsOrigin: origin ?? crypto.randomUUID(),
+    everydayMealsDepth: origin ? previous.everydayMealsDepth + 1 : 1,
+    everydayMealsEntry: crypto.randomUUID(),
+  }
+  window.history.pushState(state, '', url)
+  return state
 }
 
 export function leaveEverydayMeals() {

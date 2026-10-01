@@ -32,19 +32,19 @@ it('derives content counts and exposes exactly four accessible peer actions', ()
   expect(actions.every(button => button.tabIndex === 0 && !button.querySelector('button,a,input'))).toBe(true)
   expect(container.textContent).toContain('มื้อนี้ลอง...')
 })
-it('opens existing Browse, preserves Browse detail/back and returns Home with a clean address', () => {
+it('opens existing Browse, preserves Browse detail/back and returns Home with a clean address', async () => {
   render(); click('.home-entry-pair:not(.home-random-pair) button:last-child')
   expect(container.querySelectorAll('[data-everyday-meal-id]')).toHaveLength(50)
   click('[data-everyday-meal-id="pork-suki"]')
   expect(detail()?.querySelector('h1')?.textContent).toBe('สุกี้หมู')
-  click('.everyday-meal-detail .detail-nav button')
+  await back('.everyday-meal-detail .detail-nav button')
   expect(detail()).toBeNull()
   expect(document.activeElement?.getAttribute('data-everyday-meal-id')).toBe('pork-suki')
-  click('.everyday-meals-view .restaurant-back')
+  await back('.everyday-meals-view .restaurant-back')
   expect(container.querySelector('.meal-hub')).not.toBeNull()
   expect(location.search).toBe('')
 })
-it.each(['pork-suki', 'hainanese-chicken-rice', everydayMeals.at(-1)!.id])('random opens %s directly with normal defaults and no random options/add-ons', id => {
+it.each(['pork-suki', 'hainanese-chicken-rice', everydayMeals.at(-1)!.id])('random opens %s directly with normal defaults and no random options/add-ons', async id => {
   const index = everydayMeals.findIndex(meal => meal.id === id)
   const rng = vi.spyOn(Math, 'random').mockReturnValue((index + 0.5) / everydayMeals.length)
   render(); click(randomButton)
@@ -56,19 +56,19 @@ it.each(['pork-suki', 'hainanese-chicken-rice', everydayMeals.at(-1)!.id])('rand
   }
   expect(detail()?.querySelectorAll('input[type="checkbox"]:checked')).toHaveLength(0)
   expect(rng).toHaveBeenCalledTimes(1)
-  click('.everyday-meal-detail .detail-nav button')
+  await back('.everyday-meal-detail .detail-nav button')
   expect(container.querySelector('.meal-hub')).not.toBeNull()
   expect(location.search).toBe('')
   click(randomButton)
   expect(rng).toHaveBeenCalledTimes(2)
   expect(detail()?.dataset.everydayMealDetail).toBe(id)
 })
-it('refresh/direct entry retains random meal identity and direct-entry Back remains valid Browse', () => {
+it('refresh/direct entry retains random meal identity and direct-entry Back remains valid Browse', async () => {
   vi.spyOn(Math, 'random').mockReturnValue(0)
   render(); click(randomButton)
   act(() => root.unmount()); root = createRoot(container); render()
   expect(detail()?.dataset.everydayMealDetail).toBe('pork-suki')
-  click('.everyday-meal-detail .detail-nav button')
+  await back('.everyday-meal-detail .detail-nav button')
   expect(container.querySelectorAll('[data-everyday-meal-id]')).toHaveLength(50)
 })
 it('browser Back from Home random returns Home', () => {
@@ -79,7 +79,34 @@ it('browser Back from Home random returns Home', () => {
   expect(container.querySelector('.meal-hub')).not.toBeNull()
   expect(detail()).toBeNull()
 })
-it('random ignores prior Browse search/chips and makes a fresh selection on each Home activation', () => {
+it('in-app Detail Back consumes its entry so one browser Back reaches Home, and Forward remains usable', async () => {
+  render(); click('.home-entry-pair:not(.home-random-pair) button:last-child')
+  click('[data-everyday-meal-id="pork-suki"]')
+  await back('.everyday-meal-detail .detail-nav button')
+  expect(location.search).not.toContain('everyday-meal=')
+  async function traverse(direction: 'back' | 'forward') {
+    await act(async () => {
+      const traversed = new Promise<void>(resolve => window.addEventListener('popstate', () => resolve(), { once: true }))
+      history[direction]()
+      await traversed
+    })
+  }
+  await traverse('back')
+  expect(location.search).toBe('')
+  expect(container.querySelector('.meal-hub')).not.toBeNull()
+  await traverse('forward')
+  expect(container.querySelectorAll('[data-everyday-meal-id]')).toHaveLength(50)
+  await back('.everyday-meals-view .restaurant-back')
+  expect(location.search).toBe('')
+})
+it('Home from an open Browse detail traverses both app-created entries', async () => {
+  render(); click('.home-entry-pair:not(.home-random-pair) button:last-child')
+  click('[data-everyday-meal-id="pork-suki"]')
+  await back('.logo')
+  expect(location.search).toBe('')
+  expect(container.querySelector('.meal-hub')).not.toBeNull()
+})
+it('random ignores prior Browse search/chips and makes a fresh selection on each Home activation', async () => {
   render(); click('.home-entry-pair:not(.home-random-pair) button:last-child')
   const input = container.querySelector<HTMLInputElement>('.everyday-meals-view .search input')!
   act(() => {
@@ -88,11 +115,11 @@ it('random ignores prior Browse search/chips and makes a fresh selection on each
   })
   click('.everyday-meals-chips button:nth-child(2)')
   expect(container.querySelectorAll('[data-everyday-meal-id]')).toHaveLength(0)
-  click('.everyday-meals-view .restaurant-back')
+  await back('.everyday-meals-view .restaurant-back')
   const rng = vi.spyOn(Math, 'random').mockReturnValueOnce(0).mockReturnValueOnce(0.999999)
   click(randomButton)
   expect(detail()?.dataset.everydayMealDetail).toBe(everydayMeals[0].id)
-  click('.everyday-meal-detail .detail-nav button'); click(randomButton)
+  await back('.everyday-meal-detail .detail-nav button'); click(randomButton)
   expect(detail()?.dataset.everydayMealDetail).toBe(everydayMeals.at(-1)!.id)
   expect(rng).toHaveBeenCalledTimes(2)
 })
@@ -112,3 +139,15 @@ it('retains exactly 50 equally sized entity intervals independent of variants', 
   expect(getRandomEverydayMeal(() => 0.999999)).toBe(everydayMeals.at(-1))
   expect(Array.from({ length: 50 }, (_, index) => getRandomEverydayMeal(() => (index + 0.5) / 50))).toEqual(everydayMeals)
 })
+
+async function back(selector: string) {
+  await act(async () => {
+    const previousUrl = location.href
+    let complete!: () => void
+    const traversed = new Promise<void>(resolve => { complete = resolve })
+    window.addEventListener('popstate', complete, { once: true })
+    container.querySelector<HTMLButtonElement>(selector)!.click()
+    if (location.href === previousUrl) await traversed
+    window.removeEventListener('popstate', complete)
+  })
+}

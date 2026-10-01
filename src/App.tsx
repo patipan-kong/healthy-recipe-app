@@ -73,6 +73,7 @@ function App() {
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null)
   const [randomRestaurantEntry, setRandomRestaurantEntry] = useState(false)
   const [randomMealEntry, setRandomMealEntry] = useState(false)
+  const everydayMealsOriginRef = useRef<string | null>(null)
   const [menuDetail, setMenuDetail] = useState<MenuDetailState | null>(null)
   const [recipeReturnMenu, setRecipeReturnMenu] = useState<MenuDetailState | null>(null)
   const listScrollRef = useRef(0)
@@ -82,13 +83,17 @@ function App() {
   const copy = messages[locale]
 
   function home() {
+    if (screen === 'everyday-meals' && everydayMealsOriginRef.current === window.history.state?.everydayMealsOrigin) {
+      window.history.go(-window.history.state.everydayMealsDepth)
+      return
+    }
     leaveEverydayMeals()
     setScreen('browse')
     setRandomMealEntry(false)
   }
   function enterEverydayMeals(random = false) {
     const meal = random ? getRandomEverydayMeal() : undefined
-    addressEverydayMeals(meal?.id)
+    everydayMealsOriginRef.current = addressEverydayMeals(meal?.id).everydayMealsOrigin
     setRandomMealEntry(random)
     setScreen('everyday-meals')
   }

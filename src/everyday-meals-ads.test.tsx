@@ -59,17 +59,17 @@ it('filtered/searched Browse results drop the ad when too short and keep matchin
   act(() => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, 'zzzz-no-match'); input.dispatchEvent(new Event('input', { bubbles: true })) })
   expect(ads('menu-feed')).toHaveLength(0)
 })
-it('Detail has the same single bottom recipe-detail ad from Browse, Random and direct entry', () => {
+it('Detail has the same single bottom recipe-detail ad from Browse, Random and direct entry', async () => {
   render(); click(browseButton); click('[data-everyday-meal-id="pork-suki"]')
   expectNormalDetailAd()
-  click('.everyday-meal-detail .detail-nav button')
-  click('.everyday-meals-view .restaurant-back')
+  await back('.everyday-meal-detail .detail-nav button')
+  await back('.everyday-meals-view .restaurant-back')
 
   vi.spyOn(Math, 'random').mockReturnValue(0)
   click(randomButton)
   expectNormalDetailAd()
   expect(detail().innerHTML).toContain('data-ad-placement="recipe-detail"')
-  click('.everyday-meal-detail .detail-nav button')
+  await back('.everyday-meal-detail .detail-nav button')
   expect(container.querySelector('.meal-hub')).not.toBeNull(); expect(ads('recipe-detail')).toHaveLength(0)
 
   act(() => root.unmount()); root = createRoot(container)
@@ -85,3 +85,15 @@ it('Random adds no interstitial and no extra ad beyond the normal Detail slot; d
   act(() => root.unmount()); root = createRoot(container); render()
   expect(container.querySelectorAll('[data-ad-placement]')).toHaveLength(0)
 })
+
+async function back(selector: string) {
+  await act(async () => {
+    const previousUrl = location.href
+    let complete!: () => void
+    const traversed = new Promise<void>(resolve => { complete = resolve })
+    window.addEventListener('popstate', complete, { once: true })
+    container.querySelector<HTMLButtonElement>(selector)!.click()
+    if (location.href === previousUrl) await traversed
+    window.removeEventListener('popstate', complete)
+  })
+}
