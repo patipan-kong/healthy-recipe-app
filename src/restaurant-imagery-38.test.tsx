@@ -70,11 +70,11 @@ const slice38Ids = [...Object.keys(standaloneUrls), ...Object.keys(cropSheets)]
 
 describe('Slice 38 restaurant menu imagery', () => {
   it('keeps catalog counts and retains the 42-image Slice 38 baseline before Slice 39A additions', () => {
-    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
-    expect(restaurants.filter(restaurant => restaurant.logo)).toHaveLength(15)
-    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
+    expect(restaurants).toHaveLength(17) // 13 + 2 (Slice 40B) + 2 (Slice 41B)
+    expect(restaurants.filter(restaurant => restaurant.logo)).toHaveLength(17)
+    expect(restaurantMenuItems).toHaveLength(97) // 84 + 10 (Slice 40B) + 3 (Slice 41B)
     expect(restaurantMenuItems.filter(item => item.menuImage && !slice39aIds.includes(item.id) && !slice40bImageIds.includes(item.id))).toHaveLength(42)
-    expect(restaurantMenuItems.filter(item => !item.menuImage || slice39aIds.includes(item.id) || slice40bImageIds.includes(item.id))).toHaveLength(52)
+    expect(restaurantMenuItems.filter(item => !item.menuImage || slice39aIds.includes(item.id) || slice40bImageIds.includes(item.id))).toHaveLength(55)
     expect(validateRestaurantMenuItems(restaurantMenuItems, restaurants)).toEqual([])
   })
 

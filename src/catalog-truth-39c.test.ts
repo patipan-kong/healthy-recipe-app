@@ -26,6 +26,11 @@ const NEW_40B_BLOCK_IDS = [
 const withoutSlice40bAdditions = (value: string) => NEW_40B_BLOCK_IDS
   .reduce((text, id) => text.replace(block(id), ''), value)
   .replace(/\n\/\/ Slice 40B restaurant expansion[\s\S]*?\n(?=\nexport const restaurants)/, '')
+const NEW_41B_BLOCK_IDS = ['fam-time-thailand', 'fa-pla-tahn-thailand', 'fam-time-spaghetti-spinach-garlic', 'fam-time-classic-nonna-carbonara-pancetta', 'fa-pla-tahn-seabass-rice-clear-soup']
+// Exclude only the explicit 41B additions; preserve the original 39C byte hash.
+const withoutSlice41bAdditions = (value: string) => NEW_41B_BLOCK_IDS
+  .reduce((text, id) => text.replace(block(id), ''), value)
+  .replace(/\n\/\/ Slice 41B:[\s\S]*?\n(?=\n\/\/ Slice 40B restaurant expansion)/, '')
 const hash = (value: string) => createHash('sha256').update(value).digest('hex')
 const ids = (items: typeof restaurantMenuItems) => items.map(item => item.id)
 
@@ -63,15 +68,15 @@ describe('Slice 39C verified partial catalog corrections', () => {
   it('freezes unresolved objects and every production source byte outside the two approved objects', () => {
     expect(hash(block('ootoya-grilled-salmon-rice-bowl'))).toBe('7e98581769860b4dc1c6e1b7dcb6cb60a05440aa71bbaaa993c7fbcb577d887c')
     expect(hash(block('nittaya-tom-saep-grilled-chicken-soup'))).toBe('3ef1582bb87a3cbede8c1aa3c9d1c6cdee350c52c9c6472cdbbc8256496d6644')
-    expect(hash(withoutSlice40bAdditions(source).replace(block(sevenId), `APPROVED:${sevenId}`).replace(block(thongId), `APPROVED:${thongId}`))).toBe('b102eef065a0fa057017e14eddf871f497f5e4f02332bd9d2a955f8462f95213')
+    expect(hash(withoutSlice40bAdditions(withoutSlice41bAdditions(source)).replace(block(sevenId), `APPROVED:${sevenId}`).replace(block(thongId), `APPROVED:${thongId}`))).toBe('b102eef065a0fa057017e14eddf871f497f5e4f02332bd9d2a955f8462f95213')
   })
 
   it('retains counts, absent prices/images and stable favorite IDs', () => {
-    expect(restaurants).toHaveLength(15) // 13 + getfresh and Ginger Farm Kitchen (Slice 40B)
-    expect(restaurants.filter(item => item.logo)).toHaveLength(15)
-    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
+    expect(restaurants).toHaveLength(17) // 13 + two 40B and two 41B restaurants
+    expect(restaurants.filter(item => item.logo)).toHaveLength(17)
+    expect(restaurantMenuItems).toHaveLength(97) // 84 + 10 (Slice 40B) + 3 (Slice 41B)
     expect(restaurantMenuItems.filter(item => item.menuImage)).toHaveLength(50) // 45 + five getfresh images (Slice 40B)
-    expect(restaurantMenuItems.filter(item => !item.menuImage)).toHaveLength(44)
+    expect(restaurantMenuItems.filter(item => !item.menuImage)).toHaveLength(47)
     for (const id of [sevenId, thongId]) {
       expect(find(id).menuImage).toBeUndefined()
       expect(find(id).price).toBeUndefined()

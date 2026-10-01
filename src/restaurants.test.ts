@@ -17,7 +17,10 @@ describe('restaurant validation', () => {
     expect(restaurantMenuItems.length).toBeLessThanOrEqual(105)
     for (const restaurant of restaurants) {
       const count = restaurantMenuItems.filter(item => item.restaurantId === restaurant.id).length
-      expect(count).toBeGreaterThanOrEqual(3) // Slice 40B: Ginger Farm Kitchen intentionally ships three single-serve dishes
+      // Slice 41B intentionally launches only two pasta plates and one fixed rice-soup bowl.
+      if (restaurant.id === 'fam-time-thailand') expect(count).toBe(2)
+      else if (restaurant.id === 'fa-pla-tahn-thailand') expect(count).toBe(1)
+      else expect(count).toBeGreaterThanOrEqual(3)
       expect(count).toBeLessThanOrEqual(8)
     }
   })

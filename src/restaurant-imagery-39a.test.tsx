@@ -24,6 +24,8 @@ const cropSources: Record<string, string> = {
 const slice40bImageIds = ['getfresh-clean-khao-man-gai', 'getfresh-clean-kaprao-gai', 'getfresh-vegan-mushroom-kaprao', 'getfresh-korean-pork-bulgogi-bowl', 'getfresh-chicken-burrito-bowl']
 const slice40bBlockIds = [
   'getfresh-thailand', 'ginger-farm-kitchen-thailand', ...slice40bImageIds, 'getfresh-atlantic-salmon-steak', 'getfresh-minestrone',
+  // Explicit 41B additions excluded from the unchanged historical hash.
+  'fam-time-thailand', 'fa-pla-tahn-thailand', 'fam-time-spaghetti-spinach-garlic', 'fam-time-classic-nonna-carbonara-pancetta', 'fa-pla-tahn-seabass-rice-clear-soup',
   'ginger-farm-khao-soi-gai', 'ginger-farm-khanom-jeen-nam-ngiao', 'ginger-farm-herb-grilled-chicken-jaew',
 ]
 const find = (id: string) => restaurantMenuItems.find(item => item.id === id)!
@@ -31,7 +33,7 @@ const ids = (items: RestaurantMenuItem[]) => items.map(item => item.id)
 
 describe('Slice 39A approved imagery', () => {
   it('adds only the three approved IDs and reaches 45/84 (before Slice 40B) without hiding Somtam Nua', () => {
-    const pre40b = restaurantMenuItems.filter(item => !item.id.startsWith('getfresh-') && !item.id.startsWith('ginger-farm-'))
+    const pre40b = restaurantMenuItems.filter(item => !slice40bBlockIds.includes(item.id))
     expect(restaurants.filter(item => !slice40bBlockIds.includes(item.id))).toHaveLength(13)
     expect(restaurants.filter(item => item.logo && !slice40bBlockIds.includes(item.id))).toHaveLength(13)
     expect(pre40b).toHaveLength(84)

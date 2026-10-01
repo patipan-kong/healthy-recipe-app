@@ -65,7 +65,7 @@ it('repeats recipe and menu separators with continuation while retaining every c
   }
 })
 it('preserves source counts, filtering and random inputs', () => {
-  expect([recipes.length, restaurants.length, restaurantMenuItems.length, recipeRestaurantRelations.length]).toEqual([208, 15, 94, 23])
+  expect([recipes.length, restaurants.length, restaurantMenuItems.length, recipeRestaurantRelations.length]).toEqual([208, 17, 97, 23])
   const filtered = filterRecipes(recipes, emptyFilters)
   expect(filtered).toHaveLength(recipes.length)
   expect(recipes).toContainEqual(chooseRandom(filtered))
@@ -88,7 +88,7 @@ it('search removes the feed ad for short results without changing matching cards
 })
 it('restaurant feed and each independent result have one sibling ad, shared cards have none', () => {
   render(); click('.meal-hub button:last-child')
-  expect(container.querySelectorAll('.restaurant-row')).toHaveLength(15)
+  expect(container.querySelectorAll('.restaurant-row')).toHaveLength(17)
   expect(container.querySelector('.restaurant-grid')?.children[10]).toBe(ads('restaurant-feed')[0])
   click('.restaurant-pick-trigger'); expect(ads('restaurant-pick')).toHaveLength(1)
   after('.restaurant-pick', 'restaurant-pick')
@@ -153,8 +153,8 @@ it('places one bottom detail ad after complete content without a bridge, disable
 })
 it('global menu search repeats shared feed cadence, filters naturally and keeps picks unchanged', () => {
   render(); click('.explore-nav')
-  expect(container.querySelectorAll('#explore-menu-list > article')).toHaveLength(94)
-  expect(ads('menu-feed')).toHaveLength(11) // shared cadence over 94 items after Slice 40B (was 10 over 84)
+  expect(container.querySelectorAll('#explore-menu-list > article')).toHaveLength(97)
+  expect(ads('menu-feed')).toHaveLength(12) // shared cadence over 97 items after Slice 41B
   expect(container.querySelector('#explore-menu-list')?.lastElementChild?.tagName).toBe('ARTICLE')
   expect(container.querySelector('.menu-item-row [data-ad-placement]')).toBeNull()
   const input = container.querySelector<HTMLInputElement>('.explore-view .search input')!
@@ -177,7 +177,7 @@ it('restaurant directory ad completes rows: after 9 cards on 3 columns, after 10
     const grid = container.querySelector('.restaurant-grid')!
     expect(ads('restaurant-feed')).toHaveLength(1)
     expect(grid.children[cardsBefore]).toBe(ads('restaurant-feed')[0])
-    expect(grid.querySelectorAll('.restaurant-card')).toHaveLength(15)
+    expect(grid.querySelectorAll('.restaurant-card')).toHaveLength(17)
     expect(ads('restaurant-feed')[0].previousElementSibling?.classList.contains('restaurant-card')).toBe(true)
     expect(ads('restaurant-feed')[0].nextElementSibling?.classList.contains('restaurant-card')).toBe(true)
     vi.unstubAllGlobals()

@@ -136,6 +136,18 @@ const santaFeCropSourceLabel = { th: 'ภาพครอปจากเมนู
 const thongSmithMenuUrl = 'https://online.anyflip.com/iugnb/rchh/'
 const thongSmithCropSourceLabel = { th: 'ภาพครอปจากเมนูออนไลน์ทางการของทองสมิทธ์ (ลิงก์จาก Linktree ของร้าน)', en: "Cropped from ThongSmith's official online menu (linked from its official Linktree)" }
 
+// Slice 41B: exact menu identities from 41A; portion ledger and ingredient proxies in
+// docs/restaurant-expansion-implementation-41b.md. No measured weights, prices, images or relations.
+const asOf41b = '2026-10-01'
+const famTimeEstimateNote = {
+  th: 'ไม่พบข้อมูลโภชนาการเป็นตัวเลขของเมนูนี้ที่ FAM TIME เผยแพร่ในแหล่งที่ตรวจสอบ ชื่อและส่วนประกอบอ้างอิงเมนูทางการ https://anyflip.com/tvkpa/qwwp/ ตัวเลขเป็นค่าประมาณของ GoodFood จากส่วนประกอบที่ระบุและปริมาณที่ทีมงานสมมติ เพราะร้านไม่เผยแพร่น้ำหนัก ไม่ใช่ข้อมูลโภชนาการทางการ โซเดียมและใยอาหารยังไม่ทราบ',
+  en: 'FAM TIME does not publish numerical nutrition for this dish in the inspected sources. Names and composition follow the official menu https://anyflip.com/tvkpa/qwwp/. Values are a GoodFood estimate from the documented composition and editorial portion assumptions because weights are unpublished, not official restaurant nutrition. Sodium and fiber remain unknown.',
+}
+const faPlaTahnEstimateNote = {
+  th: 'ไม่พบข้อมูลโภชนาการเป็นตัวเลขของเมนูนี้ที่ฟ้าปลาทานเผยแพร่ในแหล่งที่ตรวจสอบ ชื่อและรูปแบบอ้างอิง M.01 ในเมนูทางการ https://online.anyflip.com/iugnb/gwmj/ เลือกเฉพาะแบบน้ำซุปใส ตัวเลขเป็นค่าประมาณของ GoodFood จากส่วนประกอบและปริมาณทั้งชามที่ทีมงานสมมติ เพราะร้านไม่เผยแพร่น้ำหนัก ใช้ข้อมูลปลาซีแบสทั่วไปเป็นวัตถุดิบอ้างอิง ไม่ใช่โภชนาการของร้าน ปริมาณน้ำจิ้มและสูตรน้ำซุปไม่แน่นอน โซเดียมและใยอาหารยังไม่ทราบ',
+  en: 'Fá Plā Tahń does not publish numerical nutrition for this dish in the inspected sources. Identity follows M.01 in the official menu https://online.anyflip.com/iugnb/gwmj/, selecting clear soup only. Values are a GoodFood whole-bowl estimate from documented components and editorial portion assumptions because weights are unpublished. Generic sea-bass composition is an ingredient proxy, not restaurant nutrition. Dipping sauce consumption and broth recipe are uncertain; sodium and fiber remain unknown.',
+}
+
 // Slice 40B restaurant expansion (2026-10-01): getfresh and Ginger Farm Kitchen. Evidence, withheld
 // candidates and rationale are recorded in docs/restaurant-expansion-research-40a.md. Neither brand
 // publishes numerical nutrition, so every 40B item is `estimated`. Prices are intentionally withheld
@@ -260,6 +272,20 @@ export const restaurants: Restaurant[] = [
     cuisine: { th: 'อาหารเหนือและอาหารไทย (ฟาร์มทูซิตี้)', en: 'Northern Thai & Thai cuisine (farm-to-city)' },
     tags: ['northern-thai'],
     logo: { src: 'https://images.squarespace-cdn.com/content/v1/5dcac1b37b75f56509c0a367/1577359518038-F21TWZ1SK7S55O0AKTQI/GFKlogo.png', alt: { th: 'โลโก้จินเจอร์ ฟาร์ม คิทเช่น', en: 'Ginger Farm Kitchen logo' }, kind: 'official-remote', sourceUrl: 'https://www.gingerfarmkitchen.com/', sourceLabel: { th: 'เว็บไซต์ทางการของ Ginger Farm Kitchen', en: 'Ginger Farm Kitchen official website' }, asOf: asOf40b },
+  },
+  {
+    id: 'fam-time-thailand',
+    name: { th: 'FAM TIME', en: 'FAM TIME' },
+    cuisine: { th: 'พาสต้าสด พิซซ่า และสเต็ก', en: 'Fresh pasta, pizza & steaks' },
+    tags: ['pasta'],
+    logo: { src: 'https://static.wixstatic.com/media/b1718d_0eb4cca5312c425a91b61de24e802f09~mv2.png', alt: { th: 'โลโก้ FAM TIME', en: 'FAM TIME logo' }, kind: 'official-remote', sourceUrl: 'https://www.famtimebkk.com/', sourceLabel: { th: 'เว็บไซต์ทางการของ FAM TIME', en: 'FAM TIME official website' }, asOf: asOf41b },
+  },
+  {
+    id: 'fa-pla-tahn-thailand',
+    name: { th: 'ฟ้าปลาทาน', en: 'Fá Plā Tahń' },
+    cuisine: { th: 'ก๋วยเตี๋ยวปลาและข้าวต้มปลา', en: 'Fish noodles & rice soup' },
+    tags: ['fish', 'thai'],
+    logo: { src: 'https://ugc.production.linktr.ee/56aac372-db7a-42a5-9c39-0af1c5c36ab0_logo.jpeg', alt: { th: 'โลโก้ฟ้าปลาทาน', en: 'Fá Plā Tahń brandmark' }, kind: 'official-remote', sourceUrl: 'https://linktr.ee/faplatahn', sourceLabel: { th: 'Linktree ทางการของฟ้าปลาทาน', en: 'Fá Plā Tahń official Linktree' }, asOf: asOf41b },
   },
 ]
 
@@ -1647,6 +1673,36 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
     nutritionSource: { confidence: 'estimated', note: gingerFarmEstimateNote, asOf: asOf40b },
     tags: ['chicken', 'grilled', 'high-protein'],
     servingNote: { th: 'ไก่หมักสมุนไพรย่างกับน้ำจิ้มแจ่วเท่านั้น ไม่รวมข้าว ตามเมนูสาขาวันนิมมาน เชียงใหม่ ปี 2026 ร้านไม่เผยแพร่น้ำหนักไก่ ค่าประมาณจึงอิงเนื้อไก่ราว 170 กรัม', en: 'Herb-marinated grilled chicken with jaew dip only; rice is not included, per the One Nimman, Chiang Mai 2026 menu. The brand does not publish the chicken weight; the estimate assumes about 170 g of cooked chicken. Availability varies by branch.' },
+  },
+  {
+    id: 'fam-time-spaghetti-spinach-garlic',
+    restaurantId: 'fam-time-thailand',
+    name: { th: 'สปาเกตตี้ผักโขมกระเทียม', en: 'Spaghetti Spinach & Garlic' },
+    category: 'Rice & noodles',
+    nutrition: { kcal: 500, protein: 15, carbs: 70, fat: 18 },
+    nutritionSource: { confidence: 'estimated', note: famTimeEstimateNote, asOf: asOf41b },
+    tags: ['pasta', 'spinach', 'garlic', 'spicy'],
+    servingNote: { th: 'ทั้งจาน ตามเมนูทั่วไปหน้า 12 สมมติพาสต้าสดสุก 250 กรัม ผักโขม 50 กรัม กระเทียม 10 กรัม มะเขือเทศเชอร์รี 50 กรัม พริก 5 กรัม และน้ำมัน 15 กรัม ปริมาณเป็นสมมติฐานของ GoodFood ไม่ใช่น้ำหนักที่ร้านระบุ แต่ละสาขาอาจมีเมนูต่างกัน', en: 'Whole plate, general menu p12. GoodFood assumes 250 g cooked fresh pasta, 50 g spinach, 10 g garlic, 50 g cherry tomato, 5 g chili and 15 g retained oil; these are editorial assumptions, not restaurant weights. Menus may vary by branch.' },
+  },
+  {
+    id: 'fam-time-classic-nonna-carbonara-pancetta',
+    restaurantId: 'fam-time-thailand',
+    name: { th: 'คลาสสิกคาโบนาร่า', en: 'Classic Nonna Carbonara With Pancetta' },
+    category: 'Rice & noodles',
+    nutrition: { kcal: 640, protein: 31, carbs: 64, fat: 29 },
+    nutritionSource: { confidence: 'estimated', note: famTimeEstimateNote, asOf: asOf41b },
+    tags: ['pasta', 'pork', 'egg', 'cheese'],
+    servingNote: { th: 'ทั้งจาน ตามเมนูทั่วไปหน้า 10 มีไข่ แพนเชตตา และชีสเพโคริโน สมมติพาสต้าสดสุก 250 กรัม แพนเชตตาก่อนปรุง 40 กรัมโดยรวมไขมันที่ออกมาระหว่างปรุง ไข่ 50 กรัม และชีส 20 กรัม ไม่เติมครีม เนย หรือน้ำมันในค่าประมาณ ไม่ยืนยันรูปทรงเส้น ปริมาณเป็นสมมติฐานของ GoodFood แต่ละสาขาอาจมีเมนูต่างกัน', en: 'Whole plate, general menu p10: egg, pancetta and pecorino. GoodFood assumes 250 g cooked fresh pasta, 40 g pancetta before cooking with rendered fat retained, 50 g egg and 20 g cheese; no cream, butter or extra oil in the estimate. Pasta shape is unspecified. Quantities are editorial assumptions; menus may vary by branch.' },
+  },
+  {
+    id: 'fa-pla-tahn-seabass-rice-clear-soup',
+    restaurantId: 'fa-pla-tahn-thailand',
+    name: { th: 'ข้าวต้มปลากะพง (น้ำ)', en: 'Boiled rice with seabass fillets — with clear soup' },
+    category: 'Rice & noodles',
+    nutrition: { kcal: 470, protein: 35, carbs: 59, fat: 9 },
+    nutritionSource: { confidence: 'estimated', note: faPlaTahnEstimateNote, asOf: asOf41b },
+    tags: ['fish', 'rice', 'clear-soup'],
+    servingNote: { th: 'M.01 เฉพาะแบบน้ำซุปใส 1 ชาม รวมข้าวและปลาแล้ว สมมติข้าวสุก 180 กรัม เนื้อปลากะพงเทียบก่อนปรุง 150 กรัม น้ำซุปใส 300 มล. ผักโรย 10 กรัม กระเทียม 5 กรัม น้ำมันในเครื่องโรย 5 กรัม และเผื่อน้ำจิ้ม 15 กรัม ปริมาณเป็นสมมติฐานของ GoodFood การกินน้ำจิ้มจริงอาจต่างกัน', en: 'M.01, one bowl with clear soup only, including rice and seabass. GoodFood assumes 180 g cooked rice, 150 g raw-equivalent edible seabass, 300 ml clear broth, 10 g herbs, 5 g garlic, 5 g garnish oil and a 15 g dipping sauce allowance. Quantities are editorial assumptions; actual sauce consumption varies.' },
   },
 ]
 

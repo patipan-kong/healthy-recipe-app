@@ -52,13 +52,13 @@ const click = (element: Element | null | undefined) => { expect(element).toBeTru
 
 describe('Slice 40B restaurants', () => {
   it('adds exactly getfresh and Ginger Farm Kitchen after the original 13, with deterministic ids', () => {
-    expect(restaurants).toHaveLength(15)
-    expect(restaurants.slice(13).map(item => item.id)).toEqual([GETFRESH, GINGER])
+    expect(restaurants).toHaveLength(17)
+    expect(restaurants.slice(13, 15).map(item => item.id)).toEqual([GETFRESH, GINGER])
     expect(validateRestaurants(restaurants)).toEqual([])
   })
 
   it('gives both new restaurants an official-remote logo with full provenance', () => {
-    expect(restaurants.filter(item => item.logo)).toHaveLength(15)
+    expect(restaurants.filter(item => item.logo)).toHaveLength(17)
     const getfresh = restaurants.find(item => item.id === GETFRESH)!.logo!
     expect(getfresh).toMatchObject({
       src: 'https://profile.line-scdn.net/0hlLjprtuSM2NXCS9GHq5MNGtMPQ4gJzUrL2ooUXEPOFYqPCY1OGcoBCZablp8aiFnaz11VXZaOQR8/preview',
@@ -77,13 +77,13 @@ describe('Slice 40B restaurants', () => {
 })
 
 describe('Slice 40B menu items', () => {
-  it('adds exactly 7 getfresh and 3 Ginger Farm items (94 total) with unique ids, valid categories and bilingual names', () => {
-    expect(restaurantMenuItems).toHaveLength(94)
+  it('adds exactly 7 getfresh and 3 Ginger Farm items (97 total after Slice 41B) with unique ids, valid categories and bilingual names', () => {
+    expect(restaurantMenuItems).toHaveLength(97)
     expect(local(GETFRESH)).toHaveLength(7)
     expect(local(GINGER)).toHaveLength(3)
     expect(ids(local(GETFRESH))).toEqual(getfreshIds)
     expect(ids(local(GINGER))).toEqual(gingerIds)
-    expect(new Set(ids(restaurantMenuItems)).size).toBe(94)
+    expect(new Set(ids(restaurantMenuItems)).size).toBe(97)
     expect(validateRestaurantMenuItems(restaurantMenuItems, restaurants)).toEqual([])
     for (const item of newIds.map(find)) {
       expect(item.name.th.trim() && item.name.en.trim(), item.id).toBeTruthy()
@@ -180,7 +180,7 @@ describe('Slice 40B images', () => {
 
   it('intentionally leaves G6, G7 and all Ginger Farm items image-less with no placeholder', () => {
     for (const id of [...getfreshNoImageIds, ...gingerIds]) expect(find(id).menuImage, id).toBeUndefined()
-    expect(restaurantMenuItems.filter(item => !item.menuImage)).toHaveLength(44)
+    expect(restaurantMenuItems.filter(item => !item.menuImage)).toHaveLength(47)
     expect(JSON.stringify(find('getfresh-atlantic-salmon-steak'))).not.toMatch(/placeholder|Salmon-Steak\.png/i)
   })
 })
@@ -225,14 +225,14 @@ describe('Slice 40B discovery', () => {
     act(() => root.render(<App />))
     click(q('.restaurant-nav'))
     const cards = qa('.restaurant-grid .restaurant-card')
-    expect(cards).toHaveLength(15)
+    expect(cards).toHaveLength(17)
     for (const id of [GETFRESH, GINGER]) {
       const card = cards.find(node => node.querySelector(`[data-restaurant-identity="${id}"]`))!
       expect(card, id).toBeDefined()
       expect(card.querySelector('img')?.getAttribute('src')).toBe(restaurants.find(item => item.id === id)!.logo!.src)
       expect(card.querySelector('[data-identity-source="logo"]')).not.toBeNull()
     }
-    for (const [index, id] of [[restaurants.length - 2, GETFRESH], [restaurants.length - 1, GINGER]] as const) {
+    for (const [index, id] of [[restaurants.findIndex(r => r.id === GETFRESH), GETFRESH], [restaurants.findIndex(r => r.id === GINGER), GINGER]] as const) {
       act(() => root.unmount()); root = createRoot(container)
       act(() => root.render(<RestaurantListView locale="en" onOpen={() => undefined} random={() => (index + 0.5) / restaurants.length} />))
       click(q('.restaurant-pick-trigger'))

@@ -290,8 +290,8 @@ describe('production menu image dataset shape', () => {
     const withImage: RestaurantMenuItem[] = restaurantMenuItems.filter(item => item.menuImage)
     const restaurantIds = new Set(withImage.map(item => item.restaurantId))
     expect(restaurantIds).toEqual(new Set(['ootoya-thailand', 'seven-eleven-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand', 'nittaya-kai-yang-thailand', 'salad-factory-thailand', 'jones-salad-thailand', 'sukiya-thailand', 'santa-fe-steak-thailand', 'thongsmith-boat-noodle-thailand', 'steak-and-more-thailand', 'getfresh-thailand']))
-    expect(restaurants.length).toBe(15)
-    expect(restaurantMenuItems.length).toBe(94)
+    expect(restaurants.length).toBe(17)
+    expect(restaurantMenuItems.length).toBe(97)
   })
 
   it('gives every menuImage-bearing item non-empty localized alt text', () => {

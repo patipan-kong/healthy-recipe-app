@@ -127,8 +127,8 @@ describe('optional restaurant meal context and price validation', () => {
   })
 
   it('keeps the production dataset at the expected baseline and valid', () => {
-    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
-    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
+    expect(restaurants).toHaveLength(17) // 13 + 2 (Slice 40B) + 2 (Slice 41B)
+    expect(restaurantMenuItems).toHaveLength(97) // 84 + 10 (Slice 40B) + 3 (Slice 41B)
     expect(validateRestaurantMenuItems(restaurantMenuItems, restaurants)).toEqual([])
   })
 
@@ -505,8 +505,8 @@ describe('Slice 29 image expansion batch (relation-aware coverage)', () => {
   })
 
   it('leaves restaurant/menu counts unchanged (15 restaurants, 94 menu items after Slice 40B)', () => {
-    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
-    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
+    expect(restaurants).toHaveLength(17) // 13 + 2 (Slice 40B) + 2 (Slice 41B)
+    expect(restaurantMenuItems).toHaveLength(97) // 84 + 10 (Slice 40B) + 3 (Slice 41B)
   })
 
   it('does not change any nutrition, category, tag, serving note, or restaurant membership for the 2 newly-imaged Nittaya items', () => {
@@ -539,8 +539,8 @@ describe('Slice 20 price coverage expansion', () => {
   ]
 
   it('keeps the dataset at 15 restaurants / 94 items', () => {
-    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
-    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
+    expect(restaurants).toHaveLength(17) // 13 + 2 (Slice 40B) + 2 (Slice 41B)
+    expect(restaurantMenuItems).toHaveLength(97) // 84 + 10 (Slice 40B) + 3 (Slice 41B)
   })
 
   it('adds a new price to exactly the 12 targeted items, within the 8-15 target range and the 15 hard maximum', () => {
@@ -675,8 +675,8 @@ describe('Slice 22 price coverage expansion batch 2', () => {
   ]
 
   it('keeps the dataset at 15 restaurants / 94 items', () => {
-    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
-    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
+    expect(restaurants).toHaveLength(17) // 13 + 2 (Slice 40B) + 2 (Slice 41B)
+    expect(restaurantMenuItems).toHaveLength(97) // 84 + 10 (Slice 40B) + 3 (Slice 41B)
   })
 
   it('adds a new price to exactly the 9 targeted items, within the 8-12 target range and the 12 hard maximum', () => {
