@@ -11,3 +11,4 @@
 .everyday-meal-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; }
 .everyday-meal-tags span { padding: 3px 7px; border-radius: 99px; background: #edf4e9; color: #526254; font-size: 11px; line-height: 1.5; }
 .everyday-meal-kcal span { display: block; white-space: nowrap; }
+.everyday-meal-card { text-align: left; color: inherit; font: inherit; }

@@ -30,7 +30,7 @@ function search(value: string) {
 }
 
 describe('Slice 42B Browse', () => {
-  it('renders all 50 catalog meals with six semantic chips and no premature interactions', () => {
+  it('renders all 50 catalog meals with six semantic chips and accessible detail cards', () => {
     expect(ids()).toEqual(everydayMeals.map(meal => meal.id))
     expect(container.querySelector('.everyday-meals-heading')?.textContent).toContain('วันนี้อยากกินอะไร?')
     const buttons = [...container.querySelectorAll('.everyday-meals-chips button')]
@@ -41,7 +41,9 @@ describe('Slice 42B Browse', () => {
     expect(container.querySelector('.everyday-meals-view input')?.getAttribute('aria-label')).toBe('ค้นหาเมนู...')
     expect(container.querySelector('[role="status"]')?.textContent).toBe('50 เมนู')
     for (const card of cards()) {
-      expect(card.tagName).toBe('ARTICLE')
+      expect(card.tagName).toBe('BUTTON')
+      expect(card.getAttribute('type')).toBe('button')
+      expect(card.getAttribute('aria-label')).toBe(card.querySelector('h3')?.textContent)
       expect(card.querySelector('button, input, select, a, img')).toBeNull()
       expect(card.textContent).not.toMatch(/proteinG|กรัม|ฟอง|confidence|1 จาน|1 ชาม/)
       expect(card.querySelector('.everyday-meal-fallback')?.getAttribute('aria-hidden')).toBe('true')

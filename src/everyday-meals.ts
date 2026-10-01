@@ -60,3 +60,15 @@ export function calculateNutritionWithAddOns(meal: EverydayMeal, selectedAddOnId
   if (addOns.some(addOn => addOn.nutrition.confidence === 'medium')) result.confidence = 'medium'
   return result
 }
+
+/** Only explicit option kcal ranges replace the base; semantic effects never become numbers. */
+export function calculateEverydayMealNutrition(meal: EverydayMeal, selectedOptions: Readonly<Record<string, string>>, selectedAddOnIds: readonly string[]): NutritionEstimate {
+  const nutrition = structuredClone(meal.nutrition)
+  for (const group of meal.optionGroups ?? []) {
+    const choiceId = selectedOptions[group.id] ?? group.choices[0]?.id
+    const choice = group.choices.find(item => item.id === choiceId)
+    if (!choice) throw new Error(`Invalid option for ${meal.id}: ${group.id}/${choiceId}`)
+    if (choice.nutrition?.kcal) nutrition.kcal = { ...choice.nutrition.kcal }
+  }
+  return calculateNutritionWithAddOns({ ...meal, nutrition }, selectedAddOnIds)
+}

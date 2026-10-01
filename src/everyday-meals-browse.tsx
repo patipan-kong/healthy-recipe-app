@@ -13,16 +13,16 @@ const chips: { id: string; th: string; en: string; category?: EverydayMealCatego
   { id: 'high-protein', th: 'โปรตีนสูง', en: 'High protein', tag: 'high-protein' },
   { id: 'veggie-rich', th: 'ผักเยอะ', en: 'Veggie rich', tag: 'veggie-rich' },
 ]
-const tagLabels = {
+export const tagLabels = {
   light: { th: 'เบาๆ', en: 'Light' },
   'high-protein': { th: 'โปรตีนสูง', en: 'High protein' },
   'veggie-rich': { th: 'ผักเยอะ', en: 'Veggie rich' },
 }
 
-function EverydayMealCard({ meal, locale }: { meal: EverydayMeal; locale: Locale }) {
+function EverydayMealCard({ meal, locale, onOpen }: { meal: EverydayMeal; locale: Locale; onOpen: (id: string) => void }) {
   const preparations = meal.optionGroups?.find(group => group.id === 'preparation')?.choices.filter(choice => choice.nutrition?.kcal)
   const optionLight = !meal.tags.includes('light') && hasEverydayMealDiscoveryTag(meal, 'light')
-  return <article className="menu-grid-card everyday-meal-card" data-everyday-meal-id={meal.id}>
+  return <button type="button" className="menu-grid-card everyday-meal-card" data-everyday-meal-id={meal.id} aria-label={meal.nameTh} onClick={() => onOpen(meal.id)}>
     <div className="everyday-meal-fallback" aria-hidden="true"><Utensils size={32} strokeWidth={1.5} /></div>
     <div className="menu-grid-body">
       <h3>{meal.nameTh}</h3>
@@ -34,10 +34,10 @@ function EverydayMealCard({ meal, locale }: { meal: EverydayMeal; locale: Locale
         {optionLight && <span>{locale === 'th' ? 'เบาๆ เมื่อน้ำ' : 'Light with soup'}</span>}
       </div>}
     </div>
-  </article>
+  </button>
 }
 
-export function EverydayMealsBrowse({ locale, onBack }: { locale: Locale; onBack: () => void }) {
+export function EverydayMealsBrowse({ locale, onBack, onOpen }: { locale: Locale; onBack: () => void; onOpen: (id: string) => void }) {
   const [query, setQuery] = useState('')
   const [selectedChip, setSelectedChip] = useState('all')
   const chip = chips.find(item => item.id === selectedChip)!
@@ -56,7 +56,7 @@ export function EverydayMealsBrowse({ locale, onBack }: { locale: Locale; onBack
       {chips.map(item => <button key={item.id} type="button" aria-pressed={selectedChip === item.id} className={selectedChip === item.id ? 'active' : ''} onClick={() => setSelectedChip(item.id)}>{item[locale]}</button>)}
     </div>
     <p className="explore-result-count" role="status">{results.length} {locale === 'th' ? 'เมนู' : 'meals'}</p>
-    {results.length > 0 ? <div className="menu-grid everyday-meals-grid">{results.map(meal => <EverydayMealCard key={meal.id} meal={meal} locale={locale} />)}</div>
+    {results.length > 0 ? <div className="menu-grid everyday-meals-grid">{results.map(meal => <EverydayMealCard key={meal.id} meal={meal} locale={locale} onOpen={onOpen} />)}</div>
       : <div className="empty"><h3>{locale === 'th' ? 'ไม่พบเมนูที่ตรงกับการค้นหา' : 'No matching meals'}</h3><p>{locale === 'th' ? 'ลองเปลี่ยนคำค้นหาหรือตัวกรอง' : 'Try another search or filter.'}</p><button type="button" className="text-button" onClick={reset}>{locale === 'th' ? 'ล้างคำค้นหาและตัวกรอง' : 'Reset search and filter'}</button></div>}
   </section>
 }
