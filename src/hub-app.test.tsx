@@ -38,12 +38,11 @@ describe('Meal Decision Hub', () => {
     container.remove()
   })
 
-  it('renders one Thai decision heading and two named buttons before recipe discovery', () => {
+  it('renders one Thai decision heading and four peer entry actions before recipe discovery', () => {
     expect(container.querySelectorAll('h1')).toHaveLength(1)
     expect(container.querySelector('.meal-hub h1')?.textContent).toBe('วันนี้อยากกินอะไรดี?')
-    expect(container.querySelector('.meal-hub p')?.textContent).toBe('ทำเองที่บ้าน หรือจะออกไปกินก็ได้')
     const buttons = [...container.querySelectorAll<HTMLButtonElement>('.meal-hub button')]
-    expect(buttons.map(button => button.textContent)).toEqual(['ทำอาหารเอง', 'ซื้ออาหาร'])
+    expect(buttons.map(button => button.textContent)).toEqual(['ร้านอาหาร17 ร้าน · 97 เมนูดูร้านทั้งหมด ', 'เมนูทั่วไปEveryday Meals · 50 เมนูดูเมนูทั้งหมด ', 'สุ่มร้านให้หน่อยจาก 17 ร้าน', 'สุ่มเมนูให้หน่อยจาก 50 เมนู'])
     for (const button of buttons) {
       expect(button.type).toBe('button')
       expect(button.hasAttribute('tabindex')).toBe(false)
@@ -59,9 +58,8 @@ describe('Meal Decision Hub', () => {
   it('uses English copy via the existing locale switch', () => {
     click('.language-switcher button:last-child')
     expect(container.querySelector('.meal-hub h1')?.textContent).toBe('What sounds good today?')
-    expect(container.querySelector('.meal-hub p')?.textContent).toBe('Cook it yourself, or go grab it.')
-    expect(container.querySelector('.meal-hub-cook')?.textContent).toBe('Cook at home')
-    expect(container.querySelector('.meal-hub-buy')?.textContent).toBe('Buy food')
+    expect(container.querySelector('.meal-hub-cook')?.textContent?.trim()).toBe('Cook at home')
+    expect(container.querySelector('.meal-hub-buy')?.textContent).toContain('Browse restaurants')
   })
 
   it('Cook focuses discovery and preserves the query, category, and current pick', () => {

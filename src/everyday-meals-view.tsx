@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { EverydayMealsBrowse } from './everyday-meals-browse'
 import { EverydayMealDetail } from './everyday-meal-detail'
 import { getEverydayMealById } from './everyday-meals'
+import { addressEverydayMeals } from './everyday-meals-navigation'
 import type { Locale } from './types'
 
 const addressedMeal = () => new URLSearchParams(window.location.search).get('everyday-meal')
 
-export function EverydayMealsView({ locale, onBack }: { locale: Locale; onBack: () => void }) {
+export function EverydayMealsView({ locale, onBack, detailReturnsHome = false }: { locale: Locale; onBack: () => void; detailReturnsHome?: boolean }) {
   const [mealId, setMealId] = useState<string | null>(addressedMeal)
   const browseRef = useRef<HTMLDivElement>(null)
   const returnMealId = useRef<string | null>(null)
@@ -24,14 +25,12 @@ export function EverydayMealsView({ locale, onBack }: { locale: Locale; onBack: 
     }
   }, [mealId])
   function open(id: string) {
-    const url = new URL(window.location.href)
-    url.searchParams.set('everyday-meals', '')
-    url.searchParams.set('everyday-meal', id)
-    window.history.pushState({}, '', url)
+    addressEverydayMeals(id)
     returnMealId.current = id
     setMealId(id)
   }
   function close() {
+    if (detailReturnsHome) { onBack(); return }
     const url = new URL(window.location.href)
     url.searchParams.delete('everyday-meal')
     window.history.replaceState({}, '', url)

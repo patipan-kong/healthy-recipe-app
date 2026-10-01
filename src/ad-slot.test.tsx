@@ -87,7 +87,7 @@ it('search removes the feed ad for short results without changing matching cards
   expect(ads('recipe-feed')).toHaveLength(0); expect(container.querySelectorAll('.recipe-card')).toHaveLength(0)
 })
 it('restaurant feed and each independent result have one sibling ad, shared cards have none', () => {
-  render(); click('.meal-hub button:last-child')
+  render(); click('.meal-hub-buy')
   expect(container.querySelectorAll('.restaurant-row')).toHaveLength(17)
   expect(container.querySelector('.restaurant-grid')?.children[10]).toBe(ads('restaurant-feed')[0])
   click('.restaurant-pick-trigger'); expect(ads('restaurant-pick')).toHaveLength(1)
@@ -173,7 +173,7 @@ it('restaurant directory ad completes rows: after 9 cards on 3 columns, after 10
   for (const [desktop, cardsBefore] of [[true, 9], [false, 10]] as const) {
     vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: desktop, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
     act(() => root.unmount()); root = createRoot(container)
-    render(); click('.meal-hub button:last-child')
+    render(); click('.meal-hub-buy')
     const grid = container.querySelector('.restaurant-grid')!
     expect(ads('restaurant-feed')).toHaveLength(1)
     expect(grid.children[cardsBefore]).toBe(ads('restaurant-feed')[0])

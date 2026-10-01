@@ -15,6 +15,9 @@ import { RestaurantIdentity } from './restaurant-identity'
 import { MealContextDetails } from './meal-context-ui'
 import { MenuItemImage } from './menu-image'
 import { EverydayMealsView } from './everyday-meals-view'
+import { HomeMealEntries } from './home-meal-entries'
+import { getRandomEverydayMeal } from './everyday-meals'
+import { addressEverydayMeals, leaveEverydayMeals } from './everyday-meals-navigation'
 import { imageFirstMenuItems, logoFirstRestaurants, rankRestaurantsForGrid } from './menu-presentation'
 import type { ExplorePresetId, Filters, Locale, Recipe, Restaurant, RestaurantMenuFilters, RestaurantMenuItem } from './types'
 
@@ -68,6 +71,8 @@ function App() {
   const [pantryMode, setPantryMode] = useState<PantryMode>('selection')
   const [pantryQuery, setPantryQuery] = useState('')
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null)
+  const [randomRestaurantEntry, setRandomRestaurantEntry] = useState(false)
+  const [randomMealEntry, setRandomMealEntry] = useState(false)
   const [menuDetail, setMenuDetail] = useState<MenuDetailState | null>(null)
   const [recipeReturnMenu, setRecipeReturnMenu] = useState<MenuDetailState | null>(null)
   const listScrollRef = useRef(0)
@@ -75,6 +80,32 @@ function App() {
   const filterTriggerRef = useRef<HTMLButtonElement>(null)
   const recipeSearchRef = useRef<HTMLInputElement>(null)
   const copy = messages[locale]
+
+  function home() {
+    leaveEverydayMeals()
+    setScreen('browse')
+    setRandomMealEntry(false)
+  }
+  function enterEverydayMeals(random = false) {
+    const meal = random ? getRandomEverydayMeal() : undefined
+    addressEverydayMeals(meal?.id)
+    setRandomMealEntry(random)
+    setScreen('everyday-meals')
+  }
+  function enterRestaurants(random = false) {
+    setRandomRestaurantEntry(random)
+    setSelectedRestaurantId(null)
+    setScreen('restaurants')
+  }
+  useEffect(() => {
+    const onPopState = () => {
+      const params = new URLSearchParams(window.location.search)
+      setScreen(params.has('everyday-meals') ? 'everyday-meals' : 'browse')
+      if (!params.has('everyday-meals')) setRandomMealEntry(false)
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
   useEffect(() => setStorageAvailable(saveFavorites(favorites)), [favorites])
   useEffect(() => setRestaurantFavoritesStorageAvailable(saveRestaurantMenuFavorites(restaurantMenuFavorites)), [restaurantMenuFavorites])
@@ -171,6 +202,7 @@ function App() {
   }
   function toggleShoppingScreen() { setScreen(current => current === 'shopping' ? 'browse' : 'shopping') }
   function toggleRestaurantsScreen() {
+    setRandomRestaurantEntry(false)
     setSelectedRestaurantId(null)
     setScreen(current => current === 'restaurants' || current === 'restaurant-detail' ? 'browse' : 'restaurants')
   }
@@ -205,7 +237,7 @@ function App() {
 
   const shell = <main className="app-shell">
     <header className="topbar">
-      <button className="logo" onClick={() => setScreen('browse')} aria-label="Home"><span className="logo-mark">🍋</span><span>good<b>food</b></span></button>
+      <button className="logo" onClick={home} aria-label="Home"><span className="logo-mark">🍋</span><span>good<b>food</b></span></button>
       <div className="header-actions">
         <div className="language-switcher" role="group" aria-label={copy.language}>
           {(['th', 'en'] as Locale[]).map(option => <button key={option} className={locale === option ? 'active' : ''} onClick={() => setLocale(option)} aria-pressed={locale === option}>{option.toUpperCase()}</button>)}
@@ -217,17 +249,14 @@ function App() {
         <button className="icon-button" onClick={() => setScreen(screen === 'favorites' ? 'browse' : 'favorites')} aria-label={copy.favorites}><Heart size={21} fill={screen === 'favorites' ? 'currentColor' : 'none'} /><i>{favorites.length || ''}</i></button>
       </div>
     </header>
-    {screen === 'everyday-meals' ? <EverydayMealsView locale={locale} onBack={() => setScreen('browse')} /> : screen === 'meal-context-pilot' ? mealContextPilotItems ? <MealContextPilotView locale={locale} items={mealContextPilotItems} onOpenRestaurant={openRestaurant} /> : <section className="content meal-context-pilot-view"><p className="storage-note" role="status">{copy.mealContextPilotLoading}</p></section> : screen === 'pantry' ? <PantryView locale={locale} mode={pantryMode} selectedIds={pantrySelection} resultSource={pantryResultSource} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={browsePantryIngredient} onViewResults={showPantryResults} onEditIngredients={editPantryIngredients} onClear={clearPantry} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : screen === 'shopping' ? <ShoppingView locale={locale} recipeIds={shoppingSelection.recipeIds} servingsByRecipeId={shoppingSelection.servingsByRecipeId} lines={shoppingLines} purchasedIds={shoppingPurchasedIds} pantryIds={pantrySelection} storageAvailable={shoppingStorageAvailable && shoppingPurchasedStorageAvailable} onTogglePurchased={toggleShoppingPurchased} onChangeServings={adjustShoppingServings} onRemoveRecipe={removeShoppingRecipe} onClear={clearShopping} onOpen={openRecipe} /> : screen === 'restaurants' ? <RestaurantListView locale={locale} onOpen={openRestaurant} onOpenMenuItem={openMenuItem} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} onOpenRecipe={openRecipe} /> : screen === 'restaurant-detail' ? <RestaurantMenuView locale={locale} restaurantId={selectedRestaurantId} onBack={backToRestaurants} onOpenMenuItem={openMenuItem} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} storageAvailable={restaurantFavoritesStorageAvailable} onOpenRecipe={openRecipe} /> : screen === 'explore' ? <ExploreView locale={locale} onOpenRestaurant={openRestaurant} onOpenMenuItem={openMenuItem} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} storageAvailable={restaurantFavoritesStorageAvailable} onOpenRecipe={openRecipe} /> : <>
+    {screen === 'everyday-meals' ? <EverydayMealsView locale={locale} onBack={home} detailReturnsHome={randomMealEntry} /> : screen === 'meal-context-pilot' ? mealContextPilotItems ? <MealContextPilotView locale={locale} items={mealContextPilotItems} onOpenRestaurant={openRestaurant} /> : <section className="content meal-context-pilot-view"><p className="storage-note" role="status">{copy.mealContextPilotLoading}</p></section> : screen === 'pantry' ? <PantryView locale={locale} mode={pantryMode} selectedIds={pantrySelection} resultSource={pantryResultSource} query={pantryQuery} counts={pantryCounts} storageAvailable={pantryStorageAvailable} onQuery={setPantryQuery} onToggle={togglePantry} onBrowseIngredient={browsePantryIngredient} onViewResults={showPantryResults} onEditIngredients={editPantryIngredients} onClear={clearPantry} favorites={favorites} onOpen={openRecipe} onFavorite={favorite} /> : screen === 'shopping' ? <ShoppingView locale={locale} recipeIds={shoppingSelection.recipeIds} servingsByRecipeId={shoppingSelection.servingsByRecipeId} lines={shoppingLines} purchasedIds={shoppingPurchasedIds} pantryIds={pantrySelection} storageAvailable={shoppingStorageAvailable && shoppingPurchasedStorageAvailable} onTogglePurchased={toggleShoppingPurchased} onChangeServings={adjustShoppingServings} onRemoveRecipe={removeShoppingRecipe} onClear={clearShopping} onOpen={openRecipe} /> : screen === 'restaurants' ? <RestaurantListView locale={locale} initialRandomPick={randomRestaurantEntry} onOpen={openRestaurant} onOpenMenuItem={openMenuItem} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} onOpenRecipe={openRecipe} /> : screen === 'restaurant-detail' ? <RestaurantMenuView locale={locale} restaurantId={selectedRestaurantId} onBack={backToRestaurants} onOpenMenuItem={openMenuItem} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} storageAvailable={restaurantFavoritesStorageAvailable} onOpenRecipe={openRecipe} /> : screen === 'explore' ? <ExploreView locale={locale} onOpenRestaurant={openRestaurant} onOpenMenuItem={openMenuItem} favoriteIds={restaurantMenuFavorites} onFavorite={favoriteRestaurantMenuItem} storageAvailable={restaurantFavoritesStorageAvailable} onOpenRecipe={openRecipe} /> : <>
       {screen === 'browse' ? <section className="hero meal-hub" aria-labelledby="meal-hub-title">
         <h1 id="meal-hub-title">{copy.mealHubTitle}</h1>
-        <p>{copy.mealHubDescription}</p>
-        <div className="meal-hub-actions">
-          <button type="button" className="meal-hub-cook" onClick={() => recipeSearchRef.current?.focus()}><ChefHat size={22} aria-hidden="true" /><span>{copy.cookAtHome}</span></button>
-          <button type="button" className="meal-hub-buy" onClick={toggleRestaurantsScreen}><Store size={22} aria-hidden="true" /><span>{copy.buyFood}</span></button>
-        </div>
+        <HomeMealEntries locale={locale} onRestaurants={() => enterRestaurants()} onMeals={() => enterEverydayMeals()} onRandomRestaurant={() => enterRestaurants(true)} onRandomMeal={() => enterEverydayMeals(true)} />
       </section> : <section className="hero"><p className="eyebrow">{copy.heroEyebrow}</p><h1>{copy.heroTitle}</h1><p>{copy.heroDescription}</p></section>}
       <section className="content">
         {!storageAvailable && <p className="storage-note" role="status">{copy.storageNote}</p>}
+        {screen === 'browse' && <button type="button" className="text-button meal-hub-cook" onClick={() => recipeSearchRef.current?.focus()}><ChefHat size={16} aria-hidden="true" /> {copy.cookAtHome}</button>}
          <div className="search-row"><label className="search"><Search size={18} /><input ref={recipeSearchRef} value={query} onChange={event => setQuery(event.target.value)} placeholder={copy.searchPlaceholder} aria-label={copy.searchPlaceholder} /></label><button ref={filterTriggerRef} className="filter-button" onClick={() => setFiltersOpen(true)} aria-label={copy.openFilters}><SlidersHorizontal size={19} />{activeFilterCount > 0 && <span>{activeFilterCount}</span>}</button></div>
         <div className="section-heading"><h2>{screen === 'favorites' ? copy.favorites : copy.browse}</h2>{screen === 'favorites' && <button className="text-button" onClick={() => setScreen('browse')}>{copy.browseAll}</button>}</div>
         {screen === 'browse' && <div className="chips" aria-label={copy.recipeCategories}><button className={!filters.category ? 'active' : ''} onClick={() => setFilters(current => ({ ...current, category: '' }))}>{copy.allRecipes}</button>{categories.map(category => <button key={category} className={filters.category === category ? 'active' : ''} onClick={() => setFilters(current => ({ ...current, category }))}>{categoryLabel(locale, category)}</button>)}</div>}
@@ -378,6 +407,7 @@ function MealContextPilotView({ locale, items, onOpenRestaurant }: { locale: Loc
 }
 
 type RestaurantListViewProps = {
+  initialRandomPick?: boolean
   locale: Locale
   onOpen(id: string): void
   onOpenMenuItem?(id: string): void
@@ -389,10 +419,10 @@ type RestaurantListViewProps = {
   random?: () => number
 }
 
-export function RestaurantListView({ locale, onOpen, onOpenMenuItem, favoriteIds = [], onFavorite = () => undefined, onOpenRecipe = () => undefined, menuItems = restaurantMenuItems, restaurantList = restaurants, random = Math.random }: RestaurantListViewProps) {
+export function RestaurantListView({ locale, onOpen, onOpenMenuItem, favoriteIds = [], onFavorite = () => undefined, onOpenRecipe = () => undefined, menuItems = restaurantMenuItems, restaurantList = restaurants, random = Math.random, initialRandomPick = false }: RestaurantListViewProps) {
   const copy = messages[locale]
-  const [pickedRestaurantId, setPickedRestaurantId] = useState<string>()
-  const [lastPickedRestaurantId, setLastPickedRestaurantId] = useState<string>()
+  const [pickedRestaurantId, setPickedRestaurantId] = useState<string | undefined>(() => initialRandomPick ? chooseRandom(restaurantList, undefined, random)?.id : undefined)
+  const [lastPickedRestaurantId, setLastPickedRestaurantId] = useState<string | undefined>(pickedRestaurantId)
   const [pickedMeal, setPickedMeal] = useState<RandomMealPick>()
   const [lastPickedMealId, setLastPickedMealId] = useState<string>()
   const pickedRestaurant = restaurantList.find(restaurant => restaurant.id === pickedRestaurantId)
