@@ -70,11 +70,11 @@ describe('Slice 39A approved imagery', () => {
     }
   })
 
-  it('preserves the entry catalog fields and recipe relations apart from menuImage', () => {
+  it('pins catalog fields after the approved Slice 39C partial corrections and preserves recipe relations', () => {
     const source = readFileSync(resolve(__dirname, 'restaurants.ts'), 'utf8').replace(/\r\n/g, '\n')
     const catalog = source.slice(source.indexOf('export const restaurants:'), source.indexOf('export const emptyRestaurantMenuFilters'))
       .replace(/^    menuImage: \{[\s\S]*?^    \},\n/gm, '')
-    expect(createHash('sha256').update(catalog).digest('hex')).toBe('8b75645fa24031274462acb11bec7a91e450a332427687ce254f6ae2eeac3fc2')
+    expect(createHash('sha256').update(catalog).digest('hex')).toBe('274bf04d731192e8ec565db750e823514560c9cbd4b073f339322b33ff350b9b')
     const relations = readFileSync(resolve(__dirname, 'recipe-restaurant-relations.ts'))
     expect(createHash('sha256').update(relations).digest('hex')).toBe('80e2b0ec4063909ef47659d2d0acd8b230143db91d201b80ddf7150b6b6feaea')
   })
