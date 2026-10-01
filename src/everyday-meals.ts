@@ -23,6 +23,11 @@ export function filterEverydayMeals(filters: { category?: EverydayMealCategory; 
   return everydayMeals.filter(meal => (!filters.category || meal.category === filters.category) && (!filters.tag || meal.tags.includes(filters.tag)))
 }
 
+/** Discovery includes a tag exposed by any option, without changing base curated tags. */
+export function hasEverydayMealDiscoveryTag(meal: EverydayMeal, tag: EverydayMealTag): boolean {
+  return meal.tags.includes(tag) || Boolean(meal.optionGroups?.some(group => group.choices.some(choice => choice.tags?.includes(tag))))
+}
+
 /** One equal-width interval per meal; options and add-ons never enter the pool. */
 export function getRandomEverydayMeal(random = Math.random): EverydayMeal | undefined {
   return everydayMeals[Math.floor(random() * everydayMeals.length)]

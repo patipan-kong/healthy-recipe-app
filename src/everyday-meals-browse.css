@@ -1,0 +1,13 @@
+.everyday-meals-heading { margin: 18px 0 22px; }
+.everyday-meals-heading h1 { margin: 0 0 8px; font-family: Georgia, 'Times New Roman', serif; font-size: 32px; color: #294132; line-height: 1.15; }
+.everyday-meals-heading p { margin: 0; color: #55705c; }
+.everyday-meals-view .search, .everyday-meals-view .search input { min-width: 0; }
+.everyday-meals-chips { margin-top: 16px; flex-wrap: wrap; overflow: visible; }
+.everyday-meals-chips button { min-height: 40px; }
+.everyday-meal-fallback { height: 90px; background: #e6ecdf; color: #71856e; display: grid; place-items: center; }
+.everyday-meal-card:not(:has(.menu-item-image)) .menu-grid-body { padding: 12px; gap: 9px; }
+.everyday-meal-card h3 { overflow-wrap: anywhere; line-height: 1.4; }
+.everyday-meal-kcal { margin: 0; font-size: 12px; line-height: 1.6; color: #647365; }
+.everyday-meal-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; }
+.everyday-meal-tags span { padding: 3px 7px; border-radius: 99px; background: #edf4e9; color: #526254; font-size: 11px; line-height: 1.5; }
+.everyday-meal-kcal span { display: block; white-space: nowrap; }
