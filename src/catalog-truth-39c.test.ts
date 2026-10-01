@@ -15,6 +15,17 @@ const block = (id: string) => {
   expect(start).toBeGreaterThan(0)
   return source.slice(start, source.indexOf('\n  },', start) + 6)
 }
+// Slice 40B appends two restaurants, ten items and their constants; this freeze is of everything else, so the
+// additions are stripped back out before hashing (the original 39C hash remains valid and unchanged).
+const NEW_40B_BLOCK_IDS = [
+  'getfresh-thailand', 'ginger-farm-kitchen-thailand',
+  'getfresh-clean-khao-man-gai', 'getfresh-clean-kaprao-gai', 'getfresh-vegan-mushroom-kaprao', 'getfresh-korean-pork-bulgogi-bowl',
+  'getfresh-chicken-burrito-bowl', 'getfresh-atlantic-salmon-steak', 'getfresh-minestrone',
+  'ginger-farm-khao-soi-gai', 'ginger-farm-khanom-jeen-nam-ngiao', 'ginger-farm-herb-grilled-chicken-jaew',
+]
+const withoutSlice40bAdditions = (value: string) => NEW_40B_BLOCK_IDS
+  .reduce((text, id) => text.replace(block(id), ''), value)
+  .replace(/\n\/\/ Slice 40B restaurant expansion[\s\S]*?\n(?=\nexport const restaurants)/, '')
 const hash = (value: string) => createHash('sha256').update(value).digest('hex')
 const ids = (items: typeof restaurantMenuItems) => items.map(item => item.id)
 
@@ -52,15 +63,15 @@ describe('Slice 39C verified partial catalog corrections', () => {
   it('freezes unresolved objects and every production source byte outside the two approved objects', () => {
     expect(hash(block('ootoya-grilled-salmon-rice-bowl'))).toBe('7e98581769860b4dc1c6e1b7dcb6cb60a05440aa71bbaaa993c7fbcb577d887c')
     expect(hash(block('nittaya-tom-saep-grilled-chicken-soup'))).toBe('3ef1582bb87a3cbede8c1aa3c9d1c6cdee350c52c9c6472cdbbc8256496d6644')
-    expect(hash(source.replace(block(sevenId), `APPROVED:${sevenId}`).replace(block(thongId), `APPROVED:${thongId}`))).toBe('b102eef065a0fa057017e14eddf871f497f5e4f02332bd9d2a955f8462f95213')
+    expect(hash(withoutSlice40bAdditions(source).replace(block(sevenId), `APPROVED:${sevenId}`).replace(block(thongId), `APPROVED:${thongId}`))).toBe('b102eef065a0fa057017e14eddf871f497f5e4f02332bd9d2a955f8462f95213')
   })
 
   it('retains counts, absent prices/images and stable favorite IDs', () => {
-    expect(restaurants).toHaveLength(13)
-    expect(restaurants.filter(item => item.logo)).toHaveLength(13)
-    expect(restaurantMenuItems).toHaveLength(84)
-    expect(restaurantMenuItems.filter(item => item.menuImage)).toHaveLength(45)
-    expect(restaurantMenuItems.filter(item => !item.menuImage)).toHaveLength(39)
+    expect(restaurants).toHaveLength(15) // 13 + getfresh and Ginger Farm Kitchen (Slice 40B)
+    expect(restaurants.filter(item => item.logo)).toHaveLength(15)
+    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
+    expect(restaurantMenuItems.filter(item => item.menuImage)).toHaveLength(50) // 45 + five getfresh images (Slice 40B)
+    expect(restaurantMenuItems.filter(item => !item.menuImage)).toHaveLength(44)
     for (const id of [sevenId, thongId]) {
       expect(find(id).menuImage).toBeUndefined()
       expect(find(id).price).toBeUndefined()

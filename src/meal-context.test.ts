@@ -13,7 +13,9 @@ const slice38MenuImageIds = [
   'thongsmith-dry-rice-kurobuta-braised-pork', 'thongsmith-grilled-pork-meatballs',
 ]
 const slice39aMenuImageIds = ['steak-and-more-yum-woon-sen', 'steak-and-more-som-tam', 'ootoya-shima-hokke-grilled']
-const withPreSlice38Image = (candidate: RestaurantMenuItem) => Boolean(candidate.menuImage) && ![...slice38MenuImageIds, ...slice39aMenuImageIds].includes(candidate.id)
+// Slice 40B: the five getfresh official-remote images (G1-G5), kept out of every pre-Slice-38 baseline below.
+const slice40bMenuImageIds = ['getfresh-clean-khao-man-gai', 'getfresh-clean-kaprao-gai', 'getfresh-vegan-mushroom-kaprao', 'getfresh-korean-pork-bulgogi-bowl', 'getfresh-chicken-burrito-bowl']
+const withPreSlice38Image = (candidate: RestaurantMenuItem) => Boolean(candidate.menuImage) && ![...slice38MenuImageIds, ...slice39aMenuImageIds, ...slice40bMenuImageIds].includes(candidate.id)
 
 const base = { kcal: 282, protein: 39.5, carbs: 7.9, fat: 12, fiber: 2, sodium: 180 }
 const addition = { kcal: 220, protein: 4.5, carbs: 45, fat: 1.5, fiber: 1, sodium: 360 }
@@ -125,8 +127,8 @@ describe('optional restaurant meal context and price validation', () => {
   })
 
   it('keeps the production dataset at the expected baseline and valid', () => {
-    expect(restaurants).toHaveLength(13)
-    expect(restaurantMenuItems).toHaveLength(84)
+    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
+    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
     expect(validateRestaurantMenuItems(restaurantMenuItems, restaurants)).toEqual([])
   })
 
@@ -502,9 +504,9 @@ describe('Slice 29 image expansion batch (relation-aware coverage)', () => {
     expect(withPrice).toHaveLength(44)
   })
 
-  it('leaves restaurant/menu counts unchanged (13 restaurants, 84 menu items)', () => {
-    expect(restaurants).toHaveLength(13)
-    expect(restaurantMenuItems).toHaveLength(84)
+  it('leaves restaurant/menu counts unchanged (15 restaurants, 94 menu items after Slice 40B)', () => {
+    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
+    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
   })
 
   it('does not change any nutrition, category, tag, serving note, or restaurant membership for the 2 newly-imaged Nittaya items', () => {
@@ -536,9 +538,9 @@ describe('Slice 20 price coverage expansion', () => {
     'mk-premium-suki-set',
   ]
 
-  it('keeps the dataset at 13 restaurants / 84 items', () => {
-    expect(restaurants).toHaveLength(13)
-    expect(restaurantMenuItems).toHaveLength(84)
+  it('keeps the dataset at 15 restaurants / 94 items', () => {
+    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
+    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
   })
 
   it('adds a new price to exactly the 12 targeted items, within the 8-15 target range and the 15 hard maximum', () => {
@@ -672,9 +674,9 @@ describe('Slice 22 price coverage expansion batch 2', () => {
     'zaab-eli-larb-moo',
   ]
 
-  it('keeps the dataset at 13 restaurants / 84 items', () => {
-    expect(restaurants).toHaveLength(13)
-    expect(restaurantMenuItems).toHaveLength(84)
+  it('keeps the dataset at 15 restaurants / 94 items', () => {
+    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
+    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
   })
 
   it('adds a new price to exactly the 9 targeted items, within the 8-12 target range and the 12 hard maximum', () => {

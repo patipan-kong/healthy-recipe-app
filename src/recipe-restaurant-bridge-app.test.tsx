@@ -129,7 +129,7 @@ describe('Recipe Detail -> Restaurant bridge (App)', () => {
   })
 
   it('restaurant dataset counts are unchanged and the recipe catalog reflects Slice 31\'s 4 new recipes', () => {
-    expect([recipes.length, restaurants.length, restaurantMenuItems.length]).toEqual([208, 13, 84])
+    expect([recipes.length, restaurants.length, restaurantMenuItems.length]).toEqual([208, 15, 94])
   })
 })
 

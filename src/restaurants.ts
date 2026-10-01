@@ -136,6 +136,21 @@ const santaFeCropSourceLabel = { th: 'ภาพครอปจากเมนู
 const thongSmithMenuUrl = 'https://online.anyflip.com/iugnb/rchh/'
 const thongSmithCropSourceLabel = { th: 'ภาพครอปจากเมนูออนไลน์ทางการของทองสมิทธ์ (ลิงก์จาก Linktree ของร้าน)', en: "Cropped from ThongSmith's official online menu (linked from its official Linktree)" }
 
+// Slice 40B restaurant expansion (2026-10-01): getfresh and Ginger Farm Kitchen. Evidence, withheld
+// candidates and rationale are recorded in docs/restaurant-expansion-research-40a.md. Neither brand
+// publishes numerical nutrition, so every 40B item is `estimated`. Prices are intentionally withheld
+// (undated website prices; branch-specific prices plus 10% service charge).
+const asOf40b = '2026-10-01'
+const getfreshEstimateNote = {
+  th: 'getfresh ไม่เผยแพร่ข้อมูลโภชนาการเป็นตัวเลขของเมนูนี้ ส่วนประกอบอ้างอิงจากเมนูบนเว็บไซต์ทางการ ส่วนตัวเลขเป็นค่าประมาณของ GoodFood ตามส่วนประกอบและขนาดจานโดยประมาณ ซึ่งร้านไม่ได้เผยแพร่น้ำหนัก ชื่อภาษาไทยเป็นคำแปลของ GoodFood ไม่ใช่ชื่อทางการของร้าน',
+  en: 'getfresh does not publish numerical nutrition for this item. Composition follows the official getfresh menu; the figures are a GoodFood estimate from that composition and an approximate plate size, because the brand does not publish weights. The Thai name is a GoodFood translation, not official brand wording.',
+}
+const getfreshImageSourceLabel = { th: 'ภาพจากเว็บไซต์ทางการของ getfresh', en: 'Image from getfresh official website' }
+const gingerFarmEstimateNote = {
+  th: 'Ginger Farm Kitchen ไม่เผยแพร่ข้อมูลโภชนาการเป็นตัวเลข ชื่อเมนูอ้างอิงจากเมนูทางการสาขาวันนิมมาน เชียงใหม่ ปี 2026 ซึ่งแต่ละสาขามีเมนูไม่เหมือนกัน ตัวเลขเป็นค่าประมาณของ GoodFood ตามส่วนประกอบและขนาดจานโดยประมาณ',
+  en: 'Ginger Farm Kitchen does not publish numerical nutrition. Dish names follow the official One Nimman, Chiang Mai 2026 menu; menus differ by branch. The figures are a GoodFood estimate from the listed components and an approximate plate size.',
+}
+
 export const restaurants: Restaurant[] = [
   {
     id: 'ootoya-thailand',
@@ -231,6 +246,20 @@ export const restaurants: Restaurant[] = [
     cuisine: { th: 'สเต็กราคาย่อมเยาและอาหารไทยฟิวชัน', en: 'Value steaks & Thai-fusion sides' },
     tags: ['steak'],
     logo: { src: 'https://cdn.minorfood.com/uploaded/franchise/logo/175791264368c79e4357937.png', alt: { th: 'โลโก้เดอะสเต๊กแอนด์มอร์', en: 'The Steak & More logo' }, kind: 'official-remote', sourceUrl: 'https://www.minorfood.com/en/franchise/thailand/the-steak-and-more', sourceLabel: { th: 'เว็บไซต์ทางการของไมเนอร์ ฟู้ด (ผู้ดำเนินการแบรนด์)', en: 'Minor Food official website (brand operator)' }, asOf: asOf35c },
+  },
+  {
+    id: 'getfresh-thailand',
+    name: { th: 'getfresh', en: 'getfresh' },
+    cuisine: { th: 'ข้าวและโบลว์สไตล์คลีน สเต็ก และซุป', en: 'Clean-style rice plates, bowls, steaks & soups' },
+    tags: ['bowls'],
+    logo: { src: 'https://profile.line-scdn.net/0hlLjprtuSM2NXCS9GHq5MNGtMPQ4gJzUrL2ooUXEPOFYqPCY1OGcoBCZablp8aiFnaz11VXZaOQR8/preview', alt: { th: 'โลโก้ getfresh', en: 'getfresh logo' }, kind: 'official-remote', sourceUrl: 'https://page.line.me/700dmltt', sourceLabel: { th: 'LINE Official Account ของ getfresh (ลิงก์จากเว็บไซต์ทางการ)', en: 'getfresh LINE Official Account (linked from the official website)' }, asOf: asOf40b },
+  },
+  {
+    id: 'ginger-farm-kitchen-thailand',
+    name: { th: 'จินเจอร์ ฟาร์ม คิทเช่น', en: 'Ginger Farm Kitchen' },
+    cuisine: { th: 'อาหารเหนือและอาหารไทย (ฟาร์มทูซิตี้)', en: 'Northern Thai & Thai cuisine (farm-to-city)' },
+    tags: ['northern-thai'],
+    logo: { src: 'https://images.squarespace-cdn.com/content/v1/5dcac1b37b75f56509c0a367/1577359518038-F21TWZ1SK7S55O0AKTQI/GFKlogo.png', alt: { th: 'โลโก้จินเจอร์ ฟาร์ม คิทเช่น', en: 'Ginger Farm Kitchen logo' }, kind: 'official-remote', sourceUrl: 'https://www.gingerfarmkitchen.com/', sourceLabel: { th: 'เว็บไซต์ทางการของ Ginger Farm Kitchen', en: 'Ginger Farm Kitchen official website' }, asOf: asOf40b },
   },
 ]
 
@@ -1478,6 +1507,146 @@ export const restaurantMenuItems: RestaurantMenuItem[] = [
       sourceLabel: { th: 'ภาพจากเว็บไซต์ทางการของไมเนอร์ฟู้ด เดอะสเต๊กแอนด์มอร์', en: 'Image from Minor Food official The Steak & More brand page' },
       asOf: '2026-09-30',
     },
+  },
+  {
+    id: 'getfresh-clean-khao-man-gai',
+    restaurantId: 'getfresh-thailand',
+    name: { th: 'ข้าวมันไก่คลีน', en: 'Clean Khao Man Gai' },
+    category: 'Rice & noodles',
+    nutrition: { kcal: 490, protein: 48, carbs: 50, fat: 10 },
+    nutritionSource: { confidence: 'estimated', note: getfreshEstimateNote, asOf: asOf40b },
+    tags: ['chicken', 'rice', 'high-protein'],
+    servingNote: { th: 'อกไก่ต้ม ข้าวกล้องออร์แกนิกหุงกับกระเทียม ผักกวางตุ้งนึ่ง และน้ำซุปใส พร้อมน้ำจิ้ม 3 อย่าง ตามเมนูทางการ ค่าประมาณสำหรับ 1 จาน', en: 'Poached chicken breast, garlic-infused organic brown rice, steamed bok choy and clear soup with three dipping sauces, per the official menu. Estimate is for one plate.' },
+    menuImage: {
+      src: 'https://getfresh.co.th/wp-content/uploads/2025/02/Clean-Khao-Man-Gai.png',
+      alt: { th: 'ข้าวมันไก่คลีนพร้อมอกไก่ต้ม ผักกวางตุ้ง น้ำซุปและน้ำจิ้ม', en: 'Clean khao man gai with sliced poached chicken, bok choy, soup and dipping sauces' },
+      kind: 'official-remote',
+      sourceUrl: 'https://getfresh.co.th/menu/clean-khao-man-gai/',
+      sourceLabel: getfreshImageSourceLabel,
+      asOf: asOf40b,
+    },
+  },
+  {
+    id: 'getfresh-clean-kaprao-gai',
+    restaurantId: 'getfresh-thailand',
+    name: { th: 'กะเพราไก่คลีน', en: 'Clean Kaprao Gai' },
+    category: 'Rice & noodles',
+    nutrition: { kcal: 590, protein: 48, carbs: 55, fat: 18 },
+    nutritionSource: { confidence: 'estimated', note: getfreshEstimateNote, asOf: asOf40b },
+    tags: ['chicken', 'rice', 'spicy', 'high-protein'],
+    servingNote: { th: 'อกไก่ผัดกะเพรา พริกหวาน กระเทียม พริกแดง และไข่ออร์แกนิก เสิร์ฟบนข้าวไรซ์เบอร์รี่หอมมะลิออร์แกนิก ตามเมนูทางการ ค่าประมาณสำหรับ 1 จาน', en: 'Chicken breast with Thai basil, bell peppers, roasted garlic, red chili and organic egg over organic jasmine riceberry, per the official menu. Estimate is for one plate.' },
+    menuImage: {
+      src: 'https://getfresh.co.th/wp-content/uploads/2022/03/Clean-Kra-Pao-Gai-1024x1024.png',
+      alt: { th: 'กะเพราไก่คลีนกับไข่ดาวบนข้าวไรซ์เบอร์รี่', en: 'Clean basil chicken topped with a fried egg on riceberry' },
+      kind: 'official-remote',
+      sourceUrl: 'https://getfresh.co.th/menu/clean-kaprao-gai/',
+      sourceLabel: getfreshImageSourceLabel,
+      asOf: asOf40b,
+    },
+  },
+  {
+    id: 'getfresh-vegan-mushroom-kaprao',
+    restaurantId: 'getfresh-thailand',
+    name: { th: 'กะเพราเห็ดวีแกน', en: 'Vegan Mushroom Kaprao' },
+    category: 'Rice & noodles',
+    nutrition: { kcal: 410, protein: 13, carbs: 63, fat: 12 },
+    nutritionSource: { confidence: 'estimated', note: getfreshEstimateNote, asOf: asOf40b },
+    tags: ['vegetarian', 'rice', 'spicy'],
+    servingNote: { th: 'เห็ดออร์แกนิกรวม พริกหวาน กระเทียม พริกแดง และใบกะเพรา เสิร์ฟบนข้าวไรซ์เบอร์รี่หอมมะลิออร์แกนิก ร้านระบุเป็นเมนูวีแกน ค่าประมาณสำหรับ 1 จาน', en: 'Mixed organic mushrooms, bell peppers, roasted garlic, red chili and Thai basil over organic jasmine riceberry; listed by the brand as vegan. Estimate is for one plate.' },
+    menuImage: {
+      src: 'https://getfresh.co.th/wp-content/uploads/2022/03/Vegan-Mushroom-Kaprao-1024x1024.png',
+      alt: { th: 'กะเพราเห็ดวีแกนกับข้าวไรซ์เบอร์รี่', en: 'Vegan mushroom basil stir-fry with riceberry' },
+      kind: 'official-remote',
+      sourceUrl: 'https://getfresh.co.th/menu/vegan-mushroom-kaprao/',
+      sourceLabel: getfreshImageSourceLabel,
+      asOf: asOf40b,
+    },
+  },
+  {
+    id: 'getfresh-korean-pork-bulgogi-bowl',
+    restaurantId: 'getfresh-thailand',
+    name: { th: 'ข้าวหน้าหมูบูลโกกิสไตล์เกาหลี', en: 'Korean Pork Bulgogi Bowl' },
+    category: 'Rice & noodles',
+    nutrition: { kcal: 640, protein: 44, carbs: 72, fat: 17 },
+    nutritionSource: { confidence: 'estimated', note: getfreshEstimateNote, asOf: asOf40b },
+    tags: ['pork', 'rice', 'high-protein'],
+    servingNote: { th: 'เนื้อสันในหมูหมักสไตล์เกาหลี กิมจิ หัวไชเท้าดอง แครอทงา ต้นหอม และไข่ออนเซ็นออร์แกนิก เสิร์ฟบนข้าวไรซ์เบอร์รี่หอมมะลิออร์แกนิก ตามเมนูทางการ ค่าประมาณสำหรับ 1 ชาม', en: 'Korean-spiced pork tenderloin, kimchi, pickled daikon, sesame carrots, spring onion and organic onsen egg over organic jasmine riceberry, per the official menu. Estimate is for one bowl.' },
+    menuImage: {
+      src: 'https://getfresh.co.th/wp-content/uploads/2024/04/Korean-Bulgogi-Bowl-Pork.png',
+      alt: { th: 'ข้าวหน้าหมูบูลโกกิสไตล์เกาหลีพร้อมกิมจิและไข่ออนเซ็น', en: 'Korean pork bulgogi bowl with kimchi and onsen egg' },
+      kind: 'official-remote',
+      sourceUrl: 'https://getfresh.co.th/menu/spicy-pork-bulgogi-bowl/',
+      sourceLabel: getfreshImageSourceLabel,
+      asOf: asOf40b,
+    },
+  },
+  {
+    id: 'getfresh-chicken-burrito-bowl',
+    restaurantId: 'getfresh-thailand',
+    name: { th: 'เบอร์ริโต้โบลว์ไก่', en: 'Chicken Burrito Bowl' },
+    category: 'Rice & noodles',
+    nutrition: { kcal: 860, protein: 53, carbs: 78, fat: 38 },
+    nutritionSource: { confidence: 'estimated', note: getfreshEstimateNote, asOf: asOf40b },
+    tags: ['chicken', 'rice'],
+    servingNote: { th: 'อกไก่ผัด หอมแดง พริกหวาน ข้าวโพดซัลซ่า ถั่วแดงปรุงรส ผักกาดหอม กัวคาโมเล ซาวครีม แรนช์ ชีสเชดดาร์ ท็อร์ทิลลาชิป และผักชี เสิร์ฟบนข้าวกล้องออร์แกนิก พร้อมซอสอะโดโบชิโปเทิล ตามเมนูทางการ ค่าประมาณสำหรับ 1 ชาม', en: 'Sauteed chicken breast, red onion, bell pepper, corn salsa, spiced red beans, shredded lettuce, guacamole, sour cream, ranch dressing, cheddar, tortilla chips and cilantro over organic brown rice, with adobo chipotle hot sauce, per the official menu. Estimate is for one bowl.' },
+    menuImage: {
+      src: 'https://getfresh.co.th/wp-content/uploads/2025/02/Chicken-Burrito-Bowl.png',
+      alt: { th: 'เบอร์ริโต้โบลว์ไก่กับถั่วแดง กัวคาโมเล และท็อร์ทิลลาชิป', en: 'Chicken burrito bowl with red beans, guacamole and tortilla chips' },
+      kind: 'official-remote',
+      sourceUrl: 'https://getfresh.co.th/menu/chicken-burrito-bowl/',
+      sourceLabel: getfreshImageSourceLabel,
+      asOf: asOf40b,
+    },
+  },
+  {
+    id: 'getfresh-atlantic-salmon-steak',
+    restaurantId: 'getfresh-thailand',
+    name: { th: 'สเต็กแซลมอนแอตแลนติก', en: 'Atlantic Salmon Steak' },
+    category: 'Grilled/BBQ',
+    nutrition: { kcal: 630, protein: 39, carbs: 34, fat: 36 },
+    nutritionSource: { confidence: 'estimated', note: getfreshEstimateNote, asOf: asOf40b },
+    tags: ['fish', 'grilled', 'high-protein'],
+    servingNote: { th: 'สเต็กแซลมอนแอตแลนติกย่าง มันบดผสมน้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิน สลัดเห็ดออร์แกนิกอุ่น และซอสครีมดิลล์ ตามเมนูทางการ ร้านไม่เผยแพร่น้ำหนักปลา ค่าประมาณสำหรับ 1 จาน', en: 'Grilled Atlantic salmon steak with extra-virgin-olive-oil mashed potato, warm organic mushroom salad and dill cream sauce, per the official menu. The brand does not publish the fish weight. Estimate is for one plate.' },
+  },
+  {
+    id: 'getfresh-minestrone',
+    restaurantId: 'getfresh-thailand',
+    name: { th: 'มิเนสโตรเนซุปผักอิตาเลียน', en: 'Minestrone' },
+    category: 'Soup',
+    nutrition: { kcal: 140, protein: 5, carbs: 25, fat: 3 },
+    nutritionSource: { confidence: 'estimated', note: getfreshEstimateNote, asOf: asOf40b },
+    tags: ['vegetarian', 'soup'],
+    servingNote: { th: 'ผักหั่นลูกเต๋าสไตล์อิตาเลียนในซุปมะเขือเทศ ใส่พาสต้าออร์โซและใบโหระพาสด ร้านระบุเป็นเมนูวีแกน ไม่เผยแพร่ปริมาตรต่อถ้วย ค่าประมาณสำหรับ 1 ถ้วยขนาดมาตรฐานโดยประมาณ', en: 'Diced Italian vegetables in tomato broth with orzo pasta and fresh basil; listed by the brand as vegan. The brand does not publish the bowl volume. Estimate assumes one regular bowl.' },
+  },
+  {
+    id: 'ginger-farm-khao-soi-gai',
+    restaurantId: 'ginger-farm-kitchen-thailand',
+    name: { th: 'ข้าวซอยไก่', en: 'Khao Soi Northern Style Noodle Curry with Crispy Noodle and Chicken' },
+    category: 'Rice & noodles',
+    nutrition: { kcal: 700, protein: 33, carbs: 62, fat: 36 },
+    nutritionSource: { confidence: 'estimated', note: gingerFarmEstimateNote, asOf: asOf40b },
+    tags: ['chicken', 'noodles', 'high-protein'],
+    servingNote: { th: 'ข้าวซอยไก่ เส้นหมี่ไข่ในน้ำแกงกะทิ โรยเส้นกรอบ ตามเมนูสาขาวันนิมมาน เชียงใหม่ ปี 2026 ค่าประมาณสำหรับ 1 ชาม', en: 'One bowl of chicken khao soi with crispy noodles, per the One Nimman, Chiang Mai 2026 menu. Availability varies by branch. Estimate is for one bowl.' },
+  },
+  {
+    id: 'ginger-farm-khanom-jeen-nam-ngiao',
+    restaurantId: 'ginger-farm-kitchen-thailand',
+    name: { th: 'ขนมจีนน้ำเงี้ยวเส้นข้าวกล้องเล้งกระดูก', en: 'Northern Thai Brown Rice Noodle Soup with Minced Pork, Pork Ribs, Tomato and Pork Blood' },
+    category: 'Rice & noodles',
+    nutrition: { kcal: 540, protein: 27, carbs: 60, fat: 21 },
+    nutritionSource: { confidence: 'estimated', note: gingerFarmEstimateNote, asOf: asOf40b },
+    tags: ['pork', 'noodles'],
+    servingNote: { th: 'ขนมจีนเส้นข้าวกล้องน้ำเงี้ยว หมูสับ เล้งกระดูกหมู มะเขือเทศ และเลือดหมู ตามเมนูสาขาวันนิมมาน เชียงใหม่ ปี 2026 ค่าประมาณสำหรับ 1 ชาม', en: 'One bowl of brown rice noodles in nam ngiao soup with minced pork, pork ribs, tomato and pork blood, per the One Nimman, Chiang Mai 2026 menu. Availability varies by branch. Estimate is for one bowl.' },
+  },
+  {
+    id: 'ginger-farm-herb-grilled-chicken-jaew',
+    restaurantId: 'ginger-farm-kitchen-thailand',
+    name: { th: 'ไก่หมักสมุนไพรย่าง เสิร์ฟพร้อมน้ำจิ้มแจ่ว', en: 'Herb-marinated Grilled Chicken served with Jaew Dip' },
+    category: 'Grilled/BBQ',
+    nutrition: { kcal: 420, protein: 45, carbs: 6, fat: 23 },
+    nutritionSource: { confidence: 'estimated', note: gingerFarmEstimateNote, asOf: asOf40b },
+    tags: ['chicken', 'grilled', 'high-protein'],
+    servingNote: { th: 'ไก่หมักสมุนไพรย่างกับน้ำจิ้มแจ่วเท่านั้น ไม่รวมข้าว ตามเมนูสาขาวันนิมมาน เชียงใหม่ ปี 2026 ร้านไม่เผยแพร่น้ำหนักไก่ ค่าประมาณจึงอิงเนื้อไก่ราว 170 กรัม', en: 'Herb-marinated grilled chicken with jaew dip only; rice is not included, per the One Nimman, Chiang Mai 2026 menu. The brand does not publish the chicken weight; the estimate assumes about 170 g of cooked chicken. Availability varies by branch.' },
   },
 ]
 

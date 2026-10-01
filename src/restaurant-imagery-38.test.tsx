@@ -63,15 +63,18 @@ const unapprovedIds = [
 
 const slice39aIds = ['steak-and-more-yum-woon-sen', 'steak-and-more-som-tam', 'ootoya-shima-hokke-grilled']
 
+// Slice 40B: five getfresh official-remote images, excluded from the 42-image Slice 38 baseline.
+const slice40bImageIds = ['getfresh-clean-khao-man-gai', 'getfresh-clean-kaprao-gai', 'getfresh-vegan-mushroom-kaprao', 'getfresh-korean-pork-bulgogi-bowl', 'getfresh-chicken-burrito-bowl']
+
 const slice38Ids = [...Object.keys(standaloneUrls), ...Object.keys(cropSheets)]
 
 describe('Slice 38 restaurant menu imagery', () => {
   it('keeps catalog counts and retains the 42-image Slice 38 baseline before Slice 39A additions', () => {
-    expect(restaurants).toHaveLength(13)
-    expect(restaurants.filter(restaurant => restaurant.logo)).toHaveLength(13)
-    expect(restaurantMenuItems).toHaveLength(84)
-    expect(restaurantMenuItems.filter(item => item.menuImage && !slice39aIds.includes(item.id))).toHaveLength(42)
-    expect(restaurantMenuItems.filter(item => !item.menuImage || slice39aIds.includes(item.id))).toHaveLength(42)
+    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
+    expect(restaurants.filter(restaurant => restaurant.logo)).toHaveLength(15)
+    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
+    expect(restaurantMenuItems.filter(item => item.menuImage && !slice39aIds.includes(item.id) && !slice40bImageIds.includes(item.id))).toHaveLength(42)
+    expect(restaurantMenuItems.filter(item => !item.menuImage || slice39aIds.includes(item.id) || slice40bImageIds.includes(item.id))).toHaveLength(52)
     expect(validateRestaurantMenuItems(restaurantMenuItems, restaurants)).toEqual([])
   })
 

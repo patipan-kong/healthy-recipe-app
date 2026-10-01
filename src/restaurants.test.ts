@@ -12,12 +12,12 @@ describe('restaurant validation', () => {
   })
 
   it('has real restaurant brands with a small, curated per-restaurant item count', () => {
-    expect(restaurants.length).toBeGreaterThanOrEqual(13)
+    expect(restaurants.length).toBeGreaterThanOrEqual(15)
     expect(restaurantMenuItems.length).toBeGreaterThanOrEqual(80)
     expect(restaurantMenuItems.length).toBeLessThanOrEqual(105)
     for (const restaurant of restaurants) {
       const count = restaurantMenuItems.filter(item => item.restaurantId === restaurant.id).length
-      expect(count).toBeGreaterThanOrEqual(5)
+      expect(count).toBeGreaterThanOrEqual(3) // Slice 40B: Ginger Farm Kitchen intentionally ships three single-serve dishes
       expect(count).toBeLessThanOrEqual(8)
     }
   })

@@ -59,10 +59,10 @@ function LocalMenu({ restaurantId, items }: { restaurantId: string; items?: Rest
 }
 
 describe('Slice 36 Restaurant Grid', () => {
-  it('renders all 13 restaurants as grid cards, every one with a logo and no initials-only card', () => {
+  it('renders all 15 restaurants as grid cards, every one with a logo and no initials-only card', () => {
     openRestaurantsGrid()
     const cards = qa('.restaurant-grid .restaurant-card')
-    expect(cards).toHaveLength(13)
+    expect(cards).toHaveLength(15) // 13 + getfresh and Ginger Farm Kitchen (Slice 40B)
     for (const card of cards) {
       expect(card.querySelector('img')).not.toBeNull()
       expect(card.querySelector('[data-identity-source="logo"]')).not.toBeNull()
@@ -165,7 +165,7 @@ describe('Slice 36 Menu Grid', () => {
   it('identifies the restaurant on global Explore cards only', () => {
     act(() => root.render(<App />))
     click(q('.explore-nav'))
-    expect(qa('.explore-view .menu-grid-card')).toHaveLength(84)
+    expect(qa('.explore-view .menu-grid-card')).toHaveLength(94)
     expect(qa('.explore-view .menu-grid-card').every(card => card.querySelector('.menu-item-restaurant'))).toBe(true)
     act(() => root.render(<LocalMenu restaurantId="ootoya-thailand" />))
     expect(qa('.menu-grid-card .menu-item-restaurant-line')).toHaveLength(0)
@@ -294,11 +294,11 @@ describe('Slice 36 unchanged boundaries', () => {
   })
 
   it('leaves catalog counts and relation data unchanged', () => {
-    expect(restaurants).toHaveLength(13)
-    expect(restaurantMenuItems).toHaveLength(84)
+    expect(restaurants).toHaveLength(15)
+    expect(restaurantMenuItems).toHaveLength(94)
     expect(restaurantMenuItems.filter(item => item.price)).toHaveLength(44)
-    expect(restaurantMenuItems.filter(item => item.menuImage)).toHaveLength(45) // 22 before Slice 38; 45 after Slice 39A
-    expect(restaurants.filter(restaurant => restaurant.logo)).toHaveLength(13)
+    expect(restaurantMenuItems.filter(item => item.menuImage)).toHaveLength(50) // 22 before Slice 38; 45 after Slice 39A; 50 after Slice 40B
+    expect(restaurants.filter(restaurant => restaurant.logo)).toHaveLength(15)
     expect(restaurants.filter(restaurant => !restaurant.logo)).toHaveLength(0)
     expect(recipeRestaurantRelations).toHaveLength(23)
   })
@@ -363,11 +363,11 @@ describe('Slice 36 polish', () => {
     act(() => root.render(<Cards items={restaurantMenuItems} />))
     const ids = renderedIds()
     expect(ids).toEqual(imageFirstMenuItems(restaurantMenuItems).map(item => item.id))
-    expect(ids).toHaveLength(84)
+    expect(ids).toHaveLength(94)
     const flags = qa('.menu-grid-card').map(card => card.dataset.hasImage === 'true')
-    expect(flags.filter(Boolean)).toHaveLength(45)
-    expect(flags.indexOf(false)).toBe(45)
-    expect(flags.lastIndexOf(true)).toBe(44)
+    expect(flags.filter(Boolean)).toHaveLength(50)
+    expect(flags.indexOf(false)).toBe(50)
+    expect(flags.lastIndexOf(true)).toBe(49)
     expect(ids.filter(id => restaurantMenuItems.find(item => item.id === id)!.menuImage)).toEqual(restaurantMenuItems.filter(item => item.menuImage).map(item => item.id))
     expect(qa('.menu-grid-divider')).toHaveLength(0)
   })

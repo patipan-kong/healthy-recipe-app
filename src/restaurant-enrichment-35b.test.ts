@@ -106,13 +106,13 @@ describe('Slice 35B verified restaurant content enrichment', () => {
   })
 
   it('reaches the expected raw coverage; after Slice 38 the only bundled menu images are official-sheet crops', () => {
-    expect(restaurants).toHaveLength(13)
-    expect(restaurantMenuItems).toHaveLength(84)
+    expect(restaurants).toHaveLength(15) // 13 + 2 (Slice 40B)
+    expect(restaurantMenuItems).toHaveLength(94) // 84 + 10 (Slice 40B)
     expect(restaurantMenuItems.filter(item => item.price)).toHaveLength(44)
-    // Slice 38 raised this from 22 to 42; Slice 39A to 45; its only bundled images are local crops of official menu sheets.
+    // Slice 38 raised this from 22 to 42; Slice 39A to 45; Slice 40B to 50 (five getfresh official-remote images); its only bundled images are local crops of official menu sheets.
     const images = restaurantMenuItems.filter(item => item.menuImage)
-    expect(images).toHaveLength(45)
-    expect(images.filter(item => item.menuImage?.kind === 'official-remote')).toHaveLength(34)
+    expect(images).toHaveLength(50)
+    expect(images.filter(item => item.menuImage?.kind === 'official-remote')).toHaveLength(39)
     expect(images.filter(item => item.menuImage?.kind === 'bundled').every(item => item.menuImage?.cropOf && item.menuImage.src.startsWith('/menu/'))).toBe(true)
   })
 })

@@ -23,8 +23,11 @@ const LOGO_IDS = [
   'zaab-eli-thailand',
   'somtam-nua-thailand',
   'thongsmith-boat-noodle-thailand',
+  // Slice 40B: getfresh (LINE OA mark linked from its site) and Ginger Farm Kitchen (own Squarespace asset).
+  'getfresh-thailand',
+  'ginger-farm-kitchen-thailand',
 ]
-const FIRST_PARTY_HOSTS = ['ootoya.co.th', '7eleven.co.th', 'jonessalad.com', 'fuji.co.th', 'mkrestaurant.com', 'sukiya.co.th', 'nittayakaiyang.com', 'minorfood.com']
+const FIRST_PARTY_HOSTS = ['ootoya.co.th', '7eleven.co.th', 'jonessalad.com', 'fuji.co.th', 'mkrestaurant.com', 'sukiya.co.th', 'nittayakaiyang.com', 'minorfood.com', 'gingerfarmkitchen.com', 'images.squarespace-cdn.com']
 // Slice 37B Tier A operator and Tier B brand-controlled channels, per docs/restaurant-asset-coverage-audit-37a.md.
 const BRAND_CONTROLLED_HOSTS = ['crg.co.th', 'profile.line-scdn.net', 'page.line.me', 'ugc.production.linktr.ee', 'linktr.ee']
 const ORIGINAL_ORDER = ['ootoya-thailand', 'salad-factory-thailand', 'seven-eleven-thailand', 'jones-salad-thailand', 'fuji-japanese-restaurant-thailand', 'mk-restaurants-thailand', 'sukiya-thailand', 'santa-fe-steak-thailand', 'nittaya-kai-yang-thailand', 'zaab-eli-thailand', 'somtam-nua-thailand', 'thongsmith-boat-noodle-thailand', 'steak-and-more-thailand']
@@ -43,7 +46,7 @@ describe('Slice 35C restaurant logos: data', () => {
     expect(new Set(restaurants.map(restaurant => restaurant.id)).size).toBe(restaurants.length)
     for (const { id, logo } of withLogo) {
       expect(logo!.kind, id).toBe('official-remote')
-      expect(logo!.asOf, id).toBe('2026-09-30')
+      expect(logo!.asOf, id).toBe(['getfresh-thailand', 'ginger-farm-kitchen-thailand'].includes(id) ? '2026-10-01' : '2026-09-30')
       expect(logo!.alt.th.trim() && logo!.alt.en.trim(), id).toBeTruthy()
       expect(logo!.sourceLabel.th.trim() && logo!.sourceLabel.en.trim(), id).toBeTruthy()
       for (const url of [logo!.src, logo!.sourceUrl]) {
@@ -69,15 +72,16 @@ describe('Slice 35C restaurant logos: data', () => {
   })
 
   it('keeps the restaurant source order unchanged', () => {
-    expect(restaurants.map(r => r.id)).toEqual(ORIGINAL_ORDER)
+    // Slice 40B appends getfresh and Ginger Farm Kitchen after the original 13, which keep their relative order.
+    expect(restaurants.map(r => r.id)).toEqual([...ORIGINAL_ORDER, 'getfresh-thailand', 'ginger-farm-kitchen-thailand'])
   })
 
   it('does not change catalog counts or menu-image semantics', () => {
-    expect(restaurants).toHaveLength(13)
-    expect(restaurantMenuItems).toHaveLength(84)
+    expect(restaurants).toHaveLength(15)
+    expect(restaurantMenuItems).toHaveLength(94)
     expect(restaurantMenuItems.filter(item => item.price).length).toBe(44)
     const images = restaurantMenuItems.filter(item => item.menuImage)
-    expect(images).toHaveLength(45) // 22 before Slice 38; 45 after Slice 39A
+    expect(images).toHaveLength(50) // 22 before Slice 38; 45 after Slice 39A; 50 after Slice 40B
     expect(images.every(item => item.menuImage!.kind === 'official-remote' || (item.menuImage!.kind === 'bundled' && item.menuImage!.cropOf))).toBe(true)
   })
 })
@@ -171,12 +175,12 @@ describe('Slice 35C restaurant logos: rendering', () => {
     expect(container.querySelectorAll('.restaurant-menu-view .menu-item-row')).toHaveLength(cardsBefore)
   })
 
-  it('shows all 13 rows with a logo each, and navigation still works', () => {
+  it('shows all 15 rows with a logo each, and navigation still works', () => {
     act(() => root.render(<App />))
     act(() => container.querySelector<HTMLButtonElement>('.restaurant-nav')?.click())
     const rows = [...container.querySelectorAll<HTMLElement>('.restaurant-row')]
-    expect(rows).toHaveLength(13)
-    expect(container.querySelectorAll('.restaurant-row img')).toHaveLength(13)
+    expect(rows).toHaveLength(15)
+    expect(container.querySelectorAll('.restaurant-row img')).toHaveLength(15)
     for (const restaurant of restaurants) {
       // Slice 36 presents logo-bearing restaurants first, so match rows by identity, not position.
       const row = rows.find(candidate => candidate.querySelector(`[data-restaurant-identity="${restaurant.id}"]`))!

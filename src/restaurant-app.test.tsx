@@ -1562,11 +1562,11 @@ describe('Restaurant visual identity pilot (Slice 15)', () => {
     container.remove()
   })
 
-  it('keeps all 13 restaurant names and gives every row a logo (Slice 35C, complete in Slice 37B)', () => {
+  it('keeps all 15 restaurant names and gives every row a logo (Slice 35C, complete in Slice 37B)', () => {
     act(() => container.querySelector<HTMLButtonElement>('.restaurant-nav')?.click())
     const rows = [...container.querySelectorAll<HTMLElement>('.restaurant-row')]
     expect(rows).toHaveLength(restaurants.length)
-    expect(rows.filter(row => row.querySelector('[data-identity-source="logo"]'))).toHaveLength(13)
+    expect(rows.filter(row => row.querySelector('[data-identity-source="logo"]'))).toHaveLength(15)
     expect(rows.filter(row => row.querySelector('[data-identity-source="pilot"]'))).toHaveLength(0)
     expect(rows.filter(row => row.querySelector('[data-identity-source="fallback"]'))).toHaveLength(0)
     for (const restaurant of restaurants) {

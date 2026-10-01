@@ -20,17 +20,24 @@ const cropSources: Record<string, string> = {
   'steak-and-more-som-tam': 'https://cdn.minorfood.com/uploaded/editor/20250122/body-3.jpg',
   'ootoya-shima-hokke-grilled': 'https://www.ootoya.co.th/upload_file/menu/Fish-Menu/%E0%B8%9B%E0%B8%A5%E0%B8%B2%E0%B8%8A%E0%B8%B4%E0%B8%A1%E0%B8%B2%E0%B8%AE%E0%B8%AD%E0%B8%81%E0%B9%80%E0%B8%81%E0%B8%B0%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B8%96%E0%B9%88%E0%B8%B2%E0%B8%99-big.png',
 }
+// Slice 40B adds five getfresh images, two restaurants and ten items; the 39A baselines below describe the catalog without them.
+const slice40bImageIds = ['getfresh-clean-khao-man-gai', 'getfresh-clean-kaprao-gai', 'getfresh-vegan-mushroom-kaprao', 'getfresh-korean-pork-bulgogi-bowl', 'getfresh-chicken-burrito-bowl']
+const slice40bBlockIds = [
+  'getfresh-thailand', 'ginger-farm-kitchen-thailand', ...slice40bImageIds, 'getfresh-atlantic-salmon-steak', 'getfresh-minestrone',
+  'ginger-farm-khao-soi-gai', 'ginger-farm-khanom-jeen-nam-ngiao', 'ginger-farm-herb-grilled-chicken-jaew',
+]
 const find = (id: string) => restaurantMenuItems.find(item => item.id === id)!
 const ids = (items: RestaurantMenuItem[]) => items.map(item => item.id)
 
 describe('Slice 39A approved imagery', () => {
-  it('adds only the three approved IDs and reaches 45/84 without hiding Somtam Nua', () => {
-    expect(restaurants).toHaveLength(13)
-    expect(restaurants.filter(item => item.logo)).toHaveLength(13)
-    expect(restaurantMenuItems).toHaveLength(84)
-    expect(restaurantMenuItems.filter(item => item.menuImage)).toHaveLength(45)
-    expect(restaurantMenuItems.filter(item => !item.menuImage)).toHaveLength(39)
-    expect(ids(restaurantMenuItems.filter(item => item.menuImage)).sort()).toEqual([...priorImageIds, ...approvedIds].sort())
+  it('adds only the three approved IDs and reaches 45/84 (before Slice 40B) without hiding Somtam Nua', () => {
+    const pre40b = restaurantMenuItems.filter(item => !item.id.startsWith('getfresh-') && !item.id.startsWith('ginger-farm-'))
+    expect(restaurants.filter(item => !slice40bBlockIds.includes(item.id))).toHaveLength(13)
+    expect(restaurants.filter(item => item.logo && !slice40bBlockIds.includes(item.id))).toHaveLength(13)
+    expect(pre40b).toHaveLength(84)
+    expect(pre40b.filter(item => item.menuImage)).toHaveLength(45)
+    expect(pre40b.filter(item => !item.menuImage)).toHaveLength(39)
+    expect(ids(restaurantMenuItems.filter(item => item.menuImage && !slice40bImageIds.includes(item.id))).sort()).toEqual([...priorImageIds, ...approvedIds].sort())
     for (const id of ['jones-mushroom-soup', 'thongsmith-spicy-shredded-chicken-dry']) expect(find(id).menuImage, id).toBeUndefined()
     expect(restaurants.some(item => item.id === 'somtam-nua-thailand')).toBe(true)
     const somtam = restaurantMenuItems.filter(item => item.restaurantId === 'somtam-nua-thailand')
@@ -72,7 +79,12 @@ describe('Slice 39A approved imagery', () => {
 
   it('pins catalog fields after the approved Slice 39C partial corrections and preserves recipe relations', () => {
     const source = readFileSync(resolve(__dirname, 'restaurants.ts'), 'utf8').replace(/\r\n/g, '\n')
-    const catalog = source.slice(source.indexOf('export const restaurants:'), source.indexOf('export const emptyRestaurantMenuFilters'))
+    const withoutSlice40b = slice40bBlockIds.reduce((text, id) => {
+      const start = text.indexOf(`  {\n    id: '${id}'`)
+      expect(start, id).toBeGreaterThan(0)
+      return text.slice(0, start) + text.slice(text.indexOf('\n  },', start) + 6)
+    }, source)
+    const catalog = withoutSlice40b.slice(withoutSlice40b.indexOf('export const restaurants:'), withoutSlice40b.indexOf('export const emptyRestaurantMenuFilters'))
       .replace(/^    menuImage: \{[\s\S]*?^    \},\n/gm, '')
     expect(createHash('sha256').update(catalog).digest('hex')).toBe('274bf04d731192e8ec565db750e823514560c9cbd4b073f339322b33ff350b9b')
     const relations = readFileSync(resolve(__dirname, 'recipe-restaurant-relations.ts'))
