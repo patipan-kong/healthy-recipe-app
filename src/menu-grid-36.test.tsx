@@ -3,7 +3,7 @@ import { act, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App, { ExploreView, RestaurantListView, RestaurantMenuView } from './App'
-import { imageFirstMenuItems, logoFirstRestaurants } from './menu-presentation'
+import { imageFirstMenuItems, logoFirstRestaurants, rankRestaurantsForGrid } from './menu-presentation'
 import { chooseRandom, recipes } from './recipes'
 import { recipeRestaurantRelations, relatedRecipesForMenuItem } from './recipe-restaurant-relations'
 import { restaurantMenuItems, restaurants, searchRestaurantMenuItems } from './restaurants'
@@ -74,11 +74,12 @@ describe('Slice 36 Restaurant Grid', () => {
     expect(card.querySelector('[data-restaurant-identity]')!.textContent).not.toBe('')
   })
 
-  it('presents logo-bearing restaurants first, in catalog order inside each group', () => {
+  it('presents logo-bearing restaurants first, completeness-ranked inside each group (Slice 41)', () => {
     openRestaurantsGrid()
     const cards = qa('.restaurant-grid .restaurant-card')
-    const withLogo = restaurants.filter(restaurant => restaurant.logo)
-    const without = restaurants.filter(restaurant => !restaurant.logo)
+    const ranked = rankRestaurantsForGrid(restaurants, restaurantMenuItems)
+    const withLogo = ranked.filter(restaurant => restaurant.logo)
+    const without = ranked.filter(restaurant => !restaurant.logo)
     expect(cards.map(card => card.querySelector('[data-restaurant-identity]')!.getAttribute('data-restaurant-identity'))).toEqual([...withLogo, ...without].map(restaurant => restaurant.id))
     expect(cards.slice(0, withLogo.length).every(card => card.querySelector('img'))).toBe(true)
     expect(cards.slice(withLogo.length).every(card => !card.querySelector('img'))).toBe(true)

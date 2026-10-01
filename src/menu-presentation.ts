@@ -15,3 +15,37 @@ export function logoFirstRestaurants(list: readonly Restaurant[]): Restaurant[] 
 export function imageFirstMenuItems(list: readonly RestaurantMenuItem[]): RestaurantMenuItem[] {
   return stablePartition(list, item => Boolean(item.menuImage))
 }
+
+export type RestaurantCompleteness = {
+  totalMenuItems: number
+  imageCount: number
+  pricedItemCount: number
+  imageCoverage: number
+  priceCoverage: number
+}
+
+/** Derived (never stored) menu-data completeness for one restaurant; zero items yields 0 coverage, never NaN. */
+export function restaurantCompleteness(restaurantId: string, menuItems: readonly RestaurantMenuItem[]): RestaurantCompleteness {
+  const items = menuItems.filter(item => item.restaurantId === restaurantId)
+  const totalMenuItems = items.length
+  const imageCount = items.filter(item => Boolean(item.menuImage)).length
+  const pricedItemCount = items.filter(item => Boolean(item.price)).length
+  return {
+    totalMenuItems,
+    imageCount,
+    pricedItemCount,
+    imageCoverage: totalMenuItems > 0 ? imageCount / totalMenuItems : 0,
+    priceCoverage: totalMenuItems > 0 ? pricedItemCount / totalMenuItems : 0,
+  }
+}
+
+/**
+ * Restaurant Grid presentation order: image coverage DESC, price coverage DESC, menu size DESC, then original
+ * position ASC. Returns a ranked copy; the input is not mutated and this must not feed random/pick pools.
+ */
+export function rankRestaurantsForGrid(list: readonly Restaurant[], menuItems: readonly RestaurantMenuItem[]): Restaurant[] {
+  return list
+    .map((restaurant, position) => ({ restaurant, position, ...restaurantCompleteness(restaurant.id, menuItems) }))
+    .sort((a, b) => b.imageCoverage - a.imageCoverage || b.priceCoverage - a.priceCoverage || b.totalMenuItems - a.totalMenuItems || a.position - b.position)
+    .map(entry => entry.restaurant)
+}

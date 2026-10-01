@@ -3,7 +3,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import App from './App'
-import { imageFirstMenuItems, logoFirstRestaurants } from './menu-presentation'
+import { imageFirstMenuItems, logoFirstRestaurants, rankRestaurantsForGrid } from './menu-presentation'
 import { restaurantMenuItems, restaurants } from './restaurants'
 
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
@@ -38,7 +38,7 @@ describe('Restaurant detail return navigation', () => {
     expect(q('.restaurant-brand-header [data-restaurant-identity]')).toBeTruthy()
     expect(q('.restaurant-menu-nav .filter-button').getAttribute('aria-label')).toBeTruthy()
     click('.restaurant-back')
-    expect(gridIds()).toEqual(logoFirstRestaurants(restaurants).map(item => item.id))
+    expect(gridIds()).toEqual(logoFirstRestaurants(rankRestaurantsForGrid(restaurants, restaurantMenuItems)).map(item => item.id))
     expect(container.querySelector('.restaurant-menu-view')).toBeNull()
   })
 
@@ -54,7 +54,7 @@ describe('Restaurant detail return navigation', () => {
     expect(q('.menu-filter-panel')).toBeTruthy()
     click('.restaurant-back')
     expect(container.querySelector('.restaurant-pick-card')).toBeNull()
-    expect(gridIds()).toEqual(logoFirstRestaurants(restaurants).map(item => item.id))
+    expect(gridIds()).toEqual(logoFirstRestaurants(rankRestaurantsForGrid(restaurants, restaurantMenuItems)).map(item => item.id))
     openOotoya()
     expect(container.querySelector('.menu-filter-panel')).toBeNull()
     expect(q('.menu-grid-card .menu-favorite-toggle').getAttribute('aria-pressed')).toBe('true')
@@ -66,7 +66,7 @@ describe('Restaurant detail return navigation', () => {
     click('.menu-detail-restaurant')
     expect(q('.restaurant-menu-view')).toBeTruthy()
     click('.restaurant-back')
-    expect(gridIds()).toEqual(logoFirstRestaurants(restaurants).map(item => item.id))
+    expect(gridIds()).toEqual(logoFirstRestaurants(rankRestaurantsForGrid(restaurants, restaurantMenuItems)).map(item => item.id))
     expect(container.querySelector('.explore-view')).toBeNull()
   })
 })

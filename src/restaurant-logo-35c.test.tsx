@@ -192,7 +192,8 @@ describe('Slice 35C restaurant logos: rendering', () => {
       expect(row.querySelectorAll('[data-restaurant-identity]')).toHaveLength(1)
       if (hasLogo) expect(row.querySelector('[data-restaurant-identity]')!.textContent).toBe('')
     }
-    act(() => rows[0].click())
+    // Slice 41 ranks the grid by completeness, so the first card is no longer Ootoya; open it by identity.
+    act(() => rows.find(candidate => candidate.querySelector('[data-restaurant-identity="ootoya-thailand"]'))!.click())
     expect(container.querySelector('.restaurant-row')).toBeNull()
     expect(container.textContent).toContain('โอโตยะ')
   })

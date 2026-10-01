@@ -14,7 +14,7 @@ import { relatedMenuItemsForRecipe, relatedRecipesForMenuItem } from './recipe-r
 import { RestaurantIdentity } from './restaurant-identity'
 import { MealContextDetails } from './meal-context-ui'
 import { MenuItemImage } from './menu-image'
-import { imageFirstMenuItems, logoFirstRestaurants } from './menu-presentation'
+import { imageFirstMenuItems, logoFirstRestaurants, rankRestaurantsForGrid } from './menu-presentation'
 import type { ExplorePresetId, Filters, Locale, Recipe, Restaurant, RestaurantMenuFilters, RestaurantMenuItem } from './types'
 
 const categories = ['Quick meals', 'Thai favorites', 'High protein', 'Plant-forward', 'Light bowls']
@@ -448,7 +448,7 @@ export function RestaurantListView({ locale, onOpen, onOpenMenuItem, favoriteIds
       </article>}
     </section>
     {pickedMeal && <AdSlot placement="restaurant-pick" />}
-    {restaurantList.length ? <div className="restaurant-grid"><AdFeed placement="restaurant-feed">{logoFirstRestaurants(restaurantList).map(restaurant => <button key={restaurant.id} className="restaurant-row restaurant-card" onClick={() => onOpen(restaurant.id)} aria-label={copy.openRestaurant(restaurant.name[locale])}><RestaurantIdentity restaurant={restaurant} locale={locale} size="tile" showLogo /><span className="restaurant-card-copy"><b>{restaurant.name[locale]}</b>{restaurant.cuisine && <em>{restaurant.cuisine[locale]}</em>}</span><ChevronRight className="restaurant-card-chevron" size={17} aria-hidden="true" /></button>)}</AdFeed></div>
+    {restaurantList.length ? <div className="restaurant-grid"><AdFeed placement="restaurant-feed">{logoFirstRestaurants(rankRestaurantsForGrid(restaurantList, menuItems)).map(restaurant => <button key={restaurant.id} className="restaurant-row restaurant-card" onClick={() => onOpen(restaurant.id)} aria-label={copy.openRestaurant(restaurant.name[locale])}><RestaurantIdentity restaurant={restaurant} locale={locale} size="tile" showLogo /><span className="restaurant-card-copy"><b>{restaurant.name[locale]}</b>{restaurant.cuisine && <em>{restaurant.cuisine[locale]}</em>}</span><ChevronRight className="restaurant-card-chevron" size={17} aria-hidden="true" /></button>)}</AdFeed></div>
       : <div className="empty restaurant-empty" role="status"><span aria-hidden="true">🍽️</span><h3>{copy.restaurantsEmptyTitle}</h3><p>{copy.restaurantsEmptyText}</p></div>}
   </section>
 }
