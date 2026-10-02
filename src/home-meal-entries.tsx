@@ -25,10 +25,12 @@ export function HomeMealEntries({ locale, onRestaurants, onMeals, onRandomRestau
         <b>{th ? 'ดูเมนูทั้งหมด' : 'Browse meals'} <ChevronRight size={16} aria-hidden="true" /></b>
       </button>
     </div>
-    <h2 className="home-random-heading">{th ? 'มื้อนี้ลอง...' : 'For this meal, try...'}</h2>
-    <div className="home-entry-pair home-random-pair">
-      <button type="button" className="home-entry" onClick={onRandomRestaurant}><Shuffle size={22} aria-hidden="true" /><strong>{th ? 'สุ่มร้านให้หน่อย' : 'Pick a restaurant'}</strong><span>{th ? `จาก ${restaurants.length} ร้าน` : `From ${restaurants.length} restaurants`}</span></button>
-      <button type="button" className="home-entry" onClick={onRandomMeal}><Utensils size={22} aria-hidden="true" /><strong>{th ? 'สุ่มเมนูให้หน่อย' : 'Pick an Everyday Meal'}</strong><span>{th ? `จาก ${everydayMeals.length} เมนู` : `From ${everydayMeals.length} meals`}</span></button>
+    <div className="home-random-section">
+      <h2 className="home-random-heading">{th ? 'มื้อนี้ลอง...' : 'For this meal, try...'}</h2>
+      <div className="home-entry-pair home-random-pair">
+        <button type="button" className="home-entry" onClick={onRandomRestaurant}><Shuffle size={22} aria-hidden="true" /><strong>{th ? 'สุ่มร้านให้หน่อย' : 'Pick a restaurant'}</strong><span>{th ? `จาก ${restaurants.length} ร้าน` : `From ${restaurants.length} restaurants`}</span></button>
+        <button type="button" className="home-entry" onClick={onRandomMeal}><Utensils size={22} aria-hidden="true" /><strong>{th ? 'สุ่มเมนูให้หน่อย' : 'Pick an Everyday Meal'}</strong><span>{th ? `จาก ${everydayMeals.length} เมนู` : `From ${everydayMeals.length} meals`}</span></button>
+      </div>
     </div>
   </>
 }
